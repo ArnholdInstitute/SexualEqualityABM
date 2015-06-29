@@ -189,7 +189,7 @@ class NetworkBase:
     def NetworkBase_getNetworkAttitude(self):
         SEStotal = 0
         for agent in Agents:
-            SEStotal += Agents[agent].Agent_getOverallAttitude()
+            SEStotal += Agents[agent].attitude
 
         self.networkSES = SEStotal/len(Agents)
         return networkSES

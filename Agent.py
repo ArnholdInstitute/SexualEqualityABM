@@ -9,6 +9,7 @@
 
 import sys
 import os
+import math
 import random
 import numpy as np
 
@@ -224,20 +225,41 @@ class Agent:
         edges_to_add = zip(node_list, target_nodes)
         network.networkBase.addEdges(edges_to_add)
 
-    def Agent_getOverallAttitude(self): 
-        percentConnect = self.network.\
-            NetworkBase_findPercentConnectedMinority()
-        return self.baseAttitude + .75 * percentConnect
-
+    #################################################################
+    # Determines how a given agent will have influence a bill       #
+    # his socio-economic standing and attitude towards minorities   #
+    #################################################################
     def Agent_getInfluence(self):
-        attitude = self.Agent_getOverallAttitude()
-        return attitude * self.currentSES ** 2
+        return self.attitude * self.currentSES ** 2
 
+    #################################################################
+    # Given a bill's effectiveness, determines how much relative    #
+    # impact an agent will have on its passing                      #
+    #################################################################
     def Agent_getBillInfluence(self, billRank):
         influence = self.Agent_getInfluence()
         return influence/(billRank ** 2)
 
+    #################################################################
+    # Given an agent, updates his attitude towards sexual minorities#
+    # based on the presence of unconcealed minorities in his network#
+    #################################################################
+    def Agent_updateAttitude(self): 
+        percentConnect = self.network.\
+            NetworkBase_findPercentConnectedMinority()
+        self.attitude = self.baseAttitude + .75 * percentConnect
+
+    #################################################################
+    # Given an agent, updates the support he received based on his  #
+    # economic status and current attitudes towards minorities. If  #
+    # not a minority, returns 1.0                                   #
+    #################################################################
     def Agent_updateSupport(self):
+        FULL_SUPPORT = 1.0
+        if not self.isMinority:
+            return FULL_SUPPORT
+
+        # Network and local SES use "caching" to reduce number calcs
         networkSES = self.network.networkSES
         if networkSES = 0:
             networkSES = self.network.NetworkBase_getNetworkSES()
@@ -252,20 +274,88 @@ class Agent:
 
         self.support = localSES/globalSES * localConnect * att
 
+    #################################################################
+    # Given an agent, updates his discrimination, based on whether  #
+    # or not he is concealed and the overall network sentiments     #
+    # towards minorities, expressed through the presence of policies#
+    # and attitudes                                                 #
+    #################################################################
     def Agent_updateDiscrimination(self):
+        numPolicies = self.network.policyScore
+        totalInfluence = NetworkBase_getTotalInfluence
+        maxInfluence = NetworkBase_getMaxTotalInfluence
 
-    def Agent_updateAttitudes(self):
+        concealment = 1.0
+        if self.isConcealed:
+            concealment *= 2.0
 
+        self.discrimination = concealment * (1 - (numPolicies/125 + \
+            totalInfluence/maxInfluence))
+
+    #################################################################
+    # Given an agent, updates his concealment, based on the network #
+    # sentiments and local support. Probabilistically determines if #
+    # agent becomes concealed or not. Note: If an agent becomes     #
+    # concealed in the simulation, he can later unconceal himself or#
+    # vice versa                                                    #
+    #################################################################
     def Agent_updateConcealment(self):
+        numPolicies = self.network.policyScore
+        probConceal = self.discrimination/(self.support * \
+            numPolicies/125)
 
+        rand = random.random()
+        if rand < probConceal:
+            self.isConcealed = True
+        else:
+            self.isConcealed = False
+
+    #################################################################
+    # Given an agent, updates his depression status, based on the   #
+    # local and network settings. Note: If agent becomes depressed  #
+    # the property remains for the duration of the simulation (can't#
+    # become 'undepressed')                                         #
+    #################################################################
     def Agent_updateDepression(self):
+        if self.isDepressed:
+            return
 
+        deltaSES = self.currentSES - self.childSES
+        probDepress = math.exp(deltaSES)/self.support
+        probDepress += oldDepression
+
+        if self.isMinority:
+            # If concealed, greater chance of depression
+            concealment = 1.0
+            if self.isConcealed:
+                concealment *= 2.0
+
+            numPolicies = self.network.policyScore
+            percentConnect = self.network.\
+                NetworkBase_findPercentConnectedMinority()
+
+            probIncrease = self.discrimination * concealment/\
+                (numPolicies/125 * percentConnect)
+            probDepress += probIncrease
+
+        rand = random.random()
+        if rand < probDepress:
+            self.isDepressed = True
+        else:
+            self.isDepressed = False
+
+    #################################################################
+    # Given an agent, updates his attitudes towards minorities, does#
+    # a simulated passing of policy, updates support, discrimination#
+    # concealment, and depression for a single time step            #                                                   
+    #################################################################
     def Agent_updateAgent(self):
+        self.Agent_updateAttitudes()
+
         newPolicy = Policy()
         newPolicy.Policy_considerPolicy(self.network) 
 
-        Support 
-        Discrimination 
-        Attitudes 
-        Concealment 
-        Depression 
+        self.Agent_updateSupport ()
+        self.Agent_updateDiscrimination()
+        self.Agent_updateConcealment()
+        self.Agent_updateDepression()
