@@ -7,26 +7,43 @@
 #####################################################################
 
 #####################################################################
+# Given variable, performs a generic check on if the variable is of #
+# type typeCheck                                                    #
+#####################################################################
+def Verification_genericVerify(var, text, typeCheck, typeText):
+    if not isinstance(var, typeCheck):
+        sys.stderr.write("{} must be of "
+            "type {}".replace(text, typeText))
+        return False
+    return True
+
+#####################################################################
 # Given variable, ensures it is a float. If not, use text to provide#
 # an error message                                                  #
 #####################################################################
 def Verification_verifyFloat(var, text):
-    if not isinstance(var, float):
-        sys.stderr.write("{} must be of "
-            "type double/float".replace(text))
-        return False
-    return True
+    return Verification_genericVerify(var, text, float, "float")
 
 #####################################################################
 # Given variable, ensures it is a bool. If not, uses text to provide#
 # an error message                                                  #
 #####################################################################
 def Verification_verifyBool(var, text):
-    if not isinstance(var, bool):
-        sys.stderr.write("{} must be of "
-            "type bool".replace(text))
-        return False
-    return True
+    return Verification_genericVerify(var, text, bool, "bool")
+
+#####################################################################
+# Given variable, ensures it is a int. If not, uses text to provide #
+# an error message                                                  #
+#####################################################################
+def Verification_verifyInt(var, text):
+    return Verification_genericVerify(var, text, int, "int")
+
+#####################################################################
+# Given variable, ensures it is a str. If not, uses text to provide #
+# an error message                                                  #
+#####################################################################
+def Verification_verifyStr(var, text):
+    return Verification_genericVerify(var, text, str, "str")
 
 #####################################################################
 # Given variable, ensures it is between 0.0 and 1.0. If not, text is#

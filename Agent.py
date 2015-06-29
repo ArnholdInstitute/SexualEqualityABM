@@ -29,7 +29,63 @@ except ImportError:
 #####################################################################
 class AgentFactory(object):
     def AgentFactory_createAgent(network, agentID):
+        # Constant values (can change for variation in simulation)
+        PROB_MINORITY = .30
+        PROB_CONCEAL = .50
+        BASELINE_ATTITUDE = .25
+
+        BASELINE_DISCRIMINATION = .40
+        BASELINE_SUPPORT = .50 
+
+        CONCEAL_DEPRESS_PROB = .40
+        UNCONCEAL_DEPRESS_PROB = .15
         
+        CENTER_SES_RAND = 3
+
+        rand = random.random()
+        isMinority = False
+        if rand <= PROB_MINORITY:
+            isMinority = True
+        
+        childSES = np.random.poisson(CENTER_SES_RAND)/10
+        oldSES = np.random.poisson(CENTER_SES_RAND)/10
+        currentSES = np.random.poisson(CENTER_SES_RAND)/10
+        
+        minorityAttitude = random.random() * BASELINE_ATTITUDE 
+ 
+        discrimination = random.random() * BASELINE_DISCRIMINATION
+        support = random.random() * BASELINE_SUPPORT
+
+        # For simplicity in network calculations, assumed to be false
+        # if the person is not of sexual minority
+        rand = random.random()
+        if not isMinority:
+            isConcealed = False
+        elif rand < PROB_CONCEAL:
+            isConcealed = True
+        else: 
+            isConcealed = False
+
+        if isConcealed:
+            rand = random.random()
+            oldDepression = rand * CONCEAL_DEPRESS_PROB
+            rand = random.random()
+            currentDepression = rand * CONCEAL_DEPRESS_PROB
+        else:
+            rand = random.random()
+            oldDepression = rand * UNCONCEAL_DEPRESS_PROB
+            rand = random.random()
+            currentDepression = rand * UNCONCEAL_DEPRESS_PROB
+
+        rand = random.random()
+        isDepressed = False
+        if rand < currentDepression:
+            isDepressed = True
+
+        agent = Agent(childSES, oldSES, currentSES, minorityAttitude, 
+            isMinority, discrimination, support, isConcealed, 
+            oldDepression, currentDepression, isDepressed, network,
+            agentID)
         return agent
 
 #####################################################################
@@ -50,10 +106,12 @@ class Agent:
     #################################################################
     def __init__(self, childSES, oldSES, currentSES, minorityAttitude, 
             isMinority, discrimination, support, isConcealed, 
-            oldDepression, currentDepression, isDepressed):
+            oldDepression, currentDepression, isDepressed, network,
+            agentID):
         if not self.Agent_verifyAgent(childSES, oldSES, currentSES, 
             minorityAttitude, isMinority, discrimination, support, 
-            isConcealed, oldDepression, currentDepression, isDepressed):
+            isConcealed, oldDepression, currentDepression, isDepressed,
+            agentID):
             return None
 
         self.childSES = childSES
@@ -69,7 +127,10 @@ class Agent:
         self.isConcealed = isConcealed
         self.oldDepression = oldDepression
         self.currentDepression = currentDepression
-        self.isDepressed = isDepressed    
+        self.isDepressed = isDepressed
+
+        self.network = network
+        self.agentID = agentID
 
     #################################################################
     # Checks that, given all the parameters used to initialize the  #
@@ -77,7 +138,7 @@ class Agent:
     #################################################################
     def Agent_verifyAgent(self, childSES, oldSES, currentSES, 
         baseAttitude, isMinority, discrimination, support, isConcealed, 
-        oldDepression, currentDepression, isDepressed):
+        oldDepression, currentDepression, isDepressed, agentID):
         # Contains all the float variables to be checked for bounded
         # conditions, namely between 0.0-1.0
         boundsVerficationDict = {
@@ -96,6 +157,9 @@ class Agent:
             isConcealed: "isConcealed", 
             isDepressed: "isDepressed" 
         }
+
+        if not Verification_verifyInt(agentID, "agentID"):
+            return False
 
         for toCheck in boundsVerficationDict:
             if not Verification_verifyFloat(toCheck, 
@@ -135,11 +199,12 @@ class Agent:
         # To add edges per the B-A algorithm, we compute probabilities
         # for each node multiplying by nConnections, then partition the
         # probability space per the probabilities.  Every time we find a
-        # match, we add one to the random number.  So, for example, suppose we
-        # have four nodes with p1=0.5, p2=0.75, p3=0.5 and p4=0.25.  If our
-        # random number is 0.38, we'll first pick node 1, since 0 < .38 < .5,
-        # then skip node 2, since 1.38 > 1.25 (=0.5+0.75), then pick node 3,
-        # since 1.25 < 1.38 < 1.75, then skip node 4, since 2.38 > 2.0
+        # match, we add one to the random number.  So, for example, 
+        # suppose we have four nodes with p1=0.5, p2=0.75, p3=0.5 and 
+        # p4=0.25.  If our random number is 0.38, we'll first pick node 1, 
+        # since 0 < .38 < .5, then skip node 2, since 1.38 > 1.25 
+        # (=0.5+0.75), then pick node 3, since 1.25 < 1.38 < 1.75, then 
+        # skip node 4, since 2.38 > 2.0
 
         # Note that because we randomized candidates above, the selection is
         # truly random.
@@ -160,10 +225,17 @@ class Agent:
         network.networkBase.addEdges(edges_to_add)
 
     def Agent_getOverallAttitude(self): 
+        percentConnect = self.network.\
+            NetworkBase_findPercentConnectedMinority()
+        return self.baseAttitude + .75 * percentConnect
 
     def Agent_getInfluence(self):
+        attitude = self.Agent_getOverallAttitude()
+        return attitude * self.currentSES ** 2
 
-    def Agent_getBillInfluence(self):
+    def Agent_getBillInfluence(self, billRank):
+        influence = self.Agent_getInfluence()
+        return influence/(billRank ** 2)
 
     def Agent_updateSupport(self):
 
@@ -176,7 +248,9 @@ class Agent:
     def Agent_updateDepression(self):
 
     def Agent_updateAgent(self):
-        Policies 
+        newPolicy = Policy()
+        newPolicy.Policy_considerPolicy(self.network) 
+
         Support 
         Discrimination 
         Attitudes 

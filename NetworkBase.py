@@ -10,6 +10,8 @@ import os
 import random
 from numpy import array, zeros, std, mean, sqrt
 
+from Verification import *
+
 import matplotlib.pyplot as plt
 from operator import itemgetter 
 
@@ -24,25 +26,19 @@ class NetworkBase:
     # Initializes the base of the network with the type it is to be #
     # i.e. SW, ER, etc... and number of coaches                     #
     #################################################################
-    def __init__(self, networkType, maxCoachCount):
+    def __init__(self, networkType):
         if not self.NetworkBase_verifyBase(networkType, maxCoachCount):
             return None
         self.networkType = networkType
-        self.maxCoachCount = maxCoachCount
-        self.coachCount = 0
+        self.policyScore = 0
+        self.policies = []
 
     #################################################################
     # Given parameters for initializing the network base, ensures   #
     # it is legal                                                   #  
     #################################################################
-    def NetworkBase_verifyBase(self, networkType, maxCoachCount):
-        if not isinstance(networkType, str):
-            sys.stderr.write("networkType level must be of type " +
-                "string (word)")
-            return False
-
-        if not isinstance(maxCoachCount, int):
-            sys.stderr.write("maxCoachCount level must be of type int")
+    def NetworkBase_verifyBase(self, networkType):
+        if not Verification_verifyStr(networkType):
             return False
         return True
 
@@ -66,18 +62,9 @@ class NetworkBase:
     # at, if the "effectiveness" of the coaches is different, how   #
     # would the final results vary) with default values given       #
     #################################################################
-    def NetworkBase_updateAgents(self, time, timeImpact = .005, 
-            coachImpact = .225, pastImpact = .025, 
-            socialImpact = .015): 
-        # Since we wished for update to happen synchronously, the
-        # first loop determines and stores all the values to which 
-        # the SE will change and the second then updates all agents
-
+    def NetworkBase_updateAgents(self): 
         for agentID in self.Agents:
-            self.Agents[agentID].Agent_timeStep(timeImpact, coachImpact,\
-                pastImpact, socialImpact, time)
-        for agentID in self.Agents:
-            self.Agents[agentID].SE = self.Agents[agentID].toUpdateSE
+            self.Agents[agentID].Agent_timeStep()
 
     #################################################################
     # Given a list of nodes, adds edges between all of them         #
@@ -119,17 +106,68 @@ class NetworkBase:
         agentID = agent.agentID
         return nx.neighbors(self.G, agentID)
 
-    def Network_updatePolicy(self):
+    #################################################################
+    # Given a policy, adds it to the policies present in the network#
+    # and updates corresponding network score                       #
+    #################################################################
+    def NetworkBase_addToPolicies(self, policy):
+        self.policyScore += policy.score
+        self.policies.append(policy)
 
-    def NetworkBase_getMinorityNodes(self):
+    #################################################################
+    # Determines all the nodes in the overall network/graph that are#
+    # or are not of sexual minority: distinguishes based on value of#
+    # boolWantMinority. If specified as true, returns minority nodes#
+    # in an array; otherwise, returns those nodes not minority      #
+    #################################################################
+    def NetworkBase_getMinorityNodes(self, boolWantMinority):
+        collectNodes = []
+        for agent in Agents:
+            curAgent = Agents[agent]
+            if boolWantMinority:
+                if curAgent.isMinority:
+                    collectNodes.append(curAgent)
+            else:
+                if not curAgent.isMinority:
+                    collectNodes.append(curAgent)
+        return collectNodes
 
-    def NetworkBase_getNonMinorityNodes(self):
+    #################################################################
+    # Finds the percentage of locally connected nodes (to some given#
+    # agent) marked as of sexual minority                           #
+    #################################################################
+    def NetworkBase_findPercentConnectedMinority(self, agent):
+        neighbors = self.NetworkBase_getNeighbors(agent)
+        totalCount = 0
+        minorityCount = 0
 
-    def NetworkBase_findPercentMinority(self):
+        for neighbor in neighbors:
+            if not Agents[neighbor].isConcealed:
+                minorityCount += 1
+            totalCount += 1
+        return minorityCount/totalCount
 
-    def NetworkBase_getTotalInfluence(self):
+    #################################################################
+    # Determines the cumulative influence, as defined by the model, #
+    # namely Attitude×(SES⁄Ranking)^2                               #
+    #################################################################
+    def NetworkBase_getTotalInfluence(self, billRank):
+        totalInfluence = 0
+        for agent in Agents:
+            curAgent = Agents[agent]
+            totalInfluence += curAgent.Agent_getBillInfluence()
+        return totalInfluence
 
+    #################################################################
+    # Determines max cumulative influence, as defined by the model, #
+    # namely (SES⁄Ranking)^2                                        #
+    #################################################################
     def NetworkBase_getMaxTotalInfluence(self):
+        maxInfluence = 0
+        for agent in Agents:
+            curAgent = Agents[agent]
+            maxInfluence += curAgent.currentSES ** 2
+        return maxInfluence
 
     #################################################################
     # Assigns to each nodes the appropriate visual attributes, with #
