@@ -33,6 +33,11 @@ class NetworkBase:
         self.policyScore = 0
         self.policies = []
 
+        # Used for "caching": stores results after first calculation
+        # since remain constant throughout simulation
+        self.networkSES = 0
+        self.localSES = {}
+
     #################################################################
     # Given parameters for initializing the network base, ensures   #
     # it is legal                                                   #  
@@ -142,10 +147,52 @@ class NetworkBase:
         minorityCount = 0
 
         for neighbor in neighbors:
-            if not Agents[neighbor].isConcealed:
+            if Agents[neighbor].isMinority and \
+                not Agents[neighbor].isConcealed:
                 minorityCount += 1
             totalCount += 1
+
         return minorityCount/totalCount
+
+    #################################################################
+    # Determines the local average socio-economic status for a given#
+    # agent (in his locally connected network); stores result in    #
+    # network array                                                 #
+    #################################################################
+    def NetworkBase_getLocalSES(self, agent):
+        neighbors = self.NetworkBase_getNeighbors(agent)
+        totalCount = len(neighbors)
+        SEStotal = 0
+
+        for neighbor in neighbors:
+            SEStotal += Agents[neighbor].currentSES
+
+        localAvg = SEStotal/totalCount
+        self.localSES[agent] = localAvg
+        return localAvg
+
+    #################################################################
+    # Determines the network average for socio-economic status and  #
+    # storeS as property of network (since const)                   #
+    #################################################################
+    def NetworkBase_getNetworkSES(self):
+        SEStotal = 0
+        for agent in Agents:
+            SEStotal += Agents[agent].currentSES
+
+        self.networkSES = SEStotal/len(Agents)
+        return networkSES
+
+    #################################################################
+    # Determines the network average for sexual minority attitude   #
+    #################################################################
+    def NetworkBase_getNetworkAttitude(self):
+        SEStotal = 0
+        for agent in Agents:
+            SEStotal += Agents[agent].Agent_getOverallAttitude()
+
+        self.networkSES = SEStotal/len(Agents)
+        return networkSES
 
     #################################################################
     # Determines the cumulative influence, as defined by the model, #
@@ -184,11 +231,20 @@ class NetworkBase:
             nodeSize = int(500 * exPts/30) 
             self.G.node[agentID]['size'] = nodeSize
 
-            if not curAgent.hasCoach:
+            # Marks depressed agents as red nodes and blue otherwise
+            self.G.node[agentID]['color'] = 'blue'
+            if not curAgent.isDepressed:
                 self.G.node[agentID]['color'] = 'red'
-            else:
-                self.G.node[agentID]['color'] = 'blue'
-            self.G.node[agentID]['opacity'] = curAgent.SE
+
+            # Displays sexual minority as different shape than others
+            self.G.node[node]['shape'] = 'o'
+            if curAgent.isMinority:
+                self.G.node[node]['shape'] = 's'
+
+            # Makes concealed agents less "visible" in display 
+            self.G.node[agentID]['opacity'] = 1.0
+            if curAgent.isConcealed:
+                self.G.node[agentID]['opacity'] = .5
 
     #################################################################
     # Provides graphical display of the population, color coded to  #
@@ -205,11 +261,11 @@ class NetworkBase:
         for node in self.G.nodes():
             nx.draw_networkx_nodes(self.G,pos, nodelist=[node], 
                 node_color=self.G.node[node]['color'],
-                node_size=self.G.node[node]['size'], 
-                alpha=self.G.node[node]['opacity'])
+                node_size=500, alpha=self.G.node[node]['opacity'],
+                node_shape=self.G.node[node]['shape'])
         nx.draw_networkx_edges(self.G,pos,width=1.0,alpha=.5)
 
-        plt.title("SE Network at Time {}".format(time))
+        plt.title("Sexual Minority vs Depression at Time {}".format(time))
         plt.savefig("Results\\TimeResults\\timestep{}.png".format(time))
         if toShow: 
             plt.show()

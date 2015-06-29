@@ -238,6 +238,19 @@ class Agent:
         return influence/(billRank ** 2)
 
     def Agent_updateSupport(self):
+        networkSES = self.network.networkSES
+        if networkSES = 0:
+            networkSES = self.network.NetworkBase_getNetworkSES()
+
+        if self not in self.network.localSES[self]:
+            self.network.NetworkBase_getLocalSES(self)
+        localSES = self.network.localSES[self]
+        
+        att = self.network.NetworkBase_getNetworkAttitude()
+        localConnect = self.network.\
+            NetworkBase_findPercentConnectedMinority(self)
+
+        self.support = localSES/globalSES * localConnect * att
 
     def Agent_updateDiscrimination(self):
 

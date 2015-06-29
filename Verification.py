@@ -13,7 +13,7 @@
 def Verification_genericVerify(var, text, typeCheck, typeText):
     if not isinstance(var, typeCheck):
         sys.stderr.write("{} must be of "
-            "type {}".replace(text, typeText))
+            "type {}".format(text, typeText))
         return False
     return True
 
@@ -52,6 +52,6 @@ def Verification_verifyStr(var, text):
 def Verification_verifyInBounds(var, text):
     if var < 0.0 or var > 1.0:
         sys.stderr.write("{} must be given on " +
-            "0.0-1.0 scale".replace(text))
+            "0.0-1.0 scale".format(text))
         return False
     return True
