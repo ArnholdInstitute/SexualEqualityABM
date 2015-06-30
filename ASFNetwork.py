@@ -49,8 +49,10 @@ class ASFNetwork:
         self.ASFNetwork_createAgents()
 
         # Sets the network base to have the agents just created and
-        # the graph just generated
+        # the graph just generated and then choosing discriminating
+        # portion of the population
         self.networkBase.NetworkBase_setAgents(self.Agents)
+        self.networkBase.NetworkBase_chooseDiscriminate()
     
     #################################################################
     # Ensures that the given parameters for defining an SW network  #

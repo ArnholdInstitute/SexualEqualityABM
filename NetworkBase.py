@@ -203,20 +203,21 @@ class NetworkBase:
         return minorityCount/totalCount + 1.0
 
     #################################################################
-    # Determines the local average socio-economic status for a given#
-    # agent (in his locally connected network); stores result in    #
-    # network array                                                 #
+    # Determines the local average value of an attribute for a given#
+    # agent (in his locally connected network)                      #
     #################################################################
-    def NetworkBase_getLocalSES(self, agent):
+    def NetworkBase_getLocalAvg(self, agent, attribute):
         neighbors = self.NetworkBase_getNeighbors(agent)
         totalCount = len(neighbors)
-        SEStotal = 0
+        total = 0
 
         for neighbor in neighbors:
-            SEStotal += self.Agents[neighbor].currentSES
+            if attribute == "SES":
+                total += self.Agents[neighbor].currentSES
+            elif attribute == "attitude":
+                total += self.Agents[neighbor].attitude
 
-        localAvg = SEStotal/totalCount
-        self.localSES[agent] = localAvg
+        localAvg = total/totalCount
         return localAvg
 
     #################################################################

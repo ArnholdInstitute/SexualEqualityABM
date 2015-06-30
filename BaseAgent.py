@@ -223,6 +223,8 @@ class BaseAgent:
             percentConnect = self.network.\
                 NetworkBase_findPercentConnectedMinority(self)
 
+            if numPolicies == 0:
+                numPolicies = 1
             probIncrease = BASELINE_MULT * self.discrimination * \
                 concealment/(numPolicies/525 * percentConnect)
             probDepress += probIncrease

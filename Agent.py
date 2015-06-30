@@ -82,21 +82,11 @@ class MinorityAgent(BaseAgent):
     # not a minority, returns 1.0                                   #
     #################################################################
     def Agent_updateSupport(self):
-        # Network and local SES use "caching" to reduce number calcs
-        networkSES = self.network.networkSES
-        if networkSES == 0:
-            networkSES = self.network.NetworkBase_getNetworkSES()
-
-        if self not in self.network.localSES:
-            self.network.NetworkBase_getLocalSES(self)
-        localSES = self.network.localSES[self]
-        globalSES = self.network.NetworkBase_getNetworkSES()
-        
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
             NetworkBase_findPercentConnectedMinority(self)
 
-        self.support = localSES/globalSES * localConnect * att
+        self.support = localConnect * att
 
     #################################################################
     # Given an agent, updates his discrimination, based on whether  #
@@ -106,15 +96,15 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateDiscrimination(self):
         numPolicies = self.network.policyScore
-        totalInfluence = self.network.NetworkBase_getTotalInfluence(1)
-        maxInfluence = self.network.NetworkBase_getMaxTotalInfluence()
+        avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
+            "attitude")
 
         concealment = 1.0
         if self.isConcealed:
             concealment *= 2.0
 
-        self.discrimination = concealment * (1 - ((numPolicies)/525 \
-            + totalInfluence/maxInfluence)/2)
+        self.discrimination = concealment * (1 - (numPolicies/525 + \
+            avgAttitude))
 
     #################################################################
     # Given an agent, updates his concealment, based on the network #
@@ -127,6 +117,9 @@ class MinorityAgent(BaseAgent):
         SCALE_FACTOR = 100
 
         numPolicies = self.network.policyScore
+        
+        if numPolicies == 0:
+            numPolicies = 1
         probConceal = self.discrimination/(self.support * \
             numPolicies/525)/SCALE_FACTOR
 

@@ -31,11 +31,9 @@ except ImportError:
 #####################################################################
 class Policy:
     def __init__(self):
-        self.score = int(np.random.normal(5, 2))
-        if self.score < 1:
-            self.score = 1
-        elif self.score > 10:
-            self.score = 10
+        self.score = int(np.random.normal(0, 3))
+        while self.score == 0 or self.score > 10 or self.score < -10:
+            self.score = int(np.random.normal(0, 3))
 
         self.isPassed = False
 
@@ -67,10 +65,17 @@ class Policy:
     # population and the bill's influence score                     #
     #################################################################
     def Policy_getProbability(self, network):
+        MIN_POLICY = -500
         MAX_POLICY = 500
-        if network.policyScore + self.score > MAX_POLICY:
+
+        finalScore = network.policyScore + self.score 
+        if finalScore > MAX_POLICY:
             return 0.0
-        attitudeFor = network.NetworkBase_getTotalInfluence(self.score)
+        elif finalScore < MIN_POLICY:
+            return 0.0
+
+        attitudeFor = network.\
+            NetworkBase_getTotalInfluence(abs(self.score))
         possibleFor = network.NetworkBase_getMaxTotalInfluence()
         return attitudeFor/possibleFor
 
