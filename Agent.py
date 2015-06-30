@@ -124,11 +124,11 @@ class MinorityAgent(BaseAgent):
     # vice versa                                                    #
     #################################################################
     def Agent_updateConcealment(self):
-        SCALE_FACTOR = 10
+        SCALE_FACTOR = 100
 
         numPolicies = self.network.policyScore
-        probConceal = 0.0 #self.discrimination/(self.support * \
-            #numPolicies/525)/SCALE_FACTOR
+        probConceal = self.discrimination/(self.support * \
+            numPolicies/525)/SCALE_FACTOR
 
         rand = random.random()
 

@@ -29,8 +29,8 @@ except ImportError:
 class AgentFactory(object):
     def AgentFactory_createAgent(network, agentID):
         # Constant values (can change for variation in simulation)
-        PROB_MINORITY = .40
-        PROB_CONCEAL = .50
+        PROB_MINORITY = .50
+        PROB_CONCEAL = .10
         BASELINE_ATTITUDE = .25
 
         NO_DISCRIMINATION = 0.0
@@ -63,11 +63,11 @@ class AgentFactory(object):
         SESarr.append(oldSES)
         SESarr.append(currentSES)
 
-        for SES in SESarr:
-            if SES > 1.0:
-                SES = 1.0
-            elif SES < 0.0:
-                SES = 0.0
+        for i in range(0, len(SESarr)):
+            if SESarr[i] > 1.0:
+                SESarr[i] = 1.0
+            elif SESarr[i] < 0.0:
+                SESarr[i] = 0.0
 
         childSES = SESarr[0]
         oldSES = SESarr[1]

@@ -136,22 +136,24 @@ class NetworkBase:
 
         maxSES = self.NetworkBase_getMaxSES()
         topCap = maxSES/2
-        agents = NetworkBase_getAgentArray()
+        agents = self.NetworkBase_getAgentArray()
 
         for agent in agents:
             if agent.currentSES < topCap:
                 rand = random.random()
                 if rand < PROB_DISCRIMINATORY:
                     agent.isDiscriminatory = True
+                else:
+                    agent.isDiscriminatory = False
             else:
-                agent.isDiscriminatory = True
+                agent.isDiscriminatory = False
 
     #################################################################
     # Returns the maximum SES present amongst the agents in the sim #
     #################################################################
     def NetworkBase_getMaxSES(self):
         SESarr = []
-        agents = NetworkBase_getAgentArray()
+        agents = self.NetworkBase_getAgentArray()
         for agent in agents:
             SESarr.append(agent.currentSES)
         return max(SESarr)
@@ -172,14 +174,14 @@ class NetworkBase:
     #################################################################
     def NetworkBase_getMinorityNodes(self, boolWantMinority):
         collectNodes = []
-        agents = NetworkBase_getAgentArray()
+        agents = self.NetworkBase_getAgentArray()
         for agent in agents:
             if boolWantMinority:
-                if curAgent.isMinority:
-                    collectNodes.append(curAgent)
+                if agent.isMinority:
+                    collectNodes.append(agent)
             else:
-                if not curAgent.isMinority:
-                    collectNodes.append(curAgent)
+                if not agent.isMinority:
+                    collectNodes.append(agent)
         return collectNodes
 
     #################################################################
@@ -246,9 +248,9 @@ class NetworkBase:
     #################################################################
     def NetworkBase_getTotalInfluence(self, billRank):
         totalInfluence = 0
-        agents = NetworkBase_getAgentArray()
+        agents = self.NetworkBase_getAgentArray()
         for agent in agents:
-            totalInfluence += curAgent.Agent_getBillInfluence(billRank)
+            totalInfluence += agent.Agent_getBillInfluence(billRank)
         return totalInfluence
 
     #################################################################
@@ -257,9 +259,9 @@ class NetworkBase:
     #################################################################
     def NetworkBase_getMaxTotalInfluence(self):
         maxInfluence = 0
-        agents = NetworkBase_getAgentArray()
+        agents = self.NetworkBase_getAgentArray()
         for agent in agents:
-            maxInfluence += curAgent.currentSES ** 2
+            maxInfluence += agent.currentSES ** 2
         return maxInfluence
 
     #################################################################
