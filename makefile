@@ -1,4 +1,4 @@
 clean: 
-	rm Results/TimeResults/*.csv
-	rm Results/TimeResults/*.png 
-	
+    rm Results/TimeResults/*.csv
+    rm Results/TimeResults/*.png 
+    

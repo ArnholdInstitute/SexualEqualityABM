@@ -12,7 +12,9 @@ from copy import deepcopy
 from numpy import array, zeros, std, mean, sqrt
 
 from NetworkBase import NetworkBase
-from Agent import AgentFactory
+from AgentFactory import AgentFactory
+from Agent import MinorityAgent, NonMinorityAgent
+from Verification import *
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
@@ -31,20 +33,18 @@ class ASFNetwork:
     # of edges to be added at each step of the initialization (m)   #
     # produces an ASF network                                       #
     #################################################################
-    def __init__(self, nodeCount, maxCoachCount, m_0 = 4, m = 3):
-        if not self.ASFNetwork_verifyNetwork(nodeCount, maxCoachCount,\
-                m_0, m):
+    def __init__(self, nodeCount, m_0 = 4, m = 3):
+        if not self.ASFNetwork_verifyNetwork(nodeCount, m_0, m):
             return None
 
         self.nodeCount = nodeCount
-        self.maxCoachCount = maxCoachCount
 
         self.m_0 = m_0
         self.m = m
         self.agentFactory = AgentFactory
 
         self.Agents = {}
-        self.networkBase = NetworkBase("ASFNetwork", maxCoachCount)
+        self.networkBase = NetworkBase("ASFNetwork")
         
         self.ASFNetwork_createAgents()
 
@@ -56,31 +56,22 @@ class ASFNetwork:
     # Ensures that the given parameters for defining an SW network  #
     # are appropriate                                               # 
     #################################################################
-    def ASFNetwork_verifyNetwork(self, nodeCount, maxCoachCount, m_0, m):
-        if not isinstance(nodeCount, int):
-            sys.stderr.write("Node count must be of type int")
+    def ASFNetwork_verifyNetwork(self, nodeCount, m_0, m):
+        if not Verification_verifyInt(nodeCount, "Node count"):
             return False
 
         if nodeCount < 4:
             sys.stderr.write("Node count must be at least 4")
             return False
 
-        if not isinstance(maxCoachCount, int):
-            sys.stderr.write("Coach count must be of type int")
-            return False
-
-        if not isinstance(m_0, int):
-            sys.stderr.write("Baseline node count (m_0) must be of \
-                type int")
+        if not Verification_verifyInt(m_0, "Baseline node count"):
             return False
 
         if m_0 > 10:
             sys.stderr.write("Baseline node count (m_0) must < 10")
             return False
 
-        if not isinstance(m, int):
-            sys.stderr.write("Incremental edge count (m) must be of \
-                type int")
+        if not Verification_verifyInt(m, "Incremental edge count (m)"):
             return False
 
         if m > 10:

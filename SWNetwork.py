@@ -12,7 +12,9 @@ from copy import deepcopy
 from numpy import array, zeros, std, mean, sqrt
 
 from NetworkBase import NetworkBase
-from Agent import AgentFactory
+from AgentFactory import AgentFactory
+from Agent import MinorityAgent, NonMinorityAgent
+from Verification import *
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
@@ -31,20 +33,18 @@ class SWNetwork:
     # other nodes (defaulted to .0), and the number of neighbors to #
     # which each node is to be connected (k) initializes SW Network #
     #################################################################
-    def __init__(self, nodeCount, maxCoachCount, k=4, p = 0.0):
-        if not self.SWNetwork_verifyNetwork(nodeCount, maxCoachCount,\
-                k, p):
+    def __init__(self, nodeCount, k=4, p = 0.0):
+        if not self.SWNetwork_verifyNetwork(nodeCount, k, p):
             return None
 
         self.nodeCount = nodeCount
-        self.maxCoachCount = maxCoachCount
 
         self.k = k
         self.p = p
         self.agentFactory = AgentFactory
 
         self.Agents = {}
-        self.networkBase = NetworkBase("SWNetwork", maxCoachCount)
+        self.networkBase = NetworkBase("SWNetwork")
 
         self.SWNetwork_createAgents()
 
@@ -57,30 +57,21 @@ class SWNetwork:
     # Ensures that the given parameters for defining an SW network  #
     # are appropriate                                               # 
     #################################################################
-    def SWNetwork_verifyNetwork(self, nodeCount, maxCoachCount, k, p):
-        if not isinstance(nodeCount, int):
-            sys.stderr.write("Node count must be of type int")
+    def SWNetwork_verifyNetwork(self, nodeCount, k, p):
+        if not Verification_verifyInt(nodeCount, "Node count"):
             return False
 
         if nodeCount < 4:
             sys.stderr.write("Node count must be at least 4")
             return False
 
-        if not isinstance(maxCoachCount, int):
-            sys.stderr.write("Coach count must be of type int")
+        if not Verification_verifyInt(k, "Neighbor connections (k)"):
             return False
 
-        if not isinstance(k, int):
-            sys.stderr.write("Neighbor connections (k) must be of \
-                type int")
+        if not Verification_verifyFloat(p, "p"):
             return False
 
-        if not isinstance(p, float):
-            sys.stderr.write("p must be of type double/float")
-            return False
-
-        if p < 0.0 or p > 1.0:
-            sys.stderr.write("p must be between 0.0-1.0")
+        if not Verification_verifyInBounds(p, "p"):
             return False
 
         return True

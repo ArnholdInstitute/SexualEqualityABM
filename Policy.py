@@ -67,6 +67,9 @@ class Policy:
     # population and the bill's influence score                     #
     #################################################################
     def Policy_getProbability(self, network):
+        MAX_POLICY = 500
+        if network.policyScore + self.score > MAX_POLICY:
+            return 0.0
         attitudeFor = network.NetworkBase_getTotalInfluence(self.score)
         possibleFor = network.NetworkBase_getMaxTotalInfluence()
         return attitudeFor/possibleFor
@@ -76,6 +79,7 @@ class Policy:
     #################################################################
     def Policy_considerPolicy(self, network):
         probAdd = self.Policy_getProbability(network)
+
         rand = random.random()
         if rand < probAdd:
             self.isPassed = True

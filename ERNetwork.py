@@ -12,7 +12,8 @@ from copy import deepcopy
 from numpy import array, zeros, std, mean, sqrt
 
 from NetworkBase import NetworkBase
-from Agent import AgentFactory, Agent
+from AgentFactory import AgentFactory
+from Agent import MinorityAgent, NonMinorityAgent
 from Verification import *
 
 import matplotlib.pyplot as plt

@@ -15,6 +15,8 @@ import numpy as np
 
 from NetworkBase import NetworkBase
 from ERNetwork import ERNetwork
+from ASFNetwork import ASFNetwork
+from SWNetwork import SWNetwork
 from Verification import *
 
 import matplotlib.pyplot as plt
@@ -81,8 +83,8 @@ class SMDSimulationModel:
     #################################################################
     def SMDModel_writeSimulationHeader(self, resultsFile):
         if resultsFile is not None:
-            columns = ['time', 'minorityAttitude', 'isMinority', 
-            'discrimination', 'support', 'isConcealed', 
+            columns = ['time', 'agentID', 'minorityAttitude', 
+            'isMinority', 'discrimination', 'support', 'isConcealed', 
             'currentDepression', 'isDepressed']
             with open(resultsFile, 'w') as f:
                 writer = csv.writer(f)
@@ -100,7 +102,7 @@ class SMDSimulationModel:
                 Agents = self.network.networkBase.Agents
                 for agent in Agents:
                     curAgent = Agents[agent]
-                    row = [time, curAgent.minorityAttitude, 
+                    row = [time, curAgent.agentID, curAgent.minorityAttitude, 
                     curAgent.isMinority, curAgent.discrimination, 
                     curAgent.support, curAgent.isConcealed, 
                     curAgent.currentDepression, curAgent.isDepressed]
@@ -160,7 +162,7 @@ class SMDSimulationModel:
 
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_updateAgents()
+            self.network.networkBase.NetworkBase_updateAgents(i)
             self.network.Agents = self.network.networkBase.Agents 
 
     #################################################################
@@ -188,7 +190,7 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 1
+    timeSpan = 15
     numAgents = 25
 
     resultsFile = "Results\\TimeResults\\results.csv"

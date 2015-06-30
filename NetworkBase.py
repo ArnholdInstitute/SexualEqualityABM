@@ -72,9 +72,9 @@ class NetworkBase:
     # at, if the "effectiveness" of the coaches is different, how   #
     # would the final results vary) with default values given       #
     #################################################################
-    def NetworkBase_updateAgents(self): 
+    def NetworkBase_updateAgents(self, time): 
         for agentID in self.Agents:
-            self.Agents[agentID].Agent_updateAgent()
+            self.Agents[agentID].Agent_updateAgent(time)
 
     #################################################################
     # Given a list of nodes, adds edges between all of them         #
@@ -234,14 +234,14 @@ class NetworkBase:
             curAgent = self.Agents[agentID]
 
             # Marks depressed agents as red nodes and blue otherwise
-            self.G.node[agentID]['color'] = 'blue'
+            self.G.node[agentID]['color'] = 'red'
             if not curAgent.isDepressed:
-                self.G.node[agentID]['color'] = 'red'
+                self.G.node[agentID]['color'] = 'blue'
 
             # Displays sexual minority as different shape than others
-            self.G.node[agentID]['shape'] = 'o'
+            self.G.node[agentID]['size'] = 500
             if curAgent.isMinority:
-                self.G.node[agentID]['shape'] = 's'
+                self.G.node[agentID]['size'] = 1250
 
             # Makes concealed agents less "visible" in display 
             self.G.node[agentID]['opacity'] = 1.0
@@ -263,8 +263,8 @@ class NetworkBase:
         for node in self.G.nodes():
             nx.draw_networkx_nodes(self.G,pos, nodelist=[node], 
                 node_color=self.G.node[node]['color'],
-                node_size=500, alpha=self.G.node[node]['opacity'],
-                node_shape=self.G.node[node]['shape'])
+                node_size=self.G.node[node]['size'], 
+                alpha=self.G.node[node]['opacity'])
         nx.draw_networkx_edges(self.G,pos,width=1.0,alpha=.5)
 
         plt.title("Sexual Minority vs Depression at Time {}".format(time))
