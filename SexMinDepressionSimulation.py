@@ -164,7 +164,6 @@ class SMDSimulationModel:
             # to the network
             self.network.networkBase.NetworkBase_updateAgents(i)
             self.network.Agents = self.network.networkBase.Agents 
-            print(self.network.networkBase.policyScore)
 
     #################################################################
     # Runs simulation over the desired timespan without producing   #
@@ -190,9 +189,9 @@ if __name__ == "__main__":
     # Get all input for initializing simulation
 
     # ER, SW, or ASF
-    networkType = "SW"
-    timeSpan = 5
-    numAgents = 25
+    networkType = "ER"
+    timeSpan = 10
+    numAgents = 50
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, 

@@ -99,12 +99,7 @@ class MinorityAgent(BaseAgent):
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
             "attitude")
 
-        concealment = 1.0
-        if self.isConcealed:
-            concealment *= 2.0
-
-        self.discrimination = concealment * (1 - (numPolicies/525 + \
-            avgAttitude))
+        self.discrimination = 1 - (numPolicies/25 + avgAttitude)
 
     #################################################################
     # Given an agent, updates his concealment, based on the network #
@@ -114,14 +109,12 @@ class MinorityAgent(BaseAgent):
     # vice versa                                                    #
     #################################################################
     def Agent_updateConcealment(self):
-        SCALE_FACTOR = 100
-
         numPolicies = self.network.policyScore
         
         if numPolicies == 0:
             numPolicies = 1
         probConceal = self.discrimination/(self.support * \
-            numPolicies/525)/SCALE_FACTOR
+            numPolicies/25)
 
         rand = random.random()
 

@@ -201,7 +201,7 @@ class BaseAgent:
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self):
-        DEPRESS_CONST = .0050
+        DEPRESS_CONST = .25
         if self.isDepressed:
             return
 
@@ -212,12 +212,12 @@ class BaseAgent:
         probDepress += self.oldDepression
 
         if self.isMinority:
-            BASELINE_MULT = .10
+            BASELINE_MULT = .25
 
             # If concealed, greater chance of depression
             concealment = 1.0
             if self.isConcealed:
-                concealment *= 5.0
+                concealment *= 10.0
 
             numPolicies = self.network.policyScore
             percentConnect = self.network.\
@@ -226,7 +226,7 @@ class BaseAgent:
             if numPolicies == 0:
                 numPolicies = 1
             probIncrease = BASELINE_MULT * self.discrimination * \
-                concealment/(numPolicies/525 * percentConnect)
+                concealment/(numPolicies/25 * percentConnect)
             probDepress += probIncrease
             
         self.currentDepression = DEPRESS_CONST * probDepress
