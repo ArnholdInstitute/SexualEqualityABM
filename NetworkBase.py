@@ -1,3 +1,5 @@
+''' Fix the %connected to avoid having to add 1.0 for division by 0 ''' 
+
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: NetworkBase.py                                              #
@@ -27,10 +29,13 @@ class NetworkBase:
     # i.e. SW, ER, etc... and number of coaches                     #
     #################################################################
     def __init__(self, networkType):
-        if not self.NetworkBase_verifyBase(networkType, maxCoachCount):
+        if not self.NetworkBase_verifyBase(networkType):
             return None
         self.networkType = networkType
-        self.policyScore = 0
+
+        # Ranked on a scale of 1 to 100: starts at 1 to avoid divide
+        # by 0 errors
+        self.policyScore = 1
         self.policies = []
 
         # Used for "caching": stores results after first calculation
@@ -43,7 +48,7 @@ class NetworkBase:
     # it is legal                                                   #  
     #################################################################
     def NetworkBase_verifyBase(self, networkType):
-        if not Verification_verifyStr(networkType):
+        if not Verification_verifyStr(networkType, "Network type"):
             return False
         return True
 
@@ -69,12 +74,12 @@ class NetworkBase:
     #################################################################
     def NetworkBase_updateAgents(self): 
         for agentID in self.Agents:
-            self.Agents[agentID].Agent_timeStep()
+            self.Agents[agentID].Agent_updateAgent()
 
     #################################################################
     # Given a list of nodes, adds edges between all of them         #
     #################################################################
-    def addEdges(self, nodeList):
+    def NetworkBase_addEdges(self, nodeList):
         self.G.add_edges_from(nodeList)
 
     #################################################################
@@ -147,12 +152,13 @@ class NetworkBase:
         minorityCount = 0
 
         for neighbor in neighbors:
-            if Agents[neighbor].isMinority and \
-                not Agents[neighbor].isConcealed:
+            if self.Agents[neighbor].isMinority and \
+                not self.Agents[neighbor].isConcealed:
                 minorityCount += 1
             totalCount += 1
 
-        return minorityCount/totalCount
+        # Adding 1.0 avoids division by 0
+        return minorityCount/totalCount + 1.0
 
     #################################################################
     # Determines the local average socio-economic status for a given#
@@ -165,7 +171,7 @@ class NetworkBase:
         SEStotal = 0
 
         for neighbor in neighbors:
-            SEStotal += Agents[neighbor].currentSES
+            SEStotal += self.Agents[neighbor].currentSES
 
         localAvg = SEStotal/totalCount
         self.localSES[agent] = localAvg
@@ -177,22 +183,22 @@ class NetworkBase:
     #################################################################
     def NetworkBase_getNetworkSES(self):
         SEStotal = 0
-        for agent in Agents:
-            SEStotal += Agents[agent].currentSES
+        for agent in self.Agents:
+            SEStotal += self.Agents[agent].currentSES
 
-        self.networkSES = SEStotal/len(Agents)
-        return networkSES
+        self.networkSES = SEStotal/len(self.Agents)
+        return self.networkSES
 
     #################################################################
     # Determines the network average for sexual minority attitude   #
     #################################################################
     def NetworkBase_getNetworkAttitude(self):
         SEStotal = 0
-        for agent in Agents:
-            SEStotal += Agents[agent].attitude
+        for agent in self.Agents:
+            SEStotal += self.Agents[agent].attitude
 
-        self.networkSES = SEStotal/len(Agents)
-        return networkSES
+        self.networkSES = SEStotal/len(self.Agents)
+        return self.networkSES
 
     #################################################################
     # Determines the cumulative influence, as defined by the model, #
@@ -200,9 +206,9 @@ class NetworkBase:
     #################################################################
     def NetworkBase_getTotalInfluence(self, billRank):
         totalInfluence = 0
-        for agent in Agents:
-            curAgent = Agents[agent]
-            totalInfluence += curAgent.Agent_getBillInfluence()
+        for agent in self.Agents:
+            curAgent = self.Agents[agent]
+            totalInfluence += curAgent.Agent_getBillInfluence(billRank)
         return totalInfluence
 
     #################################################################
@@ -211,8 +217,8 @@ class NetworkBase:
     #################################################################
     def NetworkBase_getMaxTotalInfluence(self):
         maxInfluence = 0
-        for agent in Agents:
-            curAgent = Agents[agent]
+        for agent in self.Agents:
+            curAgent = self.Agents[agent]
             maxInfluence += curAgent.currentSES ** 2
         return maxInfluence
 
@@ -227,19 +233,15 @@ class NetworkBase:
         for agentID in self.G.nodes():
             curAgent = self.Agents[agentID]
 
-            exPts = curAgent.Agent_getExercisePts()
-            nodeSize = int(500 * exPts/30) 
-            self.G.node[agentID]['size'] = nodeSize
-
             # Marks depressed agents as red nodes and blue otherwise
             self.G.node[agentID]['color'] = 'blue'
             if not curAgent.isDepressed:
                 self.G.node[agentID]['color'] = 'red'
 
             # Displays sexual minority as different shape than others
-            self.G.node[node]['shape'] = 'o'
+            self.G.node[agentID]['shape'] = 'o'
             if curAgent.isMinority:
-                self.G.node[node]['shape'] = 's'
+                self.G.node[agentID]['shape'] = 's'
 
             # Makes concealed agents less "visible" in display 
             self.G.node[agentID]['opacity'] = 1.0

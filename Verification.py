@@ -6,6 +6,8 @@
 # here, as they are equivalent across objects                       #
 #####################################################################
 
+import sys
+
 #####################################################################
 # Given variable, performs a generic check on if the variable is of #
 # type typeCheck                                                    #

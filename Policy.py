@@ -30,32 +30,53 @@ except ImportError:
 # more difficult it is for the policy to pass                       #
 #####################################################################
 class Policy:
-	def __init__(self):
-		self.score = int(np.random.normal(5, 2))
-		if score < 1:
-			score = 1
-		elif score > 10:
-			score = 10
+    def __init__(self):
+        self.score = int(np.random.normal(5, 2))
+        if self.score < 1:
+            self.score = 1
+        elif self.score > 10:
+            self.score = 10
 
-		self.isPassed = False
+        self.isPassed = False
 
-	#################################################################
+        if not self.Agent_verifyAgent(self.score, self.isPassed):
+            return None
+
+    #################################################################
+    # Provides an output string for printing out policies           #
+    #################################################################
+    def __str__(self):
+        return "Score: {}, Passed: {}".replace(self.score, self.isPassed)
+
+    #################################################################
+    # Checks that, given all the parameters used to initialize the  #
+    # policy, the parameters are legal                              #
+    #################################################################
+    def Agent_verifyAgent(self, score, isPassed):
+        if not Verification_verifyInt(score, "Score"):
+            return False
+
+        if not Verification_verifyBool(isPassed, "isPassed"):
+            return False
+
+        return True
+
+    #################################################################
     # Determines the probability of a policy to pass, given the     #
     # network being considered, based on the "acceptance" by the    #
     # population and the bill's influence score                     #
     #################################################################
-	def Policy_getProbability(self, network):
-		attitudeFor = network.NetworkBase_getTotalInfluence()
-		possibleFor = network.\
-			NetworkBase_getMaxTotalInfluence(self.billRank)
-		return attitudeFor/possibleFor
+    def Policy_getProbability(self, network):
+        attitudeFor = network.NetworkBase_getTotalInfluence(self.score)
+        possibleFor = network.NetworkBase_getMaxTotalInfluence()
+        return attitudeFor/possibleFor
 
-	#################################################################
+    #################################################################
     # Passes or rejects a policy for the network under question     #
     #################################################################
-	def Policy_considerPolicy(self, network):
-		probAdd = self.Policy_getProbability(network)
-		rand = random.random()
-		if rand < probAdd:
-			policy.isPassed = True
-			network.NetworkBase_addToPolicies(self)
+    def Policy_considerPolicy(self, network):
+        probAdd = self.Policy_getProbability(network)
+        rand = random.random()
+        if rand < probAdd:
+            self.isPassed = True
+            network.NetworkBase_addToPolicies(self)

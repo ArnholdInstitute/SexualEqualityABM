@@ -3,9 +3,9 @@
 # File: ERNetwork.py                                                #
 # Description: Contains all the methods pertinent to modelling ER   #
 # network (randomized construction)                                 #
+#####################################################################
 
-import sys#####################################################################
-
+import sys
 import os
 import random,itertools
 from copy import deepcopy
@@ -13,6 +13,7 @@ from numpy import array, zeros, std, mean, sqrt
 
 from NetworkBase import NetworkBase
 from Agent import AgentFactory, Agent
+from Verification import *
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
@@ -30,18 +31,17 @@ class ERNetwork:
     # probability of attaching to other nodes (defaulted to .5)     #
     # initializes ER Network                                        #
     #################################################################
-    def __init__(self, nodeCount, maxCoachCount, p = 0.5):
-        if not self.ERNetwork_verifyNetwork(nodeCount, maxCoachCount, p):
+    def __init__(self, nodeCount, p = 0.5):
+        if not self.ERNetwork_verifyNetwork(nodeCount, p):
             return None
 
         self.nodeCount = nodeCount
-        self.maxCoachCount = maxCoachCount
 
         self.p = p
         self.agentFactory = AgentFactory
 
         self.Agents = {}
-        self.networkBase = NetworkBase("ERNetwork", maxCoachCount)
+        self.networkBase = NetworkBase("ERNetwork")
 
         self.ERNetwork_createAgents()
 
@@ -54,27 +54,19 @@ class ERNetwork:
     # Ensures that the given parameters for defining an ER network  #
     # are appropriate                                               # 
     #################################################################
-    def ERNetwork_verifyNetwork(self, nodeCount, maxCoachCount, p):
-        if not isinstance(nodeCount, int):
-            sys.stderr.write("Node count must be of type int")
+    def ERNetwork_verifyNetwork(self, nodeCount, p):
+        if not Verification_verifyInt(nodeCount, "Node count"):
             return False
 
         if nodeCount < 4:
             sys.stderr.write("Node count must be at least 4")
             return False
 
-        if not isinstance(maxCoachCount, int):
-            sys.stderr.write("Coach count must be of type int")
+        if not Verification_verifyFloat(p, "p"):
             return False
 
-        if not isinstance(p, float):
-            sys.stderr.write("p must be of type double/float")
+        if not Verification_verifyInBounds(p, "p"):
             return False
-
-        if p < 0.0 or p > 1.0:
-            sys.stderr.write("p must be between 0.0-1.0")
-            return False
-
         return True
 
     #################################################################

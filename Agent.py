@@ -14,6 +14,8 @@ import random
 import numpy as np
 
 from Verification import *
+from NetworkBase import NetworkBase
+from Policy import Policy
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
@@ -109,6 +111,8 @@ class Agent:
             isMinority, discrimination, support, isConcealed, 
             oldDepression, currentDepression, isDepressed, network,
             agentID):
+        PROB_MINORITY = .30
+
         if not self.Agent_verifyAgent(childSES, oldSES, currentSES, 
             minorityAttitude, isMinority, discrimination, support, 
             isConcealed, oldDepression, currentDepression, isDepressed,
@@ -120,6 +124,7 @@ class Agent:
         self.currentSES = currentSES
 
         self.minorityAttitude = minorityAttitude
+        self.attitude = self.minorityAttitude + PROB_MINORITY
         self.isMinority = isMinority
 
         self.discrimination = discrimination
@@ -130,8 +135,17 @@ class Agent:
         self.currentDepression = currentDepression
         self.isDepressed = isDepressed
 
-        self.network = network
+        self.network = network.networkBase
         self.agentID = agentID
+
+    #################################################################
+    # Provides an output string for printing out agents             #
+    #################################################################
+    def __str__(self):
+        return ("ID: {}, isMinority: {}, isDepressed: {}, "\
+            "isConcealed: {}, SES: {}".format(self.agentID, \
+            self.isMinority, self.isDepressed, self.isConcealed, \
+            self.currentSES))
 
     #################################################################
     # Checks that, given all the parameters used to initialize the  #
@@ -246,8 +260,8 @@ class Agent:
     #################################################################
     def Agent_updateAttitude(self): 
         percentConnect = self.network.\
-            NetworkBase_findPercentConnectedMinority()
-        self.attitude = self.baseAttitude + .75 * percentConnect
+            NetworkBase_findPercentConnectedMinority(self)
+        self.attitude = self.minorityAttitude + .75 * percentConnect
 
     #################################################################
     # Given an agent, updates the support he received based on his  #
@@ -261,12 +275,13 @@ class Agent:
 
         # Network and local SES use "caching" to reduce number calcs
         networkSES = self.network.networkSES
-        if networkSES = 0:
+        if networkSES == 0:
             networkSES = self.network.NetworkBase_getNetworkSES()
 
-        if self not in self.network.localSES[self]:
+        if self not in self.network.localSES:
             self.network.NetworkBase_getLocalSES(self)
         localSES = self.network.localSES[self]
+        globalSES = self.network.NetworkBase_getNetworkSES()
         
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
@@ -281,16 +296,19 @@ class Agent:
     # and attitudes                                                 #
     #################################################################
     def Agent_updateDiscrimination(self):
+        if not self.isMinority:
+            self.discrimination = 0.0
+
         numPolicies = self.network.policyScore
-        totalInfluence = NetworkBase_getTotalInfluence
-        maxInfluence = NetworkBase_getMaxTotalInfluence
+        totalInfluence = self.network.NetworkBase_getTotalInfluence(1)
+        maxInfluence = self.network.NetworkBase_getMaxTotalInfluence()
 
         concealment = 1.0
         if self.isConcealed:
             concealment *= 2.0
 
-        self.discrimination = concealment * (1 - (numPolicies/125 + \
-            totalInfluence/maxInfluence))
+        self.discrimination = concealment * (1 - ((numPolicies)/125 \
+            + totalInfluence/maxInfluence))
 
     #################################################################
     # Given an agent, updates his concealment, based on the network #
@@ -302,7 +320,7 @@ class Agent:
     def Agent_updateConcealment(self):
         numPolicies = self.network.policyScore
         probConceal = self.discrimination/(self.support * \
-            numPolicies/125)
+            (numPolicies)/125)
 
         rand = random.random()
         if rand < probConceal:
@@ -322,7 +340,7 @@ class Agent:
 
         deltaSES = self.currentSES - self.childSES
         probDepress = math.exp(deltaSES)/self.support
-        probDepress += oldDepression
+        probDepress += self.oldDepression
 
         if self.isMinority:
             # If concealed, greater chance of depression
@@ -332,10 +350,10 @@ class Agent:
 
             numPolicies = self.network.policyScore
             percentConnect = self.network.\
-                NetworkBase_findPercentConnectedMinority()
+                NetworkBase_findPercentConnectedMinority(self)
 
             probIncrease = self.discrimination * concealment/\
-                (numPolicies/125 * percentConnect)
+                ((numPolicies)/125 * percentConnect)
             probDepress += probIncrease
 
         rand = random.random()
@@ -350,12 +368,12 @@ class Agent:
     # concealment, and depression for a single time step            #                                                   
     #################################################################
     def Agent_updateAgent(self):
-        self.Agent_updateAttitudes()
+        self.Agent_updateAttitude()
 
         newPolicy = Policy()
         newPolicy.Policy_considerPolicy(self.network) 
 
-        self.Agent_updateSupport ()
+        self.Agent_updateSupport()
         self.Agent_updateDiscrimination()
         self.Agent_updateConcealment()
         self.Agent_updateDepression()
