@@ -35,7 +35,14 @@ class NonMinorityAgent(BaseAgent):
     def Agent_updateAttitude(self): 
         percentConnect = self.network.\
             NetworkBase_findPercentConnectedMinority(self)
-        self.attitude = self.minorityAttitude + .75 * percentConnect
+
+        # Accounts for those who reflect feeling uneasy when with 
+        # those of the sexual minority community
+        delta = .75 * percentConnect
+        if self.isDiscriminatory:
+            self.attitude = self.minorityAttitude - delta
+        else:
+            self.attitude = self.minorityAttitude + delta
 
     #################################################################
     # As those not of minorities are assumed to have full support,  #
@@ -117,11 +124,11 @@ class MinorityAgent(BaseAgent):
     # vice versa                                                    #
     #################################################################
     def Agent_updateConcealment(self):
-        SCALE_FACTOR = 100
+        SCALE_FACTOR = 10
 
         numPolicies = self.network.policyScore
-        probConceal = self.discrimination/(self.support * \
-            numPolicies/525)/SCALE_FACTOR
+        probConceal = 0.0 #self.discrimination/(self.support * \
+            #numPolicies/525)/SCALE_FACTOR
 
         rand = random.random()
 
