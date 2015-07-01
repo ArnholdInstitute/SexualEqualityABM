@@ -38,6 +38,7 @@ class AgentFactory(object):
 
         FULL_SUPPORT = 1.0
         BASELINE_SUPPORT = .50 
+
         FULL_ACCEPTANCE = 1.0
 
         NON_MINORITY_DEPRESS = .010

@@ -32,10 +32,11 @@ except ImportError:
 class Policy:
     def __init__(self):
         self.score = int(np.random.normal(0, 5))
-        # If bill has score < 0: hurts LGB sentiments
         while self.score == 0 or self.score > 10 or self.score < -10:
             self.score = int(np.random.normal(0, 3))
 
+        # If bill has score < 0: hurts LGB sentiments
+        self.isDiscriminatory = (self.score < 0)
         self.isPassed = False
 
         if not self.Policy_verifyPolicy(self.score, self.isPassed):
@@ -80,6 +81,10 @@ class Policy:
             NetworkBase_getTotalInfluence(abs(self.score))
         possibleFor = network.NetworkBase_getMaxTotalInfluence()
 
+        if self.isDiscriminatory:
+            attitudeFor *= -1
+
+        prob = attitudeFor/possibleFor
         return attitudeFor/possibleFor
 
     #################################################################

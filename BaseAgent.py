@@ -45,8 +45,6 @@ class BaseAgent:
     def __init__(self, currentSES, minorityAttitude, isMinority, 
         discrimination, support, isConcealed, currentDepression, 
         isDepressed, network, agentID):
-        PROB_MINORITY = .30
-
         if not self.Agent_verifyAgent(currentSES, minorityAttitude, 
             isMinority, discrimination, support, isConcealed,
             currentDepression, isDepressed, agentID):
@@ -55,7 +53,7 @@ class BaseAgent:
         self.currentSES = currentSES
 
         self.minorityAttitude = minorityAttitude
-        self.attitude = self.minorityAttitude + PROB_MINORITY
+        self.attitude = self.minorityAttitude
         self.isMinority = isMinority
 
         self.discrimination = discrimination
@@ -69,7 +67,8 @@ class BaseAgent:
         self.agentID = agentID
 
         self.probConceal = self.discrimination/self.support
-
+        self.probConceal = self.Agent_normalizeParam(self.probConceal)
+            
     #################################################################
     # Provides an output string for printing out agents             #
     #################################################################

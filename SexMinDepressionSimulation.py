@@ -84,7 +84,7 @@ class SMDSimulationModel:
     def SMDModel_writeSimulationHeader(self, resultsFile):
         if resultsFile is not None:
             columns = ['time', 'agentID', 'attitude', 
-            'isMinority', 'discrimination', 'support', 'probConceal'
+            'isMinority', 'discrimination', 'support', 'probConceal',
             'isConcealed', 'currentDepression', 'isDepressed',
             'policy points']
             with open(resultsFile, 'w') as f:
