@@ -154,6 +154,13 @@ class SMDSimulationModel:
         numTicks = self.timeSpan * 26
         pos = nx.random_layout(self.network.G)
 
+        beforeDepressLevels = []
+        afterDepressLevels = []
+        
+        agents = self.network.networkBase.NetworkBase_getAgentArray()
+        for agent in agents:
+            beforeDepressLevels.append(agent.currentDepression)
+
         for i in range(0, numTicks):
             if i % 10 == 0:
                 self.SMDModel_writeSimulationData(i, resultsFile)   
@@ -167,19 +174,25 @@ class SMDSimulationModel:
             self.network.networkBase.NetworkBase_updateAgents(i)
             self.network.Agents = self.network.networkBase.Agents 
 
+        for agent in agents:
+            afterDepressLevels.append(agent.currentDepression)
+        self.SMDModel_createBarResults(beforeDepressLevels, 
+            afterDepressLevels, "depressBar",
+            "Depression", "Indvidual Depression Levels Chart")
+
     #################################################################
     # Runs simulation over the desired timespan without producing   #
     # visible output: used for sensitivity analysis                 #
     #################################################################
     def SMDModel_runStreamlineSimulation(self):
+        # Converts from years to "ticks" (represent 2 week span)
         numTicks = self.timeSpan * 26
+        pos = nx.random_layout(self.network.G)
 
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_updateAgents(i, \
-                self.timeImpact, self.coachImpact, self.pastImpact, \
-                self.socialImpact)
+            self.network.networkBase.NetworkBase_updateAgents(i)
             self.network.Agents = self.network.networkBase.Agents
 
 #####################################################################
