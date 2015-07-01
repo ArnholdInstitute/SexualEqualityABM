@@ -122,7 +122,7 @@ class MinorityAgent(BaseAgent):
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
             "attitude")
 
-        self.discrimination = 1 - (numPolicies/25 + avgAttitude)
+        self.discrimination = 1 - (numPolicies/125 + avgAttitude)
         self.discrimination = \
             self.Agent_normalizeParam(self.discrimination)
 
@@ -137,7 +137,7 @@ class MinorityAgent(BaseAgent):
         BASELINE_PROB = .001
         numPolicies = self.network.policyScore
         probConceal = BASELINE_PROB + (self.discrimination - self.support) \
-            - numPolicies/25
+            - numPolicies/125
 
         self.probConceal = self.Agent_normalizeParam(probConceal)
 
@@ -167,3 +167,8 @@ class MinorityAgent(BaseAgent):
         # Possibility of escaping from depression
         if self.currentDepression < -.25:
             self.isDepressed = False
+
+        if self.currentDepression < -1.0:
+            self.currentDepression = -1.0
+        elif self.currentDepression > 1.0:
+            self.currentDepression = 1.0

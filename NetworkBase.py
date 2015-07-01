@@ -181,6 +181,18 @@ class NetworkBase:
         return collectNodes
 
     #################################################################
+    # Determines the average depression level amongst those agents  #
+    # in the network who are in sexual minority                     #
+    #################################################################
+    def NetworkBase_getMinorityDepressionAvg(self):
+        minAvg = []
+
+        minorityAgents = self.NetworkBase_getMinorityNodes()
+        for minAgent in minorityAgents:
+            minAvg.append(minAgent.currentDepression)
+        return mean(minAvg)
+
+    #################################################################
     # Finds the percentage of locally connected nodes (to some given#
     # agent) marked as of sexual minority                           #
     #################################################################

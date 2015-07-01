@@ -67,8 +67,8 @@ class Policy:
     # population and the bill's influence score                     #
     #################################################################
     def Policy_getProbability(self, network):
-        MIN_POLICY = -25
-        MAX_POLICY = 25
+        MIN_POLICY = -125
+        MAX_POLICY = 125
 
         # Ensures that the score does not exceed max/min 
         finalScore = network.policyScore + self.score 

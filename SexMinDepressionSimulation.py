@@ -176,22 +176,15 @@ class SMDSimulationModel:
 
         beforeDepressLevels = []
         afterDepressLevels = []
-        
-        beforeMinDepressLevels = []
-        afterMinDepressLevels = []
 
         timeLabels = ["Before", "After"]
-        avgDepressLevels = []
-
         curNetwork = self.network.networkBase
 
         agents = curNetwork.NetworkBase_getAgentArray()
         for agent in agents:
             beforeDepressLevels.append(agent.currentDepression)
-
-        minorityAgents = curNetwork.NetworkBase_getMinorityNodes()
-        for minAgent in minorityAgents:
-            beforeMinDepressLevels.append(minAgent.currentDepression)
+        preAvgDepression = curNetwork.\
+            NetworkBase_getMinorityDepressionAvg()
 
         for i in range(0, numTicks):
             if i % 10 == 0:
@@ -208,11 +201,10 @@ class SMDSimulationModel:
 
         for agent in agents:
             afterDepressLevels.append(agent.currentDepression)
-        for minAgent in minorityAgents:
-            afterMinDepressLevels.append(minAgent.currentDepression)
+        postAvgDepression = curNetwork.\
+            NetworkBase_getMinorityDepressionAvg()
 
-        avgDepressLevels.append(np.mean(beforeMinDepressLevels))
-        avgDepressLevels.append(np.mean(afterMinDepressLevels))
+        avgDepressLevels = [preAvgDepression, postAvgDepression]
 
         self.SMDModel_createBarResults(beforeDepressLevels, 
             afterDepressLevels, "depressBar",
@@ -245,9 +237,9 @@ if __name__ == "__main__":
     # Get all input for initializing simulation
 
     # ER, SW, or ASF
-    networkType = "ER"
-    timeSpan = 2
-    numAgents = 15
+    networkType = "ASF"
+    timeSpan = 10
+    numAgents = 25
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, 
