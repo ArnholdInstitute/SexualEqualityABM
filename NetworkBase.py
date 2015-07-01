@@ -172,16 +172,12 @@ class NetworkBase:
     # boolWantMinority. If specified as true, returns minority nodes#
     # in an array; otherwise, returns those nodes not minority      #
     #################################################################
-    def NetworkBase_getMinorityNodes(self, boolWantMinority):
+    def NetworkBase_getMinorityNodes(self):
         collectNodes = []
         agents = self.NetworkBase_getAgentArray()
         for agent in agents:
-            if boolWantMinority:
-                if agent.isMinority:
-                    collectNodes.append(agent)
-            else:
-                if not agent.isMinority:
-                    collectNodes.append(agent)
+            if agent.isMinority:
+                collectNodes.append(agent)
         return collectNodes
 
     #################################################################

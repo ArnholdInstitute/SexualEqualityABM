@@ -140,7 +140,27 @@ class SMDSimulationModel:
 
         ax.set_xticklabels(labels)
         ax.legend( (rects1[0], rects2[0]), ('Before', 'After') )
-        plt.savefig("Results\\TimeResults\\" + fileName + ".png")
+        plt.savefig("Results\\TimeResults\\{}.png".format(fileName))
+        plt.close()
+
+    def SMDModel_createSingleBars(self, xArray, yArray, xLabel, yLabel):
+        N = len(xArray)
+
+        ind = np.arange(N)  # the x locations for the groups
+        width = 0.5        # the width of the bars
+        fig, ax = plt.subplots()
+
+        rects1 = ax.bar(ind, yArray, width, color='b')
+
+        # add some text for labels, title and axes ticks
+        ax.set_xlabel(yLabel)
+        ax.set_ylabel(xLabel)
+        ax.set_title("{} vs. {}".format(xLabel, yLabel))
+        ax.set_xticks(ind + width/2)
+
+        ax.set_xticklabels(xArray)
+        plt.savefig("Results\\TimeResults\\{}vs{}.png"\
+            .format(xLabel, yLabel))
         plt.close()
 
     #################################################################
@@ -157,15 +177,27 @@ class SMDSimulationModel:
         beforeDepressLevels = []
         afterDepressLevels = []
         
-        agents = self.network.networkBase.NetworkBase_getAgentArray()
+        beforeMinDepressLevels = []
+        afterMinDepressLevels = []
+
+        timeLabels = ["Before", "After"]
+        avgDepressLevels = []
+
+        curNetwork = self.network.networkBase
+
+        agents = curNetwork.NetworkBase_getAgentArray()
         for agent in agents:
             beforeDepressLevels.append(agent.currentDepression)
+
+        minorityAgents = curNetwork.NetworkBase_getMinorityNodes()
+        for minAgent in minorityAgents:
+            beforeMinDepressLevels.append(minAgent.currentDepression)
 
         for i in range(0, numTicks):
             if i % 10 == 0:
                 self.SMDModel_writeSimulationData(i, resultsFile)   
 
-                print("Plotting time step " + str(i))
+                print("Plotting time step {}".format(i))
                 self.network.networkBase.\
                     NetworkBase_visualizeNetwork(False, i, pos)
 
@@ -176,9 +208,18 @@ class SMDSimulationModel:
 
         for agent in agents:
             afterDepressLevels.append(agent.currentDepression)
+        for minAgent in minorityAgents:
+            afterMinDepressLevels.append(minAgent.currentDepression)
+
+        avgDepressLevels.append(np.mean(beforeMinDepressLevels))
+        avgDepressLevels.append(np.mean(afterMinDepressLevels))
+
         self.SMDModel_createBarResults(beforeDepressLevels, 
             afterDepressLevels, "depressBar",
-            "Depression", "Indvidual Depression Levels Chart")
+            "Depression", "Individual Depression Levels Chart")
+
+        self.SMDModel_createSingleBars(timeLabels, avgDepressLevels, 
+            "Average_Depression_Level", "Time")
 
     #################################################################
     # Runs simulation over the desired timespan without producing   #
