@@ -196,7 +196,7 @@ class SMDSimulationModel:
 
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_updateAgents(i)
+            self.network.networkBase.NetworkBase_timeStep(i)
             self.network.Agents = self.network.networkBase.Agents 
 
         for agent in agents:
@@ -225,7 +225,7 @@ class SMDSimulationModel:
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_updateAgents(i)
+            self.network.networkBase.NetworkBase_timeStep(i)
             self.network.Agents = self.network.networkBase.Agents
 
 #####################################################################

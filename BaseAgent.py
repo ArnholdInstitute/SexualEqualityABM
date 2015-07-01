@@ -194,11 +194,7 @@ class BaseAgent:
     # new policy check every 10 time steps, requiring current time  #                                                   
     #################################################################
     def Agent_updateAgent(self, time):
-        self.Agent_updateAttitude()
-
-        if time % 10 == 0:
-            newPolicy = Policy()
-            newPolicy.Policy_considerPolicy(self.network) 
+        self.Agent_updateAttitude() 
 
         self.Agent_updateSupport()
         self.Agent_updateDiscrimination()

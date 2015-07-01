@@ -13,6 +13,7 @@ import random
 from numpy import array, zeros, std, mean, sqrt
 
 from Verification import *
+from Policy import Policy
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
@@ -72,7 +73,9 @@ class NetworkBase:
     # at, if the "effectiveness" of the coaches is different, how   #
     # would the final results vary) with default values given       #
     #################################################################
-    def NetworkBase_updateAgents(self, time): 
+    def NetworkBase_timeStep(self, time): 
+        newPolicy = Policy()
+        newPolicy.Policy_considerPolicy(self)
         for agentID in self.Agents:
             self.Agents[agentID].Agent_updateAgent(time)
 

@@ -67,8 +67,8 @@ class Policy:
     # population and the bill's influence score                     #
     #################################################################
     def Policy_getProbability(self, network):
-        MIN_POLICY = -125
-        MAX_POLICY = 125
+        MIN_POLICY = -50
+        MAX_POLICY = 50
 
         # Ensures that the score does not exceed max/min 
         finalScore = network.policyScore + self.score 
@@ -90,7 +90,7 @@ class Policy:
     # Passes or rejects a policy for the network under question     #
     #################################################################
     def Policy_considerPolicy(self, network):
-        probAdd = self.Policy_getProbability(network)
+        probAdd = self.Policy_getProbability(network) * 2
 
         rand = random.random()
         if rand < probAdd:

@@ -122,7 +122,7 @@ class MinorityAgent(BaseAgent):
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
             "attitude")
 
-        self.discrimination = 1 - (numPolicies/125 + avgAttitude)
+        self.discrimination = 1 - (numPolicies/50 + avgAttitude)
         self.discrimination = \
             self.Agent_normalizeParam(self.discrimination)
 
@@ -137,7 +137,7 @@ class MinorityAgent(BaseAgent):
         BASELINE_PROB = .001
         numPolicies = self.network.policyScore
         probConceal = BASELINE_PROB + (self.discrimination - self.support) \
-            - numPolicies/125
+            - numPolicies/50
 
         self.probConceal = self.Agent_normalizeParam(probConceal)
 
