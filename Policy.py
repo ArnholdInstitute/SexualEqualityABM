@@ -37,7 +37,7 @@ class Policy:
 
         self.isPassed = False
 
-        if not self.Agent_verifyAgent(self.score, self.isPassed):
+        if not self.Policy_verifyPolicy(self.score, self.isPassed):
             return None
 
     #################################################################
@@ -50,7 +50,7 @@ class Policy:
     # Checks that, given all the parameters used to initialize the  #
     # policy, the parameters are legal                              #
     #################################################################
-    def Agent_verifyAgent(self, score, isPassed):
+    def Policy_verifyPolicy(self, score, isPassed):
         if not Verification_verifyInt(score, "Score"):
             return False
 
@@ -65,8 +65,8 @@ class Policy:
     # population and the bill's influence score                     #
     #################################################################
     def Policy_getProbability(self, network):
-        MIN_POLICY = -500
-        MAX_POLICY = 500
+        MIN_POLICY = -25
+        MAX_POLICY = 25
 
         finalScore = network.policyScore + self.score 
         if finalScore > MAX_POLICY:

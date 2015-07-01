@@ -291,11 +291,6 @@ class NetworkBase:
             if curAgent.isConcealed:
                 self.G.node[agentID]['opacity'] = .5
 
-            # Makes discriminatory agents appears as squares
-            self.G.node[agentID]['shape'] = 'o'
-            if curAgent.isDiscriminatory:
-                self.G.node[agentID]['shape'] = 's'
-
     #################################################################
     # Provides graphical display of the population, color coded to  #
     # illustrate who does and doesn't have the wellness coaches and #
@@ -312,8 +307,7 @@ class NetworkBase:
             nx.draw_networkx_nodes(self.G,pos, nodelist=[node], 
                 node_color=self.G.node[node]['color'],
                 node_size=self.G.node[node]['size'], 
-                alpha=self.G.node[node]['opacity'],
-                node_shape=self.G.node[node]['shape'])
+                alpha=self.G.node[node]['opacity'])
         nx.draw_networkx_edges(self.G,pos,width=1.0,alpha=.5)
 
         plt.title("Sexual Minority vs Depression at Time {}".format(time))

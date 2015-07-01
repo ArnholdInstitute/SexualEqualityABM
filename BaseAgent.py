@@ -1,6 +1,3 @@
-''' Some really trash code in here: lots of "magic constants" used
-to scale from 1.0 to actual thing (in depression model): CHECK. '''
-
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: BaseAgent.py                                                #
@@ -45,20 +42,16 @@ class BaseAgent:
     # acquired depression, initializes an agent for simulation      #
     # Note that all the float values to be provided on 0.0-1.0 scale#
     #################################################################
-    def __init__(self, childSES, oldSES, currentSES, minorityAttitude, 
-            isMinority, discrimination, support, isConcealed, 
-            oldDepression, currentDepression, isDepressed, network,
-            agentID):
+    def __init__(self, currentSES, minorityAttitude, isMinority, 
+        discrimination, support, isConcealed, currentDepression, 
+        isDepressed, network, agentID):
         PROB_MINORITY = .30
 
-        if not self.Agent_verifyAgent(childSES, oldSES, currentSES, 
-            minorityAttitude, isMinority, discrimination, support, 
-            isConcealed, oldDepression, currentDepression, isDepressed,
-            agentID):
+        if not self.Agent_verifyAgent(currentSES, minorityAttitude, 
+            isMinority, discrimination, support, isConcealed,
+            currentDepression, isDepressed, agentID):
             return None
 
-        self.childSES = childSES
-        self.oldSES = oldSES
         self.currentSES = currentSES
 
         self.minorityAttitude = minorityAttitude
@@ -69,14 +62,13 @@ class BaseAgent:
         self.support = support
 
         self.isConcealed = isConcealed
-        self.oldDepression = oldDepression
         self.currentDepression = currentDepression
         self.isDepressed = isDepressed
 
         self.network = network.networkBase
         self.agentID = agentID
 
-        self.deltaSES = self.currentSES - self.childSES
+        self.probConceal = self.discrimination/self.support
 
     #################################################################
     # Provides an output string for printing out agents             #
@@ -91,19 +83,16 @@ class BaseAgent:
     # Checks that, given all the parameters used to initialize the  #
     # agent, the parameters are legal                               #
     #################################################################
-    def Agent_verifyAgent(self, childSES, oldSES, currentSES, 
-        baseAttitude, isMinority, discrimination, support, isConcealed, 
-        oldDepression, currentDepression, isDepressed, agentID):
+    def Agent_verifyAgent(self, currentSES, minorityAttitude, 
+        isMinority, discrimination, support, isConcealed, 
+        currentDepression, isDepressed, agentID):
         # Contains all the float variables to be checked for bounded
         # conditions, namely between 0.0-1.0
         boundsVerficationDict = {
-            childSES: "Childhood socio-economic",
-            oldSES: "Old socio-economic",
             currentSES: "Current socio-economic",
-            baseAttitude: "Baseline attitude",
+            minorityAttitude: "Baseline attitude",
             discrimination: "Discrimination",
             support: "Support",
-            oldDepression: "Old depression level",
             currentDepression: "Current depression level"
         }
 
@@ -180,6 +169,17 @@ class BaseAgent:
         network.networkBase.NetworkBase_addEdges(edges_to_add)
 
     #################################################################
+    # Given a parameter, normalizes to be on a 0.0 - 1.0 scale      #
+    #################################################################
+    def Agent_normalizeParam(self, param):
+        updateParam = param
+        if param > 1.0:
+            updateParam = 1.0
+        elif param < 0.0:
+            updateParam = 0.0
+        return updateParam
+
+    #################################################################
     # Determines how a given agent will have influence a bill       #
     # his socio-economic standing and attitude towards minorities   #
     #################################################################
@@ -193,46 +193,6 @@ class BaseAgent:
     def Agent_getBillInfluence(self, billRank):
         influence = self.Agent_getInfluence()
         return influence/(billRank ** 2)
-        
-    #################################################################
-    # Given an agent, updates his depression status, based on the   #
-    # local and network settings. Note: If agent becomes depressed  #
-    # the property remains for the duration of the simulation (can't#
-    # become 'undepressed')                                         #
-    #################################################################
-    def Agent_updateDepression(self):
-        DEPRESS_CONST = .25
-        if self.isDepressed:
-            return
-
-        self.oldDepression = self.currentDepression
-
-        probDepress = math.exp(-self.deltaSES/(10 * self.currentSES))\
-            /(100 * self.support)
-        probDepress += self.oldDepression
-
-        if self.isMinority:
-            BASELINE_MULT = .25
-
-            # If concealed, greater chance of depression
-            concealment = 1.0
-            if self.isConcealed:
-                concealment *= 10.0
-
-            numPolicies = self.network.policyScore
-            percentConnect = self.network.\
-                NetworkBase_findPercentConnectedMinority(self)
-
-            if numPolicies == 0:
-                numPolicies = 1
-            probIncrease = BASELINE_MULT * self.discrimination * \
-                concealment/(numPolicies/25 * percentConnect)
-            probDepress += probIncrease
-            
-        self.currentDepression = DEPRESS_CONST * probDepress
-
-        rand = random.random()
-        self.isDepressed = (rand < self.currentDepression)
 
     #################################################################
     # Given an agent, updates his attitudes towards minorities, does#

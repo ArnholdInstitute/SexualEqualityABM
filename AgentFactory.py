@@ -40,9 +40,9 @@ class AgentFactory(object):
         BASELINE_SUPPORT = .50 
         FULL_ACCEPTANCE = 1.0
 
-        NON_MINORITY_DEPRESS = .00010
-        UNCONCEAL_DEPRESS_PROB = .00025
-        CONCEAL_DEPRESS_PROB = .00050
+        NON_MINORITY_DEPRESS = .010
+        UNCONCEAL_DEPRESS_PROB = .025
+        CONCEAL_DEPRESS_PROB = .050
         
         CENTER_SES_RAND = 3
         BASELINE_SES = .1
@@ -52,26 +52,13 @@ class AgentFactory(object):
         if rand <= PROB_MINORITY:
             isMinority = True
 
-        SESarr = []
-
-        childSES = np.random.poisson(CENTER_SES_RAND)/10 + BASELINE_SES
-        oldSES = np.random.poisson(CENTER_SES_RAND)/10 + BASELINE_SES
         currentSES = np.random.poisson(CENTER_SES_RAND)/10 + BASELINE_SES
 
         # Normalizes SES to 1.0 scale
-        SESarr.append(childSES)
-        SESarr.append(oldSES)
-        SESarr.append(currentSES)
-
-        for i in range(0, len(SESarr)):
-            if SESarr[i] > 1.0:
-                SESarr[i] = 1.0
-            elif SESarr[i] < 0.0:
-                SESarr[i] = 0.0
-
-        childSES = SESarr[0]
-        oldSES = SESarr[1]
-        currentSES = SESarr[2]
+        if currentSES > 1.0:
+            currentSES = 1.0
+        elif currentSES < 0.0:
+            currentSES = 0.0
 
         # No discrimination imposed upon those not of minority.
         # Similarly, attitude for those of minority is fully accepting
@@ -104,7 +91,6 @@ class AgentFactory(object):
                 const = CONCEAL_DEPRESS_PROB
 
         rand = random.random()
-        oldDepression = rand * const
         rand = random.random()
         currentDepression = rand * const
 
@@ -114,13 +100,11 @@ class AgentFactory(object):
             isDepressed = True
 
         if isMinority:
-            agent = MinorityAgent(childSES, oldSES, currentSES, 
-                minorityAttitude, isMinority, discrimination, support, 
-                isConcealed, oldDepression, currentDepression, 
+            agent = MinorityAgent(currentSES, minorityAttitude, isMinority,
+                discrimination, support, isConcealed, currentDepression, 
                 isDepressed, network, agentID)
         else: 
-            agent = NonMinorityAgent(childSES, oldSES, currentSES, 
-                minorityAttitude, isMinority, discrimination, support, 
-                isConcealed, oldDepression, currentDepression, 
+            agent = NonMinorityAgent(currentSES, minorityAttitude, isMinority,
+                discrimination, support, isConcealed, currentDepression, 
                 isDepressed, network, agentID)
         return agent

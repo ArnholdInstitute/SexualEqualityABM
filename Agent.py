@@ -64,6 +64,14 @@ class NonMinorityAgent(BaseAgent):
     def Agent_updateConcealment(self):
         return
 
+    #################################################################
+    # Simply due to the results of interest for this investigation  #
+    # we do not consider the depression of those agents not present #
+    # in the minority                                               #
+    #################################################################
+    def Agent_updateDepression(self):
+        return
+
 #####################################################################
 # A model for agents not part of sexual minority                    #
 #####################################################################
@@ -82,11 +90,19 @@ class MinorityAgent(BaseAgent):
     # not a minority, returns 1.0                                   #
     #################################################################
     def Agent_updateSupport(self):
+        ADDITIONAL_BOOST = .25
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
             NetworkBase_findPercentConnectedMinority(self)
 
-        self.support = localConnect * att
+        # Accounts for additional boost felt when those opposing are
+        # in significant minority
+        const = 0
+        if att > .75:
+            const = ADDITIONAL_BOOST
+
+        self.support = localConnect * att + const
+        self.support = self.Agent_normalizeParam(self.support)
 
     #################################################################
     # Given an agent, updates his discrimination, based on whether  #
@@ -100,6 +116,8 @@ class MinorityAgent(BaseAgent):
             "attitude")
 
         self.discrimination = 1 - (numPolicies/25 + avgAttitude)
+        self.discrimination = \
+            self.Agent_normalizeParam(self.discrimination)
 
     #################################################################
     # Given an agent, updates his concealment, based on the network #
@@ -110,14 +128,32 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateConcealment(self):
         numPolicies = self.network.policyScore
-        
-        if numPolicies == 0:
-            numPolicies = 1
-        probConceal = self.discrimination/(self.support * \
-            numPolicies/25)
+        probConceal = self.discrimination/self.support - numPolicies/25
 
         rand = random.random()
 
+        self.probConceal = probConceal
         self.isConcealed = False
+        
         if rand < probConceal:
             self.isConcealed = True
+
+    #################################################################
+    # Given an agent, updates his depression status, based on the   #
+    # local and network settings. Note: If agent becomes depressed  #
+    # the property remains for the duration of the simulation (can't#
+    # become 'undepressed')                                         #
+    #################################################################
+    def Agent_updateDepression(self):
+        if self.isDepressed:
+            return
+
+        DEPRESS_CONST = .15
+        probIncrease = DEPRESS_CONST * self.discrimination/(self.support)
+        if self.isConcealed:
+            probIncrease *= 5.0
+
+        self.currentDepression += probIncrease
+
+        rand = random.random()
+        self.isDepressed = (rand < self.currentDepression)

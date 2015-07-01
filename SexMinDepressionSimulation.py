@@ -83,9 +83,9 @@ class SMDSimulationModel:
     #################################################################
     def SMDModel_writeSimulationHeader(self, resultsFile):
         if resultsFile is not None:
-            columns = ['time', 'agentID', 'minorityAttitude', 
-            'isMinority', 'discrimination', 'support', 'isConcealed', 
-            'currentDepression', 'isDepressed']
+            columns = ['time', 'agentID', 'attitude', 
+            'isMinority', 'discrimination', 'support', 'probConceal'
+            'isConcealed', 'currentDepression', 'isDepressed']
             with open(resultsFile, 'w') as f:
                 writer = csv.writer(f)
                 writer.writerow(columns)
@@ -104,8 +104,9 @@ class SMDSimulationModel:
                     curAgent = Agents[agent]
                     row = [time, curAgent.agentID, curAgent.minorityAttitude, 
                     curAgent.isMinority, curAgent.discrimination, 
-                    curAgent.support, curAgent.isConcealed, 
-                    curAgent.currentDepression, curAgent.isDepressed]
+                    curAgent.support, curAgent.probConceal, 
+                    curAgent.isConcealed, curAgent.currentDepression, 
+                    curAgent.isDepressed]
 
                     writer.writerow(row)
 
@@ -190,8 +191,8 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 10
-    numAgents = 50
+    timeSpan = 2
+    numAgents = 15
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, 
