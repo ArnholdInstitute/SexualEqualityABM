@@ -29,7 +29,7 @@ except ImportError:
 class AgentFactory(object):
     def AgentFactory_createAgent(network, agentID):
         # Constant values (can change for variation in simulation)
-        PROB_MINORITY = .50
+        PROB_MINORITY = 1.00
         PROB_CONCEAL = .10
         BASELINE_ATTITUDE = .25
 

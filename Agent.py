@@ -130,12 +130,13 @@ class MinorityAgent(BaseAgent):
         numPolicies = self.network.policyScore
         probConceal = self.discrimination/self.support - numPolicies/25
 
-        rand = random.random()
+        self.probConceal = \
+            self.Agent_normalizeParam(self.probConceal)
 
-        self.probConceal = probConceal
+        rand = random.random()
         self.isConcealed = False
         
-        if rand < probConceal:
+        if rand < self.probConceal:
             self.isConcealed = True
 
     #################################################################

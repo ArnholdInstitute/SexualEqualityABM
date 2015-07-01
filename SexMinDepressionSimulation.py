@@ -85,7 +85,8 @@ class SMDSimulationModel:
         if resultsFile is not None:
             columns = ['time', 'agentID', 'attitude', 
             'isMinority', 'discrimination', 'support', 'probConceal'
-            'isConcealed', 'currentDepression', 'isDepressed']
+            'isConcealed', 'currentDepression', 'isDepressed',
+            'policy points']
             with open(resultsFile, 'w') as f:
                 writer = csv.writer(f)
                 writer.writerow(columns)
@@ -106,7 +107,7 @@ class SMDSimulationModel:
                     curAgent.isMinority, curAgent.discrimination, 
                     curAgent.support, curAgent.probConceal, 
                     curAgent.isConcealed, curAgent.currentDepression, 
-                    curAgent.isDepressed]
+                    curAgent.isDepressed, curAgent.network.policyScore]
 
                     writer.writerow(row)
 

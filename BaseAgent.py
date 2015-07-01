@@ -180,18 +180,12 @@ class BaseAgent:
         return updateParam
 
     #################################################################
-    # Determines how a given agent will have influence a bill       #
-    # his socio-economic standing and attitude towards minorities   #
-    #################################################################
-    def Agent_getInfluence(self):
-        return self.attitude * self.currentSES ** 2
-
-    #################################################################
     # Given a bill's effectiveness, determines how much relative    #
     # impact an agent will have on its passing                      #
     #################################################################
     def Agent_getBillInfluence(self, billRank):
-        influence = self.Agent_getInfluence()
+        signedInfluence = 2.0 * (self.attitude - .5) 
+        influence = signedInfluence * self.currentSES ** 2
         return influence/(billRank ** 2)
 
     #################################################################
