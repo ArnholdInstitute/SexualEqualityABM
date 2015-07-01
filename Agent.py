@@ -45,14 +45,11 @@ class NonMinorityAgent(BaseAgent):
         deltaMinority = .75 * percentConnect/100
         deltaNonMinority = percentPoorNonAccept/100
 
-        print(self.attitude)
         if self.isDiscriminatory:
             self.attitude -= deltaMinority
         else:
             self.attitude += deltaMinority
         self.attitude -= deltaNonMinority
-        print(self.attitude)
-        print('=========================================')
 
     #################################################################
     # As those not of minorities are assumed to have full support,  #
