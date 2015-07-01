@@ -66,7 +66,7 @@ class BaseAgent:
         self.network = network.networkBase
         self.agentID = agentID
 
-        self.probConceal = self.discrimination/self.support
+        self.probConceal = self.discrimination - self.support
         self.probConceal = self.Agent_normalizeParam(self.probConceal)
             
     #################################################################

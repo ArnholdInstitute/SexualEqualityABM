@@ -134,17 +134,15 @@ class MinorityAgent(BaseAgent):
     # vice versa                                                    #
     #################################################################
     def Agent_updateConcealment(self):
+        BASELINE_PROB = .001
         numPolicies = self.network.policyScore
-        probConceal = self.discrimination/self.support - numPolicies/25
+        probConceal = BASELINE_PROB + (self.discrimination - self.support) \
+            - numPolicies/25
 
-        self.probConceal = \
-            self.Agent_normalizeParam(self.probConceal)
+        self.probConceal = self.Agent_normalizeParam(probConceal)
 
         rand = random.random()
-        self.isConcealed = False
-        
-        if rand < self.probConceal:
-            self.isConcealed = True
+        self.isConcealed = (rand < self.probConceal)
 
     #################################################################
     # Given an agent, updates his depression status, based on the   #
@@ -156,12 +154,16 @@ class MinorityAgent(BaseAgent):
         if self.isDepressed:
             return
 
-        DEPRESS_CONST = .15
-        probIncrease = DEPRESS_CONST * self.discrimination/(self.support)
+        DEPRESS_CONST = .025
+        probIncrease = DEPRESS_CONST * (self.discrimination - self.support)
         if self.isConcealed:
-            probIncrease *= 5.0
+            probIncrease *= 2.0
 
         self.currentDepression += probIncrease
 
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression)
+
+        # Possibility of escaping from depression
+        if self.currentDepression < -.25:
+            self.isDepressed = False
