@@ -83,8 +83,7 @@ class Policy:
 
         if self.isDiscriminatory:
             attitudeFor *= -1
-
-        prob = attitudeFor/possibleFor
+            
         return attitudeFor/possibleFor
 
     #################################################################

@@ -103,7 +103,7 @@ class SMDSimulationModel:
                 Agents = self.network.networkBase.Agents
                 for agent in Agents:
                     curAgent = Agents[agent]
-                    row = [time, curAgent.agentID, curAgent.minorityAttitude, 
+                    row = [time, curAgent.agentID, curAgent.attitude, 
                     curAgent.isMinority, curAgent.discrimination, 
                     curAgent.support, curAgent.probConceal, 
                     curAgent.isConcealed, curAgent.currentDepression, 

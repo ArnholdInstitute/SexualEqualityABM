@@ -36,13 +36,23 @@ class NonMinorityAgent(BaseAgent):
         percentConnect = self.network.\
             NetworkBase_findPercentConnectedMinority(self)
 
+        # Accounts for negative sentiments diffusing in network
+        percentPoorNonAccept = self.network.\
+            NetworkBase_findPercentNonAccepting(self)
+
         # Accounts for those who reflect feeling uneasy when with 
         # those of the sexual minority community
-        delta = .75 * percentConnect
+        deltaMinority = .75 * percentConnect/100
+        deltaNonMinority = percentPoorNonAccept/100
+
+        print(self.attitude)
         if self.isDiscriminatory:
-            self.attitude = self.minorityAttitude - delta
+            self.attitude -= deltaMinority
         else:
-            self.attitude = self.minorityAttitude + delta
+            self.attitude += deltaMinority
+        self.attitude -= deltaNonMinority
+        print(self.attitude)
+        print('=========================================')
 
     #################################################################
     # As those not of minorities are assumed to have full support,  #

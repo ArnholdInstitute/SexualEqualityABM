@@ -200,7 +200,24 @@ class NetworkBase:
             totalCount += 1
 
         # Adding 1.0 avoids division by 0
-        return minorityCount/totalCount + 1.0
+        return minorityCount/totalCount
+
+    #################################################################
+    # Finds the percentage of locally connected nodes (to some given#
+    # agent) that has a low tolerance for those of LGB status       #
+    #################################################################
+    def NetworkBase_findPercentNonAccepting(self, agent):
+        neighbors = self.NetworkBase_getNeighbors(agent)
+        totalCount = 0
+        nonAcceptingCount = 0
+
+        for neighbor in neighbors:
+            if self.Agents[neighbor].attitude < .5:
+                nonAcceptingCount += 1
+            totalCount += 1
+
+        # Adding 1.0 avoids division by 0
+        return nonAcceptingCount/totalCount
 
     #################################################################
     # Determines the local average value of an attribute for a given#
