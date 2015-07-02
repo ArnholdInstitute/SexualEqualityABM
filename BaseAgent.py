@@ -67,6 +67,10 @@ class BaseAgent:
 
         self.network = network.networkBase
         self.agentID = agentID
+
+        # Used to determine whether or not agents have been exposed to
+        # the "discrimination decay" for extended periods of time
+        self.hasMultipleStagnant = False
             
     #################################################################
     # Provides an output string for printing out agents             #
@@ -202,7 +206,7 @@ class BaseAgent:
         self.Agent_updateAttitude() 
 
         self.Agent_updateSupport()
-        self.Agent_updateDiscrimination()
+        self.Agent_updateDiscrimination(time)
 
         self.Agent_updateConcealment()
         self.Agent_updateDepression()

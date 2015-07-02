@@ -308,9 +308,9 @@ class NetworkBase:
                 self.G.node[agentID]['color'] = 'blue'
 
             # Displays sexual minority as different shape than others
-            self.G.node[agentID]['size'] = 500
+            self.G.node[agentID]['shape'] = 'o'
             if curAgent.isMinority:
-                self.G.node[agentID]['size'] = 1250
+                self.G.node[agentID]['shape'] = 's'
 
             # Makes concealed agents less "visible" in display 
             self.G.node[agentID]['opacity'] = 1.0
@@ -332,7 +332,7 @@ class NetworkBase:
         for node in self.G.nodes():
             nx.draw_networkx_nodes(self.G,pos, nodelist=[node], 
                 node_color=self.G.node[node]['color'],
-                node_size=self.G.node[node]['size'], 
+                node_size=500, node_shape=self.G.node[node]['shape'], 
                 alpha=self.G.node[node]['opacity'])
         nx.draw_networkx_edges(self.G,pos,width=1.0,alpha=.5)
 

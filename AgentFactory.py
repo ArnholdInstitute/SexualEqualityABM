@@ -27,9 +27,8 @@ except ImportError:
 # the setup of the simulation                                       #
 #####################################################################
 class AgentFactory(object):
-    def AgentFactory_createAgent(network, agentID):
+    def AgentFactory_createAgent(network, agentID, percentMinority):
         # Constant values (can change for variation in simulation)
-        PROB_MINORITY = .25
         BASELINE_ATTITUDE = .05
 
         BASELINE_DISCRIMINATION = .025
@@ -49,7 +48,7 @@ class AgentFactory(object):
 
         rand = random.random()
         isMinority = False
-        if rand <= PROB_MINORITY:
+        if rand <= percentMinority:
             isMinority = True
 
         currentSES = np.random.poisson(CENTER_SES_RAND)/10 + BASELINE_SES

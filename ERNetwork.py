@@ -32,7 +32,7 @@ class ERNetwork:
     # probability of attaching to other nodes (defaulted to .5)     #
     # initializes ER Network                                        #
     #################################################################
-    def __init__(self, nodeCount, p = 0.5):
+    def __init__(self, nodeCount, percentMinority, p = 0.5):
         if not self.ERNetwork_verifyNetwork(nodeCount, p):
             return None
 
@@ -40,6 +40,7 @@ class ERNetwork:
 
         self.p = p
         self.agentFactory = AgentFactory
+        self.percentMinority = percentMinority
 
         self.Agents = {}
         self.networkBase = NetworkBase("ERNetwork")
@@ -84,5 +85,5 @@ class ERNetwork:
 
         for i in range(0, self.nodeCount):    
             curAgent=self.agentFactory.\
-                AgentFactory_createAgent(self, i)
+                AgentFactory_createAgent(self, i, self.percentMinority)
             self.Agents[curAgent.agentID] = curAgent

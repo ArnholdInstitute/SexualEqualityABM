@@ -33,7 +33,7 @@ class ASFNetwork:
     # of edges to be added at each step of the initialization (m)   #
     # produces an ASF network                                       #
     #################################################################
-    def __init__(self, nodeCount, m_0 = 4, m = 3):
+    def __init__(self, nodeCount, percentMinority, m_0 = 4, m = 3):
         if not self.ASFNetwork_verifyNetwork(nodeCount, m_0, m):
             return None
 
@@ -42,6 +42,7 @@ class ASFNetwork:
         self.m_0 = m_0
         self.m = m
         self.agentFactory = AgentFactory
+        self.percentMinority = percentMinority
 
         self.Agents = {}
         self.networkBase = NetworkBase("ASFNetwork")
@@ -97,7 +98,7 @@ class ASFNetwork:
 
         for i in range(0, totalConnect):
             curAgent = self.agentFactory.\
-                AgentFactory_createAgent(self, i)
+                AgentFactory_createAgent(self, i, self.percentMinority)
             self.Agents[curAgent.agentID] = curAgent
             self.G.add_node(curAgent.agentID)
         
@@ -108,7 +109,7 @@ class ASFNetwork:
         # Creates remainder of nodes (assigning them to agents)
         for i in range(totalConnect, self.nodeCount):
             curAgent = self.agentFactory.\
-                AgentFactory_createAgent(self, i)
+                AgentFactory_createAgent(self, i, self.percentMinority)
             self.Agents[curAgent.agentID] = curAgent
             self.G.add_node(curAgent.agentID)
             curAgent.Agent_preferentiallyAttach(self, self.m)

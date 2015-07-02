@@ -34,13 +34,15 @@ class SMDSimulationModel:
     # of agents in the network, a simulation is created and run for #
     # testing depression as a function of minority prevalence       #
     #################################################################
-    def __init__(self, networkType='ER', timeSpan=10, numAgents=10):
+    def __init__(self, networkType='ER', timeSpan=10, numAgents=10,
+            percentMinority=.5):
         if not self.SMDModel_verifySE(networkType, timeSpan, numAgents):
             return None
 
         self.networkType = networkType
         self.timeSpan = timeSpan
         self.numAgents = numAgents
+        self.percentMinority = percentMinority
 
         self.SMDModel_setNetwork()
         
@@ -50,11 +52,14 @@ class SMDSimulationModel:
     #################################################################
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
-            self.network = ERNetwork(self.numAgents, 10.0/self.numAgents)
+            self.network = ERNetwork(self.numAgents, percentMinority,
+                10.0/self.numAgents)
         elif self.networkType == 'SW':
-            self.network = SWNetwork(self.numAgents, 10, 0.0)
+            self.network = SWNetwork(self.numAgents, percentMinority,
+                10, 0.0)
         else:
-            self.network = ASFNetwork(self.numAgents, 9, 7)
+            self.network = ASFNetwork(self.numAgents, percentMinority,
+                9, 7)
 
     #################################################################
     # Given parameters for initializing the simulation, ensures they#
@@ -240,10 +245,11 @@ if __name__ == "__main__":
     networkType = "ASF"
     timeSpan = 5
     numAgents = 25
+    percentMinority = .55
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, 
-        timeSpan, numAgents)
+        timeSpan, numAgents, percentMinority)
     simulationModel.SMDModel_runSimulation(resultsFile)
 
     print("Terminating simulation...")

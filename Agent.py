@@ -62,7 +62,7 @@ class NonMinorityAgent(BaseAgent):
     # As those not of minorities are assumed to not be discriminated#
     # against, no update is needed for them                         #
     #################################################################
-    def Agent_updateDiscrimination(self):
+    def Agent_updateDiscrimination(self, time):
         return
 
     #################################################################
@@ -119,7 +119,19 @@ class MinorityAgent(BaseAgent):
     # towards minorities, expressed through the presence of policies#
     # and attitudes                                                 #
     #################################################################
-    def Agent_updateDiscrimination(self):
+    def Agent_updateDiscrimination(self, time):
+        DECAY_FACTOR = 5.0
+
+        if self.isConcealed:
+            if not self.hasMultipleStagnant:
+                self.hasMultipleStagnant = True
+                self.constDiscrimination = self.discrimination
+            self.discrimination = self.constDiscrimination * \
+                DECAY_FACTOR ** (-time)
+            return
+
+        self.hasMultipleStagnant = False    
+
         numPolicies = self.network.policyScore
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
             "attitude")
@@ -153,6 +165,8 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateDepression(self):
         SCALING_FACTOR = .05
+        DEPRESSION_THRESHOLD = .025
+
         if self.isDepressed:
             return
 
@@ -171,4 +185,5 @@ class MinorityAgent(BaseAgent):
             * SCALING_FACTOR
 
         rand = random.random()
-        self.isDepressed = (rand < self.currentDepression)
+        self.isDepressed = (rand < self.currentDepression and \
+            self.currentDepression > DEPRESSION_THRESHOLD)

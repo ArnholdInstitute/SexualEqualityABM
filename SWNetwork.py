@@ -33,7 +33,7 @@ class SWNetwork:
     # other nodes (defaulted to .0), and the number of neighbors to #
     # which each node is to be connected (k) initializes SW Network #
     #################################################################
-    def __init__(self, nodeCount, k=4, p = 0.0):
+    def __init__(self, nodeCount, percentMinority, k=4, p = 0.0):
         if not self.SWNetwork_verifyNetwork(nodeCount, k, p):
             return None
 
@@ -42,6 +42,7 @@ class SWNetwork:
         self.k = k
         self.p = p
         self.agentFactory = AgentFactory
+        self.percentMinority = percentMinority
 
         self.Agents = {}
         self.networkBase = NetworkBase("SWNetwork")
@@ -92,5 +93,5 @@ class SWNetwork:
 
         for i in range(0, self.nodeCount):    
             curAgent = self.agentFactory.\
-                AgentFactory_createAgent(self, i)
+                AgentFactory_createAgent(self, i, self.percentMinority)
             self.Agents[curAgent.agentID] = curAgent
