@@ -42,8 +42,8 @@ class NonMinorityAgent(BaseAgent):
 
         # Accounts for those who reflect feeling uneasy when with 
         # those of the sexual minority community
-        deltaMinority = .75 * percentConnect/100
-        deltaNonMinority = percentPoorNonAccept/100
+        deltaMinority = .75 * percentConnect/50
+        deltaNonMinority = percentPoorNonAccept/50
 
         if self.isDiscriminatory:
             self.attitude -= deltaMinority
@@ -97,7 +97,7 @@ class MinorityAgent(BaseAgent):
     # not a minority, returns 1.0                                   #
     #################################################################
     def Agent_updateSupport(self):
-        ADDITIONAL_BOOST = .25
+        ADDITIONAL_BOOST = .10
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
             NetworkBase_findPercentConnectedMinority(self)
@@ -134,15 +134,15 @@ class MinorityAgent(BaseAgent):
     # vice versa                                                    #
     #################################################################
     def Agent_updateConcealment(self):
-        BASELINE_PROB = .001
+        BASELINE_PROB = .005
         numPolicies = self.network.policyScore
         probConceal = BASELINE_PROB + (self.discrimination - self.support) \
             - numPolicies/50
 
-        self.probConceal = self.Agent_normalizeParam(probConceal)
+        prob = 1/(1 + math.exp(probConceal))
 
         rand = random.random()
-        self.isConcealed = (rand < self.probConceal)
+        self.isConcealed = (rand < prob)
 
     #################################################################
     # Given an agent, updates his depression status, based on the   #
@@ -154,21 +154,20 @@ class MinorityAgent(BaseAgent):
         if self.isDepressed:
             return
 
-        DEPRESS_CONST = .025
+        DEPRESS_CONST = .25
+        numPolicies = self.network.policyScore
         probIncrease = DEPRESS_CONST * (self.discrimination - self.support)
+
         if self.isConcealed:
             probIncrease *= 2.0
 
-        self.currentDepression += probIncrease
+        probIncrease -= numPolicies/25
+        baseProb = self.currentDepression + probIncrease
+        self.currentDepression = 1/(1 + math.exp(baseProb))
 
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression)
 
         # Possibility of escaping from depression
-        if self.currentDepression < -.25:
+        if self.currentDepression == 0.0:
             self.isDepressed = False
-
-        if self.currentDepression < -1.0:
-            self.currentDepression = -1.0
-        elif self.currentDepression > 1.0:
-            self.currentDepression = 1.0

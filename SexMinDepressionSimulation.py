@@ -238,7 +238,7 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ASF"
-    timeSpan = 10
+    timeSpan = 5
     numAgents = 25
 
     resultsFile = "Results\\TimeResults\\results.csv"

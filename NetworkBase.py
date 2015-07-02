@@ -1,5 +1,3 @@
-''' Fix the %connected to avoid having to add 1.0 for division by 0 ''' 
-
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: NetworkBase.py                                              #
