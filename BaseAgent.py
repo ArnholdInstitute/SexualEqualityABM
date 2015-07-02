@@ -66,8 +66,11 @@ class BaseAgent:
         self.network = network.networkBase
         self.agentID = agentID
 
-        self.probConceal = self.discrimination - self.support
-        self.probConceal = self.Agent_normalizeParam(self.probConceal)
+        if not self.isMinority:
+            self.probConceal = 0
+        else:
+            probConceal = self.discrimination - self.support
+            self.probConceal = self.Agent_getLogit(probConceal)
             
     #################################################################
     # Provides an output string for printing out agents             #
@@ -170,13 +173,8 @@ class BaseAgent:
     #################################################################
     # Given a parameter, normalizes to be on a 0.0 - 1.0 scale      #
     #################################################################
-    def Agent_normalizeParam(self, param):
-        updateParam = param
-        if param > 1.0:
-            updateParam = 1.0
-        elif param < 0.0:
-            updateParam = 0.0
-        return updateParam
+    def Agent_getLogit(self, param):
+        return 1/(1 + math.exp(param))
 
     #################################################################
     # Given a bill's effectiveness, determines how much relative    #
