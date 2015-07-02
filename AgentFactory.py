@@ -29,15 +29,14 @@ except ImportError:
 class AgentFactory(object):
     def AgentFactory_createAgent(network, agentID):
         # Constant values (can change for variation in simulation)
-        PROB_MINORITY = 1.00
-        PROB_CONCEAL = .10
-        BASELINE_ATTITUDE = .25
+        PROB_MINORITY = .25
+        BASELINE_ATTITUDE = .05
 
+        BASELINE_DISCRIMINATION = .025
         NO_DISCRIMINATION = 0.0
-        BASELINE_DISCRIMINATION = .25
 
+        BASELINE_SUPPORT = .75
         FULL_SUPPORT = 1.0
-        BASELINE_SUPPORT = .50 
 
         FULL_ACCEPTANCE = 1.0
 
@@ -74,15 +73,17 @@ class AgentFactory(object):
             minorityAttitude = FULL_ACCEPTANCE
             support = random.random() * BASELINE_SUPPORT
 
+        SCALING_FACTOR = .50
+        if not isMinority:
+            probConceal = 0
+        else:
+            discrepancy = discrimination - support
+            probConceal = 1/(1 + math.exp(discrepancy)) * SCALING_FACTOR 
+
         # For simplicity in network calculations, assumed to be false
         # if the person is not of sexual minority
         rand = random.random()
-        if not isMinority:
-            isConcealed = False
-        elif rand < PROB_CONCEAL:
-            isConcealed = True
-        else: 
-            isConcealed = False
+        isConcealed = rand < probConceal and isMinority
 
         if not isMinority:
             const = NON_MINORITY_DEPRESS
@@ -96,16 +97,14 @@ class AgentFactory(object):
         currentDepression = rand * const
 
         rand = random.random()
-        isDepressed = False
-        if rand < currentDepression:
-            isDepressed = True
+        isDepressed = rand < currentDepression
 
         if isMinority:
             agent = MinorityAgent(currentSES, minorityAttitude, isMinority,
-                discrimination, support, isConcealed, currentDepression, 
-                isDepressed, network, agentID)
+                discrimination, support, isConcealed, probConceal, 
+                currentDepression, isDepressed, network, agentID)
         else: 
             agent = NonMinorityAgent(currentSES, minorityAttitude, isMinority,
-                discrimination, support, isConcealed, currentDepression, 
-                isDepressed, network, agentID)
+                discrimination, support, isConcealed, probConceal, 
+                currentDepression, isDepressed, network, agentID)
         return agent

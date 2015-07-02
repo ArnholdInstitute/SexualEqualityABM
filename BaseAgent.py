@@ -42,12 +42,12 @@ class BaseAgent:
     # acquired depression, initializes an agent for simulation      #
     # Note that all the float values to be provided on 0.0-1.0 scale#
     #################################################################
-    def __init__(self, currentSES, minorityAttitude, isMinority, 
-        discrimination, support, isConcealed, currentDepression, 
-        isDepressed, network, agentID):
+    def __init__(self, currentSES, minorityAttitude, isMinority,
+        discrimination, support, isConcealed, probConceal, 
+        currentDepression, isDepressed, network, agentID):
         if not self.Agent_verifyAgent(currentSES, minorityAttitude, 
-            isMinority, discrimination, support, isConcealed,
-            currentDepression, isDepressed, agentID):
+            isMinority, discrimination, support, isConcealed, 
+            probConceal, currentDepression, isDepressed, network, agentID):
             return None
 
         self.currentSES = currentSES
@@ -60,17 +60,13 @@ class BaseAgent:
         self.support = support
 
         self.isConcealed = isConcealed
+        self.probConceal = probConceal
+
         self.currentDepression = currentDepression
         self.isDepressed = isDepressed
 
         self.network = network.networkBase
         self.agentID = agentID
-
-        if not self.isMinority:
-            self.probConceal = 0
-        else:
-            probConceal = self.discrimination - self.support
-            self.probConceal = self.Agent_getLogit(probConceal)
             
     #################################################################
     # Provides an output string for printing out agents             #
@@ -85,9 +81,9 @@ class BaseAgent:
     # Checks that, given all the parameters used to initialize the  #
     # agent, the parameters are legal                               #
     #################################################################
-    def Agent_verifyAgent(self, currentSES, minorityAttitude, 
-        isMinority, discrimination, support, isConcealed, 
-        currentDepression, isDepressed, agentID):
+    def Agent_verifyAgent(self, currentSES, minorityAttitude, isMinority,
+        discrimination, support, isConcealed, probConceal, 
+        currentDepression, isDepressed, network, agentID):
         # Contains all the float variables to be checked for bounded
         # conditions, namely between 0.0-1.0
         boundsVerficationDict = {
@@ -95,7 +91,8 @@ class BaseAgent:
             minorityAttitude: "Baseline attitude",
             discrimination: "Discrimination",
             support: "Support",
-            currentDepression: "Current depression level"
+            currentDepression: "Current depression level",
+            probConceal: "Probability of concealment"
         }
 
         booleanVerificationDict = {
@@ -171,10 +168,20 @@ class BaseAgent:
         network.networkBase.NetworkBase_addEdges(edges_to_add)
 
     #################################################################
+    # Given a parameter, normalizes to be on a logit scale      #
+    #################################################################
+    def Agent_getLogistic(self, param):
+        return 1/(1 + math.exp(-param))
+
+    #################################################################
     # Given a parameter, normalizes to be on a 0.0 - 1.0 scale      #
     #################################################################
-    def Agent_getLogit(self, param):
-        return 1/(1 + math.exp(param))
+    def Agent_normalizeParam(self, param):
+        if param < 0.0:
+            return 0.0
+        elif param > 1.0:
+            return 1.0
+        return param
 
     #################################################################
     # Given a bill's effectiveness, determines how much relative    #

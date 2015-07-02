@@ -227,7 +227,7 @@ class SMDSimulationModel:
             # to the network
             self.network.networkBase.NetworkBase_timeStep(i)
             self.network.Agents = self.network.networkBase.Agents
-
+            
 #####################################################################
 # Given the paramters of the simulation (upon being prompted on)    #
 # command line, runs simulation, outputting a CSV with each time    #

@@ -98,6 +98,8 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateSupport(self):
         ADDITIONAL_BOOST = .10
+        SCALING_FACTOR = 1.25
+
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
             NetworkBase_findPercentConnectedMinority(self)
@@ -108,8 +110,8 @@ class MinorityAgent(BaseAgent):
         if att > .75:
             const = ADDITIONAL_BOOST
 
-        support = localConnect * att + const
-        self.support = self.Agent_getLogit(support)
+        support = SCALING_FACTOR * localConnect * att + const
+        self.support = self.Agent_normalizeParam(support)
 
     #################################################################
     # Given an agent, updates his discrimination, based on whether  #
@@ -123,7 +125,7 @@ class MinorityAgent(BaseAgent):
             "attitude")
 
         discrimination = 1 - (numPolicies/50 + avgAttitude)
-        self.discrimination = self.Agent_getLogit(discrimination)
+        self.discrimination = self.Agent_normalizeParam(discrimination)
 
     #################################################################
     # Given an agent, updates his concealment, based on the network #
@@ -133,14 +135,13 @@ class MinorityAgent(BaseAgent):
     # vice versa                                                    #
     #################################################################
     def Agent_updateConcealment(self):
-        SCALING_FACTOR = 1.00
+        SCALING_FACTOR = 2.0
         numPolicies = self.network.policyScore
-        probConceal = (self.discrimination - self.support) \
-            - numPolicies/50
+        probConceal = ((self.discrimination - self.support) \
+            - numPolicies/50) * SCALING_FACTOR
 
-        self.probConceal = self.Agent_getLogit(probConceal) \
-            * SCALING_FACTOR
-
+        self.probConceal = self.Agent_getLogistic(probConceal)
+        
         rand = random.random()
         self.isConcealed = (rand < self.probConceal)
 
@@ -151,27 +152,23 @@ class MinorityAgent(BaseAgent):
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self):
-        SCALING_FACTOR = .025
+        SCALING_FACTOR = .05
         if self.isDepressed:
             return
 
         DEPRESS_CONST = .25
         numPolicies = self.network.policyScore
         probIncrease = self.discrimination - self.support
+        probIncrease -= numPolicies/25
 
         if self.isConcealed:
             probIncrease *= 2.0
 
-        probIncrease -= numPolicies/25
         baseProb = self.currentDepression + probIncrease
 
         # Uses logit scale
-        self.currentDepression = self.Agent_getLogit(baseProb) \
+        self.currentDepression = self.Agent_getLogistic(baseProb) \
             * SCALING_FACTOR
 
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression)
-
-        # Possibility of escaping from depression
-        if self.currentDepression == 0.0:
-            self.isDepressed = False
