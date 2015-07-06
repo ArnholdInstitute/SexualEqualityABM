@@ -47,9 +47,7 @@ class AgentFactory(object):
         BASELINE_SES = .1
 
         rand = random.random()
-        isMinority = False
-        if rand <= percentMinority:
-            isMinority = True
+        isMinority = (rand <= percentMinority)
 
         currentSES = np.random.poisson(CENTER_SES_RAND)/10 + BASELINE_SES
 
@@ -91,7 +89,6 @@ class AgentFactory(object):
             if isConcealed:
                 const = CONCEAL_DEPRESS_PROB
 
-        rand = random.random()
         rand = random.random()
         currentDepression = rand * const
 

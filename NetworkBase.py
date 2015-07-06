@@ -113,9 +113,26 @@ class NetworkBase:
     #################################################################
     # Returns an array of the neighbors of a given agent in graph   #
     #################################################################
-    def NetworkBase_getNeighbors(self, agent):
+    def NetworkBase_getFirstNeighbors(self, agent):
         agentID = agent.agentID
         return nx.neighbors(self.G, agentID)
+
+    #################################################################
+    # Returns an array of those in the "social network" of a given  #
+    # agent, defined as being those separated by, at most, two      #
+    # degrees in the graph (two connections away)                   #
+    #################################################################
+    def NetworkBase_getNeighbors(self, agent):
+        agentID = agent.agentID
+        neighbors = self.NetworkBase_getFirstNeighbors(agent)
+        for neighbor in neighbors:
+            curNeighbor = self.NetworkBase_getAgent(neighbor)
+            secondDegree = self.\
+                NetworkBase_getFirstNeighbors(curNeighbor)
+            for nextNeighbor in secondDegree:
+                if nextNeighbor not in neighbors:
+                    neighbors.append(nextNeighbor)
+        return neighbors
 
     #################################################################
     # Helper function converting the dictionary of agentID and agent#

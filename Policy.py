@@ -31,8 +31,8 @@ except ImportError:
 #####################################################################
 class Policy:
     def __init__(self):
-        self.score = int(np.random.normal(0, 5))
-        while self.score == 0 or self.score > 10 or self.score < -10:
+        self.score = int(np.random.normal(0, 3))
+        while self.score == 0 or self.score > 5 or self.score < -5:
             self.score = int(np.random.normal(0, 3))
 
         # If bill has score < 0: hurts LGB sentiments
