@@ -32,11 +32,16 @@ class NetworkBase:
             return None
         self.networkType = networkType
 
-        # Ranked on a scale of 1 to 100: starts at 1 to avoid divide
-        # by 0 errors
-        self.policyScore = 1
-        self.policies = []
+        # Potential score keeps track of the maximum possible score
+        # (once all the incomplete policies have matured)
+        self.potentialScore = 0
+        self.policyScore = 0
 
+        # Denotes those policies whose effects have and haven't been
+        # fully realized
+        self.completePolicies = []        
+        self.incompletePolicies = []
+        
         # Used for "caching": stores results after first calculation
         # since remain constant throughout simulation
         self.networkSES = 0
@@ -72,8 +77,9 @@ class NetworkBase:
     # would the final results vary) with default values given       #
     #################################################################
     def NetworkBase_timeStep(self, time): 
-        newPolicy = Policy()
-        newPolicy.Policy_considerPolicy(self)
+        newPolicy = Policy(time)
+        newPolicy.Policy_considerPolicy(self, time)
+        self.NetworkBase_updatePolicyScore(time)
         for agentID in self.Agents:
             self.Agents[agentID].Agent_updateAgent(time)
 
@@ -180,9 +186,25 @@ class NetworkBase:
     # Given a policy, adds it to the policies present in the network#
     # and updates corresponding network score                       #
     #################################################################
-    def NetworkBase_addToPolicies(self, policy):
-        self.policyScore += policy.score
-        self.policies.append(policy)
+    def NetworkBase_addToPolicies(self, policy, time):
+        self.potentialScore += policy.score
+        self.incompletePolicies.append(policy)
+
+    #################################################################
+    # Goes through each of the policies that are incomplete (whose  #
+    # effects have not been fully realized) and updates them to     #
+    # reflect the current time                                      #
+    #################################################################
+    def NetworkBase_updatePolicyScore(self, time):
+        incompletePolicies = self.incompletePolicies
+        for incompletePolicy in incompletePolicies:
+            incompletePolicy.Policy_updateTimeEffect(time)
+            self.policyScore -= incompletePolicy.prevEffect
+            self.policyScore -= incompletePolicy.curEffect
+
+            if incompletePolicy.curEffect == incompletePolicy.score:
+                incompletePolicies.remove(incompletePolicy)
+                self.completePolicies.append(incompletePolicy)
 
     #################################################################
     # Determines all the nodes in the overall network/graph that are#

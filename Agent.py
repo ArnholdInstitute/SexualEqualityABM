@@ -122,19 +122,24 @@ class MinorityAgent(BaseAgent):
     def Agent_updateDiscrimination(self, time):
         DECAY_FACTOR = 5.0
 
-        if self.isConcealed:
-            if not self.hasMultipleStagnant:
-                self.hasMultipleStagnant = True
-                self.constDiscrimination = self.discrimination
-            self.discrimination = self.constDiscrimination * \
-                DECAY_FACTOR ** (-time)
-            return
-
-        self.hasMultipleStagnant = False    
-
         numPolicies = self.network.policyScore
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
             "attitude")
+        
+        if self.isConcealed:
+            if not self.hasMultipleStagnant:
+                self.hasMultipleStagnant = True
+
+                # Used to determine the extent to which network has
+                # an effect on discrimination
+                self.time = time
+            deltaTime = time - self.time
+            self.discrimination = discrimination = 1 - (numPolicies/50 \
+                + avgAttitude * DECAY_FACTOR ** (-deltaTime))
+            return
+
+        # "Resets" the clock for concealed discrimination
+        self.hasMultipleStagnant = False    
 
         discrimination = 1 - (numPolicies/50 + avgAttitude)
         self.discrimination = self.Agent_normalizeParam(discrimination)
@@ -150,7 +155,8 @@ class MinorityAgent(BaseAgent):
         SCALING_FACTOR = 2.0
         numPolicies = self.network.policyScore
         probConceal = ((self.discrimination - self.support) \
-            - numPolicies/50) * SCALING_FACTOR
+            - numPolicies/50) * SCALING_FACTOR + \
+            self.network.NetworkBase_getNetworkAttitude()
 
         self.probConceal = self.Agent_getLogistic(probConceal)
         
@@ -174,6 +180,7 @@ class MinorityAgent(BaseAgent):
         numPolicies = self.network.policyScore
         probIncrease = self.discrimination - self.support
         probIncrease -= numPolicies/25
+        probIncrease += self.network.NetworkBase_getNetworkAttitude()
 
         if self.isConcealed:
             probIncrease *= 2.0
