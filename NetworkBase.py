@@ -76,14 +76,15 @@ class NetworkBase:
     # at, if the "effectiveness" of the coaches is different, how   #
     # would the final results vary) with default values given       #
     #################################################################
-    def NetworkBase_timeStep(self, time, supportImpact, 
-            discriminateImpact, concealImpact): 
+    def NetworkBase_timeStep(self, time, supportImpact, concealDiscriminateImpact, 
+            discriminateConcealImpact, concealDepressionImpact): 
         newPolicy = Policy(time)
         newPolicy.Policy_considerPolicy(self, time)
         self.NetworkBase_updatePolicyScore(time)
         for agentID in self.Agents:
             self.Agents[agentID].Agent_updateAgent(time, supportImpact,
-                discriminateImpact, concealImpact)
+                concealDiscriminateImpact, discriminateConcealImpact, 
+                concealDepressionImpact)
 
     #################################################################
     # Given a list of nodes, adds edges between all of them         #

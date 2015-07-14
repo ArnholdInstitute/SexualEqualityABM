@@ -68,7 +68,7 @@ class NonMinorityAgent(BaseAgent):
     #################################################################
     # As concealment only applies to minorities, no update is needed#
     #################################################################
-    def Agent_updateConcealment(self):
+    def Agent_updateConcealment(self, discriminateConcealImpact):
         return
 
     #################################################################
@@ -118,7 +118,7 @@ class MinorityAgent(BaseAgent):
     # towards minorities, expressed through the presence of policies#
     # and attitudes                                                 #
     #################################################################
-    def Agent_updateDiscrimination(self, time, discriminateImpact):
+    def Agent_updateDiscrimination(self, time, concealDiscriminateImpact):
         DECAY_FACTOR = 5.0
 
         numPolicies = self.network.policyScore
@@ -140,13 +140,13 @@ class MinorityAgent(BaseAgent):
             deltaTime = time - self.time
             self.discrimination = 1 - (numPolicies/50 \
                 + (self.initialPositive + self.initialNegative * \
-                DECAY_FACTOR ** (-deltaTime)))
+                concealDiscriminateImpact ** (-deltaTime)))
             return
 
         # "Resets" the clock for concealed discrimination
         self.hasMultipleStagnant = False    
 
-        discrimination = discriminateImpact * (1 - (numPolicies/50 + avgAttitude))
+        discrimination = 1 - (numPolicies/50 + avgAttitude)
         self.discrimination = self.Agent_normalizeParam(discrimination)
 
     #################################################################
@@ -156,13 +156,13 @@ class MinorityAgent(BaseAgent):
     # concealed in the simulation, he can later unconceal himself or#
     # vice versa                                                    #
     #################################################################
-    def Agent_updateConcealment(self):
+    def Agent_updateConcealment(self, discriminateConcealImpact):
         SCALE_FACTOR = 2.0
 
         numPolicies = self.network.policyScore
-        probConceal = ((self.discrimination - self.support) \
-            - numPolicies/50) * SCALE_FACTOR + \
-            self.network.NetworkBase_getNetworkAttitude()
+        probConceal = ((self.discrimination - self.support) * \
+            discriminateConcealImpact - numPolicies/50) * SCALE_FACTOR \
+            + self.network.NetworkBase_getNetworkAttitude()
 
         self.probConceal = self.Agent_getLogistic(probConceal)
         
@@ -175,7 +175,7 @@ class MinorityAgent(BaseAgent):
     # the property remains for the duration of the simulation (can't#
     # become 'undepressed')                                         #
     #################################################################
-    def Agent_updateDepression(self, concealImpact):
+    def Agent_updateDepression(self, concealDepressionImpact):
         SCALING_FACTOR = .035
 
         # Ignores those probabilities that are sufficiently small
@@ -193,7 +193,7 @@ class MinorityAgent(BaseAgent):
         probIncrease += self.network.NetworkBase_getNetworkAttitude()
 
         if self.isConcealed:
-            probIncrease *= concealImpact
+            probIncrease *= concealDepressionImpact
 
         baseProb = self.currentDepression + probIncrease
 

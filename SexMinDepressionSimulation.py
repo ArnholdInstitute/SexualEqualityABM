@@ -38,8 +38,10 @@ class SMDSimulationModel:
     # defaults have been provided                                   #
     #################################################################
     def __init__(self, networkType='ER', timeSpan=10, numAgents=10,
-            percentMinority=.5, supportImpact=1.25, discriminateImpact=1.0, 
-            concealImpact=2.0):
+        percentMinority=.5, supportImpact=1.25, 
+        concealDiscriminateImpact=5.0, discriminateConcealImpact=1.0, 
+        concealDepressionImpact=2.0):
+
         if not self.SMDModel_verifySE(networkType, timeSpan, numAgents):
             return None
 
@@ -49,8 +51,9 @@ class SMDSimulationModel:
         self.percentMinority = percentMinority
 
         self.supportImpact = supportImpact
-        self.discriminateImpact = discriminateImpact
-        self.concealImpact = concealImpact
+        self.concealDiscriminateImpact = concealDiscriminateImpact
+        self.discriminateConcealImpact = discriminateConcealImpact
+        self.concealDepressionImpact = concealDepressionImpact
 
         self.SMDModel_setNetwork()
         
@@ -214,8 +217,9 @@ class SMDSimulationModel:
 
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact, 
-                self.discriminateImpact, self.concealImpact)
+            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact,
+                self.concealDiscriminateImpact, self.discriminateConcealImpact, 
+                self.concealDepressionImpact)
             self.network.Agents = self.network.networkBase.Agents 
 
         for agent in agents:
@@ -245,8 +249,10 @@ class SMDSimulationModel:
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact, 
-                self.discriminateImpact, self.concealImpact)
+            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact,
+                self.concealDiscriminateImpact, self.discriminateConcealImpact, 
+                self.concealDepressionImpact)
+            
             self.network.Agents = self.network.networkBase.Agents
             
 #####################################################################
@@ -264,8 +270,9 @@ if __name__ == "__main__":
 
     percentMinority = .75
     supportImpact = 1.25
-    discriminateImpact = 1.0
-    concealImpact = 2.0
+    concealDiscriminateImpact = 5.0
+    discriminateConcealImpact = 1.0
+    concealDepressionImpact = 2.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
     #simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
@@ -274,6 +281,7 @@ if __name__ == "__main__":
 
     if checkSensitivity:
         Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, discriminateImpact, concealImpact)
+            percentMinority, supportImpact, concealDiscriminateImpact, 
+            discriminateConcealImpact, concealDepressionImpact)
 
     print("Terminating simulation...")

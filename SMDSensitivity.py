@@ -36,9 +36,11 @@ except ImportError:
 # exercise and SE levels                                            #
 #####################################################################
 def Sensitivity_runSimulation(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, discriminateImpact, concealImpact):
+        percentMinority, supportImpact, concealDiscriminateImpact,
+        discriminateConcealImpact, concealDepressionImpact):
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, discriminateImpact, concealImpact)
+        percentMinority, supportImpact, concealDiscriminateImpact,
+        discriminateConcealImpact, concealDepressionImpact)
     simulationModel.SMDModel_runStreamlineSimulation()
 
     curTrial = []
@@ -141,14 +143,18 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel):
 # and produces graphical displays for each (appropriately named)    #
 #####################################################################
 def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, discriminateImpact, concealImpact):
+        percentMinority, supportImpact, concealDiscriminateImpact, 
+        discriminateConcealImpact, concealDepressionImpact):
     finalResults = []
-    params = [percentMinority, supportImpact, discriminateImpact, \
-        concealImpact]
-    toVary = [percentMinority, supportImpact, discriminateImpact, \
-        concealImpact]
+    params = [percentMinority, supportImpact, concealDiscriminateImpact, \
+        discriminateConcealImpact, concealDepressionImpact]
+    toVary = [percentMinority, supportImpact, concealDiscriminateImpact, \
+        discriminateConcealImpact, concealDepressionImpact]
+
+    # Used to produce labels of the graphs
     labels = ["Minority_Percentage", "Support_Impact", \
-        "Discrimination_Impact", "Concealment_Impact"]
+        "ConcealDiscrimination_Impact", "DiscriminateConceal_Impact", \
+        "ConcealDepression_Impact"]
 
     varyTrials = [.50, .75, .90, 1.0, 1.1, 1.25, 1.50]
 
@@ -163,7 +169,7 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
 
             trial = Sensitivity_runSimulation(networkType, 
                 timeSpan, numAgents, toVary[0], toVary[1], 
-                toVary[2], toVary[3])
+                toVary[2], toVary[3], toVary[4])
             trials.append(trial)
             toVary[i] = params[i]
         splitTrial = Sensitivity_splitResults(changeParams, 
