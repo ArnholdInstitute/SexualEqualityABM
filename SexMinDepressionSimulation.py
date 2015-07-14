@@ -148,6 +148,10 @@ class SMDSimulationModel:
         plt.savefig("Results\\TimeResults\\{}.png".format(fileName))
         plt.close()
 
+    #################################################################
+    # Creates a bar graph comparing two specified values (val1,val2)#
+    # (for the mean value of depression before/after)               #
+    #################################################################
     def SMDModel_createSingleBars(self, xArray, yArray, xLabel, yLabel):
         N = len(xArray)
 

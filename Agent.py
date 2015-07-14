@@ -133,9 +133,15 @@ class MinorityAgent(BaseAgent):
                 # Used to determine the extent to which network has
                 # an effect on discrimination
                 self.time = time
+
+                attitudes = self.network.NetworkBase_getAttitudes(self)
+                self.initialPositive = attitudes[0]
+                self.initialNegative = attitudes[1]
+
             deltaTime = time - self.time
             self.discrimination = discrimination = 1 - (numPolicies/50 \
-                + avgAttitude * DECAY_FACTOR ** (-deltaTime))
+                + (self.initialPositive + self.initialNegative * \
+                DECAY_FACTOR ** (-deltaTime)))
             return
 
         # "Resets" the clock for concealed discrimination

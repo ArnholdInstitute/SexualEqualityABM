@@ -200,7 +200,7 @@ class NetworkBase:
         for incompletePolicy in incompletePolicies:
             incompletePolicy.Policy_updateTimeEffect(time)
             self.policyScore -= incompletePolicy.prevEffect
-            self.policyScore -= incompletePolicy.curEffect
+            self.policyScore += incompletePolicy.curEffect
 
             if incompletePolicy.curEffect == incompletePolicy.score:
                 incompletePolicies.remove(incompletePolicy)
@@ -284,6 +284,35 @@ class NetworkBase:
 
         localAvg = total/totalCount
         return localAvg
+
+    #################################################################
+    # Given an agent in the network, returns an array formatted as  #
+    # [positive average, negative average], where the averages are  #
+    # of the attitudes in the local network                         #
+    #################################################################
+    def NetworkBase_getAttitudes(self, agent):
+        posAttitude = []
+        negAttitude = []
+
+        neighbors = self.NetworkBase_getNeighbors(agent)
+        for neighbor in neighbors:
+            curAttitude = self.Agents[neighbor].attitude
+            if curAttitude > 0:
+                posAttitude.append(curAttitude)
+            else:
+                negAttitude.append(curAttitude)
+
+        posAvg = self.NetworkBase_arrMean(posAttitude)
+        negAvg = self.NetworkBase_arrMean(negAttitude)
+        return [posAvg, negAvg]
+
+    #################################################################
+    # Gets the average of a given array                             #
+    #################################################################
+    def NetworkBase_arrMean(self, array):
+        if len(array) == 0:
+            return 0
+        return mean(array)
 
     #################################################################
     # Determines the network average for socio-economic status and  #
