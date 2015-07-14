@@ -150,7 +150,7 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
     labels = ["Minority_Percentage", "Support_Impact", \
         "Discrimination_Impact", "Concealment_Impact"]
 
-    varyTrials = [0.0, .15, .25, .40, .50, .60, .75, .85, 1.00]
+    varyTrials = [.50, .75, .90, 1.0, 1.1, 1.25, 1.50]
 
     for i in range(0, len(params)):
         print("Performing {} sensitivity analysis".format(labels[i]))
@@ -161,12 +161,14 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
             toVary[i] *= trial
             changeParams.append(toVary[i])
 
-            trial = Sensitivity_runSimulation(networkType, timeSpan, numAgents,
-                toVary[0], toVary[1], toVary[2], toVary[3])
+            trial = Sensitivity_runSimulation(networkType, 
+                timeSpan, numAgents, toVary[0], toVary[1], 
+                toVary[2], toVary[3])
             trials.append(trial)
             toVary[i] = params[i]
-        finalResults.append(Sensitivity_splitResults(changeParams, 
-            trials, labels[i]))
+        splitTrial = Sensitivity_splitResults(changeParams, 
+            trials, labels[i])
+        finalResults.append(splitTrial)
 
     resultsFile = "Results\\Sensitivity\\Correlation.txt"
     with open(resultsFile, 'w') as f:

@@ -68,7 +68,7 @@ class NonMinorityAgent(BaseAgent):
     #################################################################
     # As concealment only applies to minorities, no update is needed#
     #################################################################
-    def Agent_updateConcealment(self, concealImpact):
+    def Agent_updateConcealment(self):
         return
 
     #################################################################
@@ -76,7 +76,7 @@ class NonMinorityAgent(BaseAgent):
     # we do not consider the depression of those agents not present #
     # in the minority                                               #
     #################################################################
-    def Agent_updateDepression(self):
+    def Agent_updateDepression(self, concealImpact):
         return
 
 #####################################################################
@@ -156,10 +156,12 @@ class MinorityAgent(BaseAgent):
     # concealed in the simulation, he can later unconceal himself or#
     # vice versa                                                    #
     #################################################################
-    def Agent_updateConcealment(self, concealImpact):
+    def Agent_updateConcealment(self):
+        SCALE_FACTOR = 2.0
+
         numPolicies = self.network.policyScore
         probConceal = ((self.discrimination - self.support) \
-            - numPolicies/50) * concealImpact + \
+            - numPolicies/50) * SCALE_FACTOR + \
             self.network.NetworkBase_getNetworkAttitude()
 
         self.probConceal = self.Agent_getLogistic(probConceal)
@@ -173,15 +175,16 @@ class MinorityAgent(BaseAgent):
     # the property remains for the duration of the simulation (can't#
     # become 'undepressed')                                         #
     #################################################################
-    def Agent_updateDepression(self):
+    def Agent_updateDepression(self, concealImpact):
         SCALING_FACTOR = .035
-        CONCEAL_FACTOR = 2.0
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
 
 
         if self.isDepressed:
+            rand = random.random()
+            self.isDepressed = (rand < (1 - self.currentDepression))
             return
 
         numPolicies = self.network.policyScore
@@ -190,7 +193,7 @@ class MinorityAgent(BaseAgent):
         probIncrease += self.network.NetworkBase_getNetworkAttitude()
 
         if self.isConcealed:
-            probIncrease *= CONCEAL_FACTOR
+            probIncrease *= concealImpact
 
         baseProb = self.currentDepression + probIncrease
 

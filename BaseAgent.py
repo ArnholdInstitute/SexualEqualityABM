@@ -209,5 +209,5 @@ class BaseAgent:
         self.Agent_updateSupport(supportImpact)
         self.Agent_updateDiscrimination(time, discriminateImpact)
 
-        self.Agent_updateConcealment(concealImpact)
-        self.Agent_updateDepression()
+        self.Agent_updateConcealment()
+        self.Agent_updateDepression(concealImpact)

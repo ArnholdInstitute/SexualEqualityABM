@@ -278,12 +278,14 @@ class NetworkBase:
 
     #################################################################
     # Determines the average value of an attribute for the entire   #
-    # network (either the %depressed or %concealed)                 #
+    # network (either the %depressed or %concealed from minority)   #
     #################################################################
     def NetworkBase_findPercentAttr(self, attr):
-        agents = self.NetworkBase_getAgentArray()
+        agents = self.NetworkBase_getMinorityNodes()
+        
+        minCount = len(agents)
         attrCount = 0
-
+        
         # Calculates percentage of depressed agents
         if attr == "depression":
             for agent in agents:
@@ -296,7 +298,9 @@ class NetworkBase:
                 if agent.isConcealed:
                     attrCount += 1
 
-        return attrCount/len(agents)
+        if minCount:
+            return attrCount/minCount
+        return 0.0
 
     #################################################################
     # Determines the local average value of an attribute for a given#

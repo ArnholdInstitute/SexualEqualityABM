@@ -255,7 +255,7 @@ class SMDSimulationModel:
 # step and a graphical display corresponding to the final iteration #
 #####################################################################
 if __name__ == "__main__":
-    checkSensitivity = False
+    checkSensitivity = True
 
     # ER, SW, or ASF
     networkType = "SW"
@@ -268,9 +268,9 @@ if __name__ == "__main__":
     concealImpact = 2.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
-    simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, discriminateImpact, concealImpact)
-    simulationModel.SMDModel_runSimulation(resultsFile)
+    #simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
+    #    percentMinority, supportImpact, discriminateImpact, concealImpact)
+    #simulationModel.SMDModel_runSimulation(resultsFile)
 
     if checkSensitivity:
         Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
