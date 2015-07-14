@@ -191,7 +191,8 @@ class SMDSimulationModel:
 
         agents = curNetwork.NetworkBase_getAgentArray()
         for agent in agents:
-            beforeDepressLevels.append(agent.currentDepression)
+            if agent.isMinority:
+                beforeDepressLevels.append(agent.currentDepression)
         preAvgDepression = curNetwork.\
             NetworkBase_getMinorityDepressionAvg()
 
@@ -209,7 +210,8 @@ class SMDSimulationModel:
             self.network.Agents = self.network.networkBase.Agents 
 
         for agent in agents:
-            afterDepressLevels.append(agent.currentDepression)
+            if agent.isMinority:
+                afterDepressLevels.append(agent.currentDepression)
         postAvgDepression = curNetwork.\
             NetworkBase_getMinorityDepressionAvg()
 
@@ -249,7 +251,7 @@ if __name__ == "__main__":
     networkType = "ASF"
     timeSpan = 5
     numAgents = 25
-    percentMinority = .55
+    percentMinority = .75
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, 

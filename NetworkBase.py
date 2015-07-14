@@ -201,7 +201,7 @@ class NetworkBase:
 
             self.policyScore -= incompletePolicy.prevEffect
 
-            if (incompletePolicy.isDiscriminatory and \
+            if (not incompletePolicy.isDiscriminatory and \
                 incompletePolicy.curEffect >= incompletePolicy.score) or\
                 (incompletePolicy.isDiscriminatory and \
                 incompletePolicy.curEffect <= incompletePolicy.score):

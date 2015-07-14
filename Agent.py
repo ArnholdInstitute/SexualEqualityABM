@@ -176,20 +176,23 @@ class MinorityAgent(BaseAgent):
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self):
-        SCALING_FACTOR = .05
+        SCALING_FACTOR = .035
+        CONCEAL_FACTOR = 2.0
+        
+        # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
+
 
         if self.isDepressed:
             return
 
-        DEPRESS_CONST = .25
         numPolicies = self.network.policyScore
         probIncrease = self.discrimination - self.support
         probIncrease -= numPolicies/25
         probIncrease += self.network.NetworkBase_getNetworkAttitude()
 
         if self.isConcealed:
-            probIncrease *= 2.0
+            probIncrease *= CONCEAL_FACTOR
 
         baseProb = self.currentDepression + probIncrease
 
