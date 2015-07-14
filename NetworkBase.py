@@ -196,15 +196,22 @@ class NetworkBase:
     # reflect the current time                                      #
     #################################################################
     def NetworkBase_updatePolicyScore(self, time):
-        incompletePolicies = self.incompletePolicies
-        for incompletePolicy in incompletePolicies:
+        for incompletePolicy in self.incompletePolicies:
             incompletePolicy.Policy_updateTimeEffect(time)
-            self.policyScore -= incompletePolicy.prevEffect
-            self.policyScore += incompletePolicy.curEffect
 
-            if incompletePolicy.curEffect == incompletePolicy.score:
-                incompletePolicies.remove(incompletePolicy)
+            self.policyScore -= incompletePolicy.prevEffect
+
+            if (incompletePolicy.isDiscriminatory and \
+                incompletePolicy.curEffect >= incompletePolicy.score) or\
+                (incompletePolicy.isDiscriminatory and \
+                incompletePolicy.curEffect <= incompletePolicy.score):
+
+                self.policyScore += incompletePolicy.score
+
+                self.incompletePolicies.remove(incompletePolicy)
                 self.completePolicies.append(incompletePolicy)
+            else:
+                self.policyScore += incompletePolicy.curEffect
 
     #################################################################
     # Determines all the nodes in the overall network/graph that are#

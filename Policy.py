@@ -108,15 +108,19 @@ class Policy:
             self.prevEffect = self.curEffect
         
         MAX_SCORE = 50
+        
         DISC_FACTOR = 1
+        ADD_FACTOR = 1
+
         if self.isDiscriminatory: 
             DISC_FACTOR = -1
+            ADD_FACTOR = 0
 
         deltaTime = time - self.passTime
         rating = self.score
 
         self.curEffect = int(rating * (1 - exp(-DISC_FACTOR * \
-            (MAX_SCORE * deltaTime)/rating))) + 1
+            (MAX_SCORE * deltaTime)/rating))) + ADD_FACTOR
 
     #################################################################
     # Passes or rejects a policy for the network under question     #

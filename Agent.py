@@ -139,7 +139,7 @@ class MinorityAgent(BaseAgent):
                 self.initialNegative = attitudes[1]
 
             deltaTime = time - self.time
-            self.discrimination = discrimination = 1 - (numPolicies/50 \
+            self.discrimination = 1 - (numPolicies/50 \
                 + (self.initialPositive + self.initialNegative * \
                 DECAY_FACTOR ** (-deltaTime)))
             return
