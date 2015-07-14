@@ -55,20 +55,20 @@ class NonMinorityAgent(BaseAgent):
     # As those not of minorities are assumed to have full support,  #
     # no update is needed                                           #
     #################################################################
-    def Agent_updateSupport(self):
+    def Agent_updateSupport(self, supportImpact):
         return
 
     #################################################################
     # As those not of minorities are assumed to not be discriminated#
     # against, no update is needed for them                         #
     #################################################################
-    def Agent_updateDiscrimination(self, time):
+    def Agent_updateDiscrimination(self, time, discriminateImpact):
         return
 
     #################################################################
     # As concealment only applies to minorities, no update is needed#
     #################################################################
-    def Agent_updateConcealment(self):
+    def Agent_updateConcealment(self, concealImpact):
         return
 
     #################################################################
@@ -96,9 +96,8 @@ class MinorityAgent(BaseAgent):
     # economic status and current attitudes towards minorities. If  #
     # not a minority, returns 1.0                                   #
     #################################################################
-    def Agent_updateSupport(self):
+    def Agent_updateSupport(self, supportImpact):
         ADDITIONAL_BOOST = .10
-        SCALING_FACTOR = 1.25
 
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
@@ -110,7 +109,7 @@ class MinorityAgent(BaseAgent):
         if att > .75:
             const = ADDITIONAL_BOOST
 
-        support = SCALING_FACTOR * localConnect * att + const
+        support = supportImpact * localConnect * att + const
         self.support = self.Agent_normalizeParam(support)
 
     #################################################################
@@ -119,7 +118,7 @@ class MinorityAgent(BaseAgent):
     # towards minorities, expressed through the presence of policies#
     # and attitudes                                                 #
     #################################################################
-    def Agent_updateDiscrimination(self, time):
+    def Agent_updateDiscrimination(self, time, discriminateImpact):
         DECAY_FACTOR = 5.0
 
         numPolicies = self.network.policyScore
@@ -147,7 +146,7 @@ class MinorityAgent(BaseAgent):
         # "Resets" the clock for concealed discrimination
         self.hasMultipleStagnant = False    
 
-        discrimination = 1 - (numPolicies/50 + avgAttitude)
+        discrimination = discriminateImpact * (1 - (numPolicies/50 + avgAttitude))
         self.discrimination = self.Agent_normalizeParam(discrimination)
 
     #################################################################
@@ -157,11 +156,10 @@ class MinorityAgent(BaseAgent):
     # concealed in the simulation, he can later unconceal himself or#
     # vice versa                                                    #
     #################################################################
-    def Agent_updateConcealment(self):
-        SCALING_FACTOR = 2.0
+    def Agent_updateConcealment(self, concealImpact):
         numPolicies = self.network.policyScore
         probConceal = ((self.discrimination - self.support) \
-            - numPolicies/50) * SCALING_FACTOR + \
+            - numPolicies/50) * concealImpact + \
             self.network.NetworkBase_getNetworkAttitude()
 
         self.probConceal = self.Agent_getLogistic(probConceal)
@@ -178,7 +176,7 @@ class MinorityAgent(BaseAgent):
     def Agent_updateDepression(self):
         SCALING_FACTOR = .035
         CONCEAL_FACTOR = 2.0
-        
+
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
 

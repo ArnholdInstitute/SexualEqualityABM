@@ -76,12 +76,14 @@ class NetworkBase:
     # at, if the "effectiveness" of the coaches is different, how   #
     # would the final results vary) with default values given       #
     #################################################################
-    def NetworkBase_timeStep(self, time): 
+    def NetworkBase_timeStep(self, time, supportImpact, 
+            discriminateImpact, concealImpact): 
         newPolicy = Policy(time)
         newPolicy.Policy_considerPolicy(self, time)
         self.NetworkBase_updatePolicyScore(time)
         for agentID in self.Agents:
-            self.Agents[agentID].Agent_updateAgent(time)
+            self.Agents[agentID].Agent_updateAgent(time, supportImpact,
+                discriminateImpact, concealImpact)
 
     #################################################################
     # Given a list of nodes, adds edges between all of them         #
@@ -273,6 +275,28 @@ class NetworkBase:
 
         # Adding 1.0 avoids division by 0
         return nonAcceptingCount/totalCount
+
+    #################################################################
+    # Determines the average value of an attribute for the entire   #
+    # network (either the %depressed or %concealed)                 #
+    #################################################################
+    def NetworkBase_findPercentAttr(self, attr):
+        agents = self.NetworkBase_getAgentArray()
+        attrCount = 0
+
+        # Calculates percentage of depressed agents
+        if attr == "depression":
+            for agent in agents:
+                if agent.isDepressed:
+                    attrCount += 1
+
+        # Calculates percentage of concealed agents
+        else:
+            for agent in agents:
+                if agent.isConcealed:
+                    attrCount += 1
+
+        return attrCount/len(agents)
 
     #################################################################
     # Determines the local average value of an attribute for a given#

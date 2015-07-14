@@ -20,7 +20,7 @@ import random,itertools
 from copy import deepcopy
 import numpy as np
 
-
+from SexMinDepressionSimulation import *
 import matplotlib.pyplot as plt
 from operator import itemgetter 
 
@@ -35,17 +35,18 @@ except ImportError:
 # simulation and returns an array of the final (population) mean    #
 # exercise and SE levels                                            #
 #####################################################################
-def Sensitivity_runSimulation(networkType, timeSpan, numAgents, \
-    numCoaches, timeImpact, coachImpact, pastImpact, socialImpact):
-    simulationModel = SMDSimulationModel(networkType, 
-        timeSpan, numAgents)
+def Sensitivity_runSimulation(networkType, timeSpan, numAgents, 
+        percentMinority, supportImpact, discriminateImpact, concealImpact):
+    simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
+        percentMinority, supportImpact, discriminateImpact, concealImpact)
     simulationModel.SMDModel_runStreamlineSimulation()
 
     curTrial = []
+
     curTrial.append(simulationModel.network.networkBase.\
-         NetworkBase_getMeanPopExercise())
+        NetworkBase_findPercentAttr("depression"))
     curTrial.append(simulationModel.network.networkBase.\
-        NetworkBase_getMeanPopSE())
+        NetworkBase_findPercentAttr("concealed"))
 
     return curTrial
 
@@ -57,117 +58,20 @@ def Sensitivity_runSimulation(networkType, timeSpan, numAgents, \
 # [SEResult1, 2, ...], [Label (text for plotting)]].                #
 #####################################################################
 def Sensitivity_splitResults(indVarScales, mixedArr, label):
-    exArr = []
-    SEArr = []
+    depressArr = []
+    concealArr = []
 
     for resultsPair in mixedArr:
-        exArr.append(resultsPair[0])
-        SEArr.append(resultsPair[1]) 
+        depressArr.append(resultsPair[0])
+        concealArr.append(resultsPair[1]) 
 
     finalArr = []
     finalArr.append(indVarScales)
-    finalArr.append(exArr)
-    finalArr.append(SEArr)
+    finalArr.append(depressArr)
+    finalArr.append(concealArr)
     finalArr.append(label)
 
     return finalArr
-
-#####################################################################
-# Note: As a general layout of functioanlity, each sensitivity model#
-# takes in all the parameters aside from that being varied: it uses #
-# the default values for all others                                 #
-# ----------------------------------------------------------------- #
-# Investigates the sensitivity of the mean population/SE caused by  #
-# time decay                                                        #
-#####################################################################
-def Sensitivity_timeDecay(networkType, timeSpan, numAgents, numCoaches,\
-         coachImpact, pastImpact, socialImpact):
-    print("Performing sensitivity on time decay impact")
-    timeImpactTrials = [0.00, .001, .0025, .005, .0075, .01, .0125]
-    trials = []
-
-    for timeImpact in timeImpactTrials:
-        trial = Sensitivity_runSimulation(networkType, timeSpan, \
-            numAgents, numCoaches, timeImpact, coachImpact, \
-            pastImpact, socialImpact)
-        trials.append(trial)
-    return Sensitivity_splitResults(timeImpactTrials, trials, \
-        "Time_Impact")
-
-#####################################################################
-# Investigates the sensitivity of the mean population/SE caused by  #
-# the "effectiveness" of the coaches                                #
-#####################################################################
-def Sensitivity_coachEffectiveness(networkType, timeSpan, numAgents, \
-        numCoaches, timeImpact, pastImpact, socialImpact):
-    print("Performing sensitivity on coach effectiveness")
-    coachImpactTrials = [.100, .125, .15, .175, .20, .225, .25, .275,\
-        .30, .325]
-    trials = []
-
-    for coachImpact in coachImpactTrials:
-        trial = Sensitivity_runSimulation(networkType, timeSpan, \
-            numAgents, numCoaches, timeImpact, coachImpact, \
-            pastImpact, socialImpact)
-        trials.append(trial)
-    return Sensitivity_splitResults(coachImpactTrials, trials, \
-        "Coach_Effectiveness")
-
-#####################################################################
-# Investigates the sensitivity of the mean population/SE caused by  #
-# the past behavior                                                 #
-#####################################################################
-def Sensitivity_pastBehavior(networkType, timeSpan, numAgents, \
-        numCoaches, timeImpact, coachImpact, socialImpact):
-    print("Performing sensitivity on past impact")
-    pastImpactTrials = [0.0, .01, .015, .020, .025, .030, .035, .04, \
-        .045, .050]
-    trials = []
-
-    for pastImpact in pastImpactTrials:
-        trial = Sensitivity_runSimulation(networkType, timeSpan, \
-            numAgents, numCoaches, timeImpact, coachImpact, \
-            pastImpact, socialImpact)
-        trials.append(trial)
-    return Sensitivity_splitResults(pastImpactTrials, trials, \
-    	"Past_Impact")
-
-#####################################################################
-# Investigates the sensitivity of the mean population/SE caused by  #
-# the exercise present in the locally connected network             #
-#####################################################################
-def Sensitivity_socialNetwork(networkType, timeSpan, numAgents, \
-        numCoaches, timeImpact, coachImpact, pastImpact):
-    print("Performing sensitivity on social impact")
-    socialImpactTrials = [0.00, .001, .005, .010, .015, .020, .025, \
-        .030, .035]
-    trials = []
-
-    for socialImpact in socialImpactTrials:
-        trial = Sensitivity_runSimulation(networkType, timeSpan, \
-            numAgents, numCoaches, timeImpact, coachImpact, \
-            pastImpact, socialImpact)
-        trials.append(trial)
-    return Sensitivity_splitResults(socialImpactTrials, trials, \
-    	"Social_Impact")
-
-#####################################################################
-# Investigates the sensitivity of the mean population/SE caused by  #
-# the number of coaches present in the network                      #
-#####################################################################
-def Sensitivity_maxCoachCount(networkType, timeSpan, numAgents, \
-        timeImpact, coachImpact, pastImpact, socialImpact):
-    print("Performing sensitivity on number of coaches")
-    numCoachesTrials = [10, 15, 20, 25, 30, 35, 40, 45, 50]
-    trials = []
-
-    for numCoaches in numCoachesTrials:
-        trial = Sensitivity_runSimulation(networkType, timeSpan, \
-            numAgents, numCoaches, timeImpact, coachImpact, \
-            pastImpact, socialImpact)
-        trials.append(trial)
-    return Sensitivity_splitResults(numCoachesTrials, trials, \
-    	"Coach_Count")
 
 #####################################################################
 # Investigates the sensitivity of the mean population/SE caused by  #
@@ -236,37 +140,53 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel):
 # Conducts sensitivity tests for each of the paramaters of interest #
 # and produces graphical displays for each (appropriately named)    #
 #####################################################################
-def Sensitivity_sensitivitySimulation(networkType, timeSpan,     \
-        numAgents, numCoaches, timeImpact, coachImpact,          \
-        pastImpact, socialImpact):
+def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
+        percentMinority, supportImpact, discriminateImpact, concealImpact):
     finalResults = []
+    params = [percentMinority, supportImpact, discriminateImpact, \
+        concealImpact]
+    toVary = [percentMinority, supportImpact, discriminateImpact, \
+        concealImpact]
+    labels = ["Minority_Percentage", "Support_Impact", \
+        "Discrimination_Impact", "Concealment_Impact"]
 
-    finalResults.append(Sensitivity_timeDecay(networkType, timeSpan,\
-        numAgents, numCoaches, coachImpact, pastImpact, socialImpact))
+    varyTrials = [0.0, .15, .25, .40, .50, .60, .75, .85, 1.00]
 
-    finalResults.append(Sensitivity_socialNetwork(networkType, timeSpan, \
-        numAgents, numCoaches, timeImpact, coachImpact, pastImpact))
+    for i in range(0, len(params)):
+        print("Performing {} sensitivity analysis".format(labels[i]))
+        trials = []
+        changeParams = []
 
-    finalResults.append(Sensitivity_coachEffectiveness(networkType, \
-        timeSpan, numAgents, numCoaches, timeImpact, pastImpact, \
-        socialImpact))
+        for trial in varyTrials: 
+            toVary[i] *= trial
+            changeParams.append(toVary[i])
 
-    finalResults.append(Sensitivity_maxCoachCount(networkType, timeSpan, \
-        numAgents, timeImpact, coachImpact, pastImpact, socialImpact))
+            trial = Sensitivity_runSimulation(networkType, timeSpan, numAgents,
+                toVary[0], toVary[1], toVary[2], toVary[3])
+            trials.append(trial)
+            toVary[i] = params[i]
+        finalResults.append(Sensitivity_splitResults(changeParams, 
+            trials, labels[i]))
 
-    finalResults.append(Sensitivity_pastBehavior(networkType, timeSpan, \
-       numAgents, numCoaches, timeImpact, coachImpact, socialImpact))
+    resultsFile = "Results\\Sensitivity\\Correlation.txt"
+    with open(resultsFile, 'w') as f:
+        writer = csv.writer(f, delimiter = '\n', quoting=csv.QUOTE_NONE, 
+            quotechar='', escapechar='\\')
+        for subResult in finalResults:
+            xArr = subResult[0]
+            yArr_1 = subResult[1]
+            yArr_2 = subResult[2]
 
-    networkResults = Sensitivity_networkCluster(timeSpan, numAgents, \
-        numCoaches, timeImpact, coachImpact, pastImpact, socialImpact)
+            yArrCorrelation_1 = np.corrcoef(xArr, yArr_1)[0][1]
+            yArrCorrelation_2 = np.corrcoef(xArr, yArr_2)[0][1]
 
-    for subResult in finalResults:
-        Sensitivity_plotGraphs(subResult[0], subResult[1], 
-            subResult[3], "Exercise")
-        Sensitivity_plotGraphs(subResult[0], subResult[2], \
-            subResult[3], "SE")
+            depressCorrelate = "{} vs. Depression Correlation: {}".format(subResult[3], 
+                yArrCorrelation_1)
+            concealCorrelate = "{} vs. Concealment Correlation: {}".format(subResult[3], 
+                yArrCorrelation_2)
 
-    Sensitivity_networkGraphs(networkResults[0], networkResults[1], \
-        "Exercise", networkResults[3])
-    Sensitivity_networkGraphs(networkResults[0], networkResults[2], \
-        "SE", networkResults[3])
+            row = [depressCorrelate, concealCorrelate]
+            writer.writerow(row)
+
+            Sensitivity_plotGraphs(xArr, yArr_1, subResult[3], "Depression")
+            Sensitivity_plotGraphs(xArr, yArr_2, subResult[3], "Concealment")

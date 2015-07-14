@@ -17,6 +17,7 @@ from NetworkBase import NetworkBase
 from ERNetwork import ERNetwork
 from ASFNetwork import ASFNetwork
 from SWNetwork import SWNetwork
+from SMDSensitivity import *
 from Verification import *
 
 import matplotlib.pyplot as plt
@@ -32,10 +33,13 @@ class SMDSimulationModel:
     #################################################################
     # Given the type of network, the simulation time span, and count#
     # of agents in the network, a simulation is created and run for #
-    # testing depression as a function of minority prevalence       #
+    # testing depression as a function of minority prevalence. Also #
+    # have control on the impact ratings of each of the parameters: #
+    # defaults have been provided                                   #
     #################################################################
     def __init__(self, networkType='ER', timeSpan=10, numAgents=10,
-            percentMinority=.5):
+            percentMinority=.5, supportImpact=1.25, discriminateImpact=1.0, 
+            concealImpact=2.0):
         if not self.SMDModel_verifySE(networkType, timeSpan, numAgents):
             return None
 
@@ -43,6 +47,10 @@ class SMDSimulationModel:
         self.timeSpan = timeSpan
         self.numAgents = numAgents
         self.percentMinority = percentMinority
+
+        self.supportImpact = supportImpact
+        self.discriminateImpact = discriminateImpact
+        self.concealImpact = concealImpact
 
         self.SMDModel_setNetwork()
         
@@ -52,13 +60,13 @@ class SMDSimulationModel:
     #################################################################
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
-            self.network = ERNetwork(self.numAgents, percentMinority,
+            self.network = ERNetwork(self.numAgents, self.percentMinority,
                 10.0/self.numAgents)
         elif self.networkType == 'SW':
-            self.network = SWNetwork(self.numAgents, percentMinority,
+            self.network = SWNetwork(self.numAgents, self.percentMinority,
                 10, 0.0)
         else:
-            self.network = ASFNetwork(self.numAgents, percentMinority,
+            self.network = ASFNetwork(self.numAgents, self.percentMinority,
                 9, 7)
 
     #################################################################
@@ -206,7 +214,8 @@ class SMDSimulationModel:
 
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i)
+            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact, 
+                self.discriminateImpact, self.concealImpact)
             self.network.Agents = self.network.networkBase.Agents 
 
         for agent in agents:
@@ -236,7 +245,8 @@ class SMDSimulationModel:
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i)
+            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact, 
+                self.discriminateImpact, self.concealImpact)
             self.network.Agents = self.network.networkBase.Agents
             
 #####################################################################
@@ -245,17 +255,25 @@ class SMDSimulationModel:
 # step and a graphical display corresponding to the final iteration #
 #####################################################################
 if __name__ == "__main__":
-    # Get all input for initializing simulation
+    checkSensitivity = True
 
     # ER, SW, or ASF
-    networkType = "ASF"
+    networkType = "SW"
     timeSpan = 5
     numAgents = 25
+
     percentMinority = .75
+    supportImpact = 1.25
+    discriminateImpact = 1.0
+    concealImpact = 2.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
-    simulationModel = SMDSimulationModel(networkType, 
-        timeSpan, numAgents, percentMinority)
-    simulationModel.SMDModel_runSimulation(resultsFile)
+    #simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
+    #    percentMinority, supportImpact, discriminateImpact, concealImpact)
+    #simulationModel.SMDModel_runSimulation(resultsFile)
+
+    if checkSensitivity:
+        Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
+        percentMinority, supportImpact, discriminateImpact, concealImpact)
 
     print("Terminating simulation...")
