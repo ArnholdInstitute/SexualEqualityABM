@@ -143,16 +143,18 @@ def Sensitivity_oddRatioTests(original):
     ONLY_WANT_WITHOUT = 1
     IRRELEVANT = 0
 
-    minDiscriminatePrevalence = network.\
-        NetworkBase_findPercentAttr(attr="discrimination")
-
     labels = ["Minority_Depress", "Support_Depress", "Density_Depress"]
     minTest = [ONLY_WANT_WITH, ONLY_WANT_WITHOUT]
     supportTest = [ONLY_WANT_WITHOUT, ONLY_WANT_WITH]
-    depressTest = [False, True]
+    depressTest = [True, False]
     ORTests = [minTest, supportTest, depressTest]
 
     ORresults = []
+
+    minDiscriminatePrevalence = network.\
+        NetworkBase_findPercentAttr(attr="discrimination")
+    ORresults.append(["Minority_Discrimination_Prevalence", \
+            minDiscriminatePrevalence])
 
     # Iterates through each of the odds ratio tests and performs
     # from the above testing values
@@ -170,9 +172,11 @@ def Sensitivity_oddRatioTests(original):
             if not currentOR:
                 currentOR = trialResult
             else:
+                if i == 0:
+                    trialResult = 2
                 currentOR /= trialResult
         ORresults.append([labels[i], currentOR])
-        args = copy
+        args = list(copy)
 
     # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
