@@ -22,6 +22,34 @@ except ImportError:
     raise ImportError("You must install NetworkX:\
     (http://networkx.lanl.gov/) for SE simulation")
 
+
+class switch(object):
+    #################################################################
+    # Replicates the behavior of a switch statement (for clarity)   #
+    #################################################################
+    def __init__(self, value):
+        self.value = value
+        self.fall = False
+
+    #################################################################
+    # Return the match method once, then stop                       #
+    #################################################################
+    def __iter__(self):
+        yield self.match
+        raise StopIteration
+    
+    #################################################################
+    # Indicate whether or not to enter a case suite                 #
+    #################################################################
+    def match(self, *args):
+        if self.fall or not args:
+            return True
+        elif self.value in args: # changed for v1.5, see below
+            self.fall = True
+            return True
+        else:
+            return False
+
 class NetworkBase:
     #################################################################
     # Initializes the base of the network with the type it is to be #
@@ -46,6 +74,10 @@ class NetworkBase:
         # since remain constant throughout simulation
         self.networkSES = 0
         self.localSES = {}
+
+        # Parameters to be set later: default to 0 (False) -> not set
+        self.densityMean = 0 
+        self.densityStd = 0
 
     #################################################################
     # Given parameters for initializing the network base, ensures   #
@@ -287,17 +319,10 @@ class NetworkBase:
         minCount = len(agents)
         attrCount = 0
         
-        # Calculates percentage of depressed agents
-        if attr == "depression":
-            for agent in agents:
-                if agent.isDepressed:
-                    attrCount += 1
-
-        # Calculates percentage of concealed agents
-        else:
-            for agent in agents:
-                if agent.isConcealed:
-                    attrCount += 1
+        for agent in agents:
+            if  (attr == "depression" and agent.isDepressed) or \
+                (attr == "concealed" and agent.isConcealed):
+                attrCount += 1
 
         if minCount:
             return attrCount/minCount
@@ -341,6 +366,91 @@ class NetworkBase:
         posAvg = self.NetworkBase_arrMean(posAttitude)
         negAvg = self.NetworkBase_arrMean(negAttitude)
         return [posAvg, negAvg]
+
+    #################################################################
+    # Sets the network properties of mean density and std deviation #
+    # of density to the corresponding values of the network         #
+    #################################################################
+    def NetworkBase_setMeanStdDensity(self):
+        agents = self.NetworkBase_getAgentArray()
+        densityArr = []
+        for agent in agents:
+            densityArr.append(
+                self.NetworkBase_findPercentConnectedMinority(agent))
+
+        if not self.densityMean: 
+            self.densityMean = mean(densityArr)
+        if not self.densityStd: 
+            self.densityStd = std(densityArr)
+
+    #################################################################
+    # Given an agent, determines his corresponding z-score for the  #
+    # density of LGBs in his network                                #
+    #################################################################
+    def NetworkBase_getDensityZScore(self, agent):
+        # Sets the densities only if not already determined
+        if not (self.densityMean and self.densityStd):
+            self.NetworkBase_setMeanStdDensity()
+
+        curVal = NetworkBase_findPercentConnectedMinority()
+        mean = self.densityMean
+        std = self.densityStd
+        return (curVal - mean)/std
+
+    #################################################################
+    # Determines the odds of having a particular attribute in either#
+    # the entire population (default) or only the minority, if that #
+    # parameter (onlyMinority) is passed in as True. With support   #
+    # determines whether the attribute is only being checked against#
+    # the supported agents (2), only non-supported (1), or any (0)  #
+    #################################################################
+    def NetworkBase_getOdds(self, onlyMinority=False, withSupport=0,
+            attr):
+        # Everyone with > .50 support will be considered "supported"
+        SUPPORT_CUTOFF = .50
+
+        # Used for comparison on the withSupport parameter
+        ONLY_SUPPORTED = 2
+        NOT_SUPPORTED = 1
+        IRRELEVANT_SUPPORT = 0
+
+        if onlyMinority:
+            agents = self.NetworkBase_getMinorityNodes()
+        else:
+            agents = self.NetworkBase_getAgentArray()
+
+        totalAttrSum = 0
+        if attr == "support":
+            for agent in agents:
+                totalAttrSum += agent.support
+
+        elif attr == "depression":
+            for case in switch(withSupport):
+                # Gets total depression of those with support
+                if case(ONLY_SUPPORTED):
+                    for agent in agents:
+                        if agent.support >= SUPPORT_CUTOFF:
+                            totalAttrSum += agent.currentDepression
+                    break
+
+                # Gets depression of those without support
+                if case(NOT_SUPPORTED): 
+                    for agent in agents:
+                        if agent.support < SUPPORT_CUTOFF:
+                            totalAttrSum += agent.currentDepression
+                    break
+
+                if case(IRRELEVANT_SUPPORT):
+                    for agent in agents:
+                        totalAttrSum += agent.currentDepression
+                    break
+
+                if case():
+                    sys.stderr.write("Support bool must be 0, 1, 2")
+                    return False
+
+        prob = totalAttrSum/len(agents)
+        return prob/(1 - prob)
 
     #################################################################
     # Gets the average of a given array                             #

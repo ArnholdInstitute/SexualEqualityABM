@@ -144,7 +144,7 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel):
 #####################################################################
 def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
         percentMinority, supportImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, concealDepressionImpact):
+        discriminateConcealImpact, concealDepressionImpact, original):
     finalResults = []
     params = [percentMinority, supportImpact, concealDiscriminateImpact, \
         discriminateConcealImpact, concealDepressionImpact]
@@ -157,12 +157,12 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
         "ConcealDepression_Impact"]
 
     varyTrials = [.50, .75, .90, 1.0, 1.1, 1.25, 1.50]
-
+    '''
     for i in range(0, len(params)):
         print("Performing {} sensitivity analysis".format(labels[i]))
         trials = []
         changeParams = []
-
+        
         for trial in varyTrials: 
             toVary[i] *= trial
             changeParams.append(toVary[i])
@@ -174,8 +174,15 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
             toVary[i] = params[i]
         splitTrial = Sensitivity_splitResults(changeParams, 
             trials, labels[i])
-        finalResults.append(splitTrial)
+        finalResults.append(splitTrial)'''
 
+    # Performs numerical analysis on the original trial
+    minDepressOdds = original.network.networkBase.NetworkBase_getOdds\
+        (onlyMinority=True, attr="support")
+    nonMinDepressOdds = original.network.networkBase.NetworkBase_getOdds\
+        (onlyMinority=True, attr="support")
+
+    # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Correlation.txt"
     with open(resultsFile, 'w') as f:
         writer = csv.writer(f, delimiter = '\n', quoting=csv.QUOTE_NONE, 

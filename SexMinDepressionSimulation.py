@@ -271,17 +271,18 @@ if __name__ == "__main__":
     percentMinority = .75
     supportImpact = 1.25
     concealDiscriminateImpact = 5.0
-    discriminateConcealImpact = 1.0
+    discriminateConcealImpact = 1.5
     concealDepressionImpact = 2.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
-    #simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
-    #    percentMinority, supportImpact, discriminateImpact, concealImpact)
-    #simulationModel.SMDModel_runSimulation(resultsFile)
+    simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
+        percentMinority, supportImpact, discriminateImpact, concealImpact)
+    simulationModel.SMDModel_runSimulation(resultsFile)
 
     if checkSensitivity:
         Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
             percentMinority, supportImpact, concealDiscriminateImpact, 
-            discriminateConcealImpact, concealDepressionImpact)
+            discriminateConcealImpact, concealDepressionImpact,
+            simulationModel)
 
     print("Terminating simulation...")
