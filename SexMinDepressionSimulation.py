@@ -265,7 +265,7 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 1
+    timeSpan = 5
     numAgents = 25
 
     percentMinority = .75

@@ -73,11 +73,20 @@ class NonMinorityAgent(BaseAgent):
 
     #################################################################
     # Simply due to the results of interest for this investigation  #
-    # we do not consider the depression of those agents not present #
-    # in the minority                                               #
+    # we consider the depression of the non-minority members to     #
+    # perform sensitivity analysis and contrast with literature     #
     #################################################################
     def Agent_updateDepression(self, concealImpact):
-        return
+        DEPRESSION_THRESHOLD = .025
+        SCALING_FACTOR = .0025
+
+        if self.isDiscriminatory:
+            self.currentDepression += self.network.\
+                NetworkBase_findPercentConnectedMinority(self) * SCALING_FACTOR
+
+        rand = random.random()
+        self.isDepressed = (rand < self.currentDepression and \
+            self.currentDepression > DEPRESSION_THRESHOLD)
 
 #####################################################################
 # A model for agents not part of sexual minority                    #

@@ -39,12 +39,13 @@ class AgentFactory(object):
 
         FULL_ACCEPTANCE = 1.0
 
-        NON_MINORITY_DEPRESS = 0.0
         UNCONCEAL_DEPRESS_PROB = .025
         CONCEAL_DEPRESS_PROB = .050
         
         CENTER_SES_RAND = 3
         BASELINE_SES = .1
+
+        CONST = 3.0
 
         rand = random.random()
         isMinority = (rand <= percentMinority)
@@ -83,7 +84,9 @@ class AgentFactory(object):
         isConcealed = rand < probConceal and isMinority
 
         if not isMinority:
-            const = NON_MINORITY_DEPRESS
+            const = 1 - CONST * currentSES
+            if const < 0.0:
+                const = 0.0
         else:
             const = UNCONCEAL_DEPRESS_PROB
             if isConcealed:
