@@ -62,8 +62,14 @@ class BaseAgent:
         self.isConcealed = isConcealed
         self.probConceal = probConceal
 
+        # Base depression is only used for non-minority members
+        self.baseDepression = currentDepression
         self.currentDepression = currentDepression
         self.isDepressed = isDepressed
+
+        # If initialized to depressed, "start time" marked as 0
+        if self.isDepressed:
+            self.depressStart = 0
 
         self.network = network.networkBase
         self.agentID = agentID
@@ -210,4 +216,4 @@ class BaseAgent:
         self.Agent_updateDiscrimination(time, concealDiscriminateImpact)
 
         self.Agent_updateConcealment(discriminateConcealImpact)
-        self.Agent_updateDepression(concealDepressionImpact)
+        self.Agent_updateDepression(concealDepressionImpact, time)

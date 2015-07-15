@@ -166,7 +166,6 @@ class NetworkBase:
     def NetworkBase_getNeighbors(self, agent):
         agentID = agent.agentID
         neighbors = self.NetworkBase_getFirstNeighbors(agent)
-        '''
         for neighbor in neighbors:
             curNeighbor = self.NetworkBase_getAgent(neighbor)
             secondDegree = self.\
@@ -174,7 +173,6 @@ class NetworkBase:
             for nextNeighbor in secondDegree:
                 if nextNeighbor not in neighbors:
                     neighbors.append(nextNeighbor)
-        '''
         return neighbors
 
     #################################################################
@@ -279,10 +277,17 @@ class NetworkBase:
 
     #################################################################
     # Finds the percentage of locally connected nodes (to some given#
-    # agent) marked as of sexual minority                           #
+    # agent) marked as of sexual minority. firstDegree determines   #
+    # whether you wish to only find the percent in 1st degree or 2nd#
     #################################################################
-    def NetworkBase_findPercentConnectedMinority(self, agent):
-        neighbors = self.NetworkBase_getNeighbors(agent)
+    def NetworkBase_findPercentConnectedMinority(self, agent, 
+        firstDegree=False):
+
+        if firstDegree: 
+            neighbors = self.NetworkBase_getFirstNeighbors(agent)
+        else: 
+            neighbors = self.NetworkBase_getNeighbors(agent)
+
         totalCount = 0
         minorityCount = 0
 
@@ -379,7 +384,9 @@ class NetworkBase:
         densityArr = []
         for agent in agents:
             densityArr.append(
-                self.NetworkBase_findPercentConnectedMinority(agent))
+                self.NetworkBase_findPercentConnectedMinority(agent, 
+                    firstDegree=True))
+
         if not self.densityMean: 
             self.densityMean = mean(densityArr)
         if not self.densityStd: 
@@ -477,6 +484,9 @@ class NetworkBase:
                 sys.stderr.write("Support bool must be 0, 1, 2")
                 return False
 
+        if not count:
+            return 0.0
+        
         prob = totalDepression/count
         return prob/(1 - prob)
 

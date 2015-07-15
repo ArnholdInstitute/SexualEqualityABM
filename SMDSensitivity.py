@@ -163,14 +163,15 @@ def Sensitivity_oddRatioTests(original):
     for i in range (0, len(ORTests)):
         print("Performing {} odds ratio test".format(labels[i]))
         test = ORTests[i]
-        currentOR = 0
+        originalSet = False
         for trial in test:
             args[i] = trial
             trialResult = network.NetworkBase_getDepressOdds(
                 onlyMinority=args[0], withSupport=args[1], 
                 checkDensity=args[2])
-            if not currentOR:
+            if not originalSet:
                 currentOR = trialResult
+                originalSet = True
             else:
                 currentOR /= trialResult
         ORresults.append([labels[i], currentOR])

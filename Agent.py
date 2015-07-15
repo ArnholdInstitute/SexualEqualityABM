@@ -76,12 +76,14 @@ class NonMinorityAgent(BaseAgent):
     # we consider the depression of the non-minority members to     #
     # perform sensitivity analysis and contrast with literature     #
     #################################################################
-    def Agent_updateDepression(self, concealImpact):
+    def Agent_updateDepression(self, concealImpact, time):
         DEPRESSION_THRESHOLD = .025
         SCALING_FACTOR = .0025
+        TIME_DECAY = .95
 
+        self.baseDepression *= TIME_DECAY
         if self.isDiscriminatory:
-            self.currentDepression += self.network.\
+            self.currentDepression = self.baseDepression + self.network.\
                 NetworkBase_findPercentConnectedMinority(self) * SCALING_FACTOR
 
         rand = random.random()
@@ -129,6 +131,7 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateDiscrimination(self, time, concealDiscriminateImpact):
         DECAY_FACTOR = 5.0
+        SCALE_FACTOR = .95
 
         numPolicies = self.network.policyScore
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
@@ -156,6 +159,7 @@ class MinorityAgent(BaseAgent):
         self.hasMultipleStagnant = False    
 
         discrimination = 1 - (numPolicies/50 + avgAttitude)
+        discrimination *= SCALE_FACTOR
         self.discrimination = self.Agent_normalizeParam(discrimination)
 
     #################################################################
@@ -184,17 +188,20 @@ class MinorityAgent(BaseAgent):
     # the property remains for the duration of the simulation (can't#
     # become 'undepressed')                                         #
     #################################################################
-    def Agent_updateDepression(self, concealDepressionImpact):
-        SCALING_FACTOR = .035
+    def Agent_updateDepression(self, concealDepressionImpact, time):
+        SCALING_FACTOR = .075
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
 
+        # Time "threshold" after which a person can become undepressed
+        TIME_THRESHOLD = 4
 
         if self.isDepressed:
-            rand = random.random()
-            self.isDepressed = (rand < (1 - self.currentDepression))
-            return
+            if (time - self.depressStart > TIME_THRESHOLD):
+                rand = random.random()
+                self.isDepressed = (rand < (1 - self.currentDepression))
+                return
 
         numPolicies = self.network.policyScore
         probIncrease = self.discrimination - self.support
@@ -213,3 +220,5 @@ class MinorityAgent(BaseAgent):
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression and \
             self.currentDepression > DEPRESSION_THRESHOLD)
+        if self.isDepressed:
+            self.depressStart = time

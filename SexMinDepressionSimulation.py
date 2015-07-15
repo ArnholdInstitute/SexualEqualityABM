@@ -63,14 +63,14 @@ class SMDSimulationModel:
     #################################################################
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
-            self.network = ERNetwork(self.numAgents, self.percentMinority,
-                10.0/self.numAgents)
+            self.network = ERNetwork(self.numAgents, 
+                self.percentMinority, .50)
         elif self.networkType == 'SW':
-            self.network = SWNetwork(self.numAgents, self.percentMinority,
-                10, 0.0)
+            self.network = SWNetwork(self.numAgents, 
+                self.percentMinority, 10, 0.25)
         else:
-            self.network = ASFNetwork(self.numAgents, self.percentMinority,
-                9, 7)
+            self.network = ASFNetwork(self.numAgents, 
+                self.percentMinority, 9, 5)
 
     #################################################################
     # Given parameters for initializing the simulation, ensures they#
@@ -268,7 +268,7 @@ if __name__ == "__main__":
     timeSpan = 5
     numAgents = 25
 
-    percentMinority = .75
+    percentMinority = .65
     supportImpact = 1.25
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 1.5

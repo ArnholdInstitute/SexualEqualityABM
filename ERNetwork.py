@@ -32,7 +32,7 @@ class ERNetwork:
     # probability of attaching to other nodes (defaulted to .5)     #
     # initializes ER Network                                        #
     #################################################################
-    def __init__(self, nodeCount, percentMinority, p = 0.5):
+    def __init__(self, nodeCount, percentMinority, p = 0.25):
         if not self.ERNetwork_verifyNetwork(nodeCount, p):
             return None
 

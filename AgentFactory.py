@@ -84,7 +84,7 @@ class AgentFactory(object):
         isConcealed = rand < probConceal and isMinority
 
         if not isMinority:
-            const = 1 - CONST * currentSES
+            const = (1 - CONST * currentSES)/8
             if const < 0.0:
                 const = 0.0
         else:
