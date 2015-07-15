@@ -462,6 +462,7 @@ class NetworkBase:
                 if checkDensity:
                     # Have to redo count for only agents in cutoff
                     count = 0
+                    print("testing")
                     for agent in agents:
                         z = self.NetworkBase_getDensityZScore(agent)
                         if cutoffRange[0] < z < cutoffRange[1]:
@@ -478,7 +479,11 @@ class NetworkBase:
                 return False
 
         prob = totalDepression/count
-        return prob/(1 - prob)
+        odds = prob/(1 - prob)
+
+        if not odds:
+            return 1
+        return odds
 
     #################################################################
     # Gets the average of a given array                             #

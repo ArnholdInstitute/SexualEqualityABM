@@ -133,17 +133,66 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel):
     plt.close()
 
 #####################################################################
-# Conducts sensitivity tests for each of the paramaters of interest #
-# and produces graphical displays for each (appropriately named)    #
+# Performs all the tests for odds ratios to check if results match  #
+# empirically verified/identified values from literature            #
 #####################################################################
-def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
+def Sensitivity_oddRatioTests(original):
+    network = original.network.networkBase
+
+    ONLY_WANT_WITH = 2
+    ONLY_WANT_WITHOUT = 1
+    IRRELEVANT = 0
+
+    minDiscriminatePrevalence = network.\
+        NetworkBase_findPercentAttr(attr="discrimination")
+
+    labels = ["Minority_Depress", "Support_Depress", "Density_Depress"]
+    minTest = [ONLY_WANT_WITH, ONLY_WANT_WITHOUT]
+    supportTest = [ONLY_WANT_WITHOUT, ONLY_WANT_WITH]
+    depressTest = [False, True]
+    ORTests = [minTest, supportTest, depressTest]
+
+    ORresults = []
+
+    # Iterates through each of the odds ratio tests and performs
+    # from the above testing values
+    args = [IRRELEVANT, IRRELEVANT, False]
+    copy = list(args)
+    for i in range (0, len(ORTests)):
+        print("Performing {} odds ratio test".format(labels[i]))
+        test = ORTests[i]
+        currentOR = 0
+        for trial in test:
+            args[i] = trial
+            trialResult = network.NetworkBase_getDepressOdds(
+                onlyMinority=args[0], withSupport=args[1], 
+                checkDensity=args[2])
+            if not currentOR:
+                currentOR = trialResult
+            else:
+                currentOR /= trialResult
+        ORresults.append([labels[i], currentOR])
+        args = copy
+
+    # Performs numerical analysis on sensitivity trials
+    resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
+    with open(resultsFile, 'w') as f:
+        writer = csv.writer(f, delimiter = ' ', quoting=csv.QUOTE_NONE, 
+            quotechar='', escapechar='\\')
+        for OR in ORresults:
+            writer.writerow(OR)
+
+#####################################################################
+# Similarly performs correlation tests to identify value of r btween#
+# the parameters and the final result (depression/concealment)      #
+#####################################################################
+def Sensitivity_correlationTests(networkType, timeSpan, numAgents, 
         percentMinority, supportImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, concealDepressionImpact, original):
+        discriminateConcealImpact, concealDepressionImpact):
     finalResults = []
     params = [percentMinority, supportImpact, concealDiscriminateImpact, \
         discriminateConcealImpact, concealDepressionImpact]
-    toVary = [percentMinority, supportImpact, concealDiscriminateImpact, \
-        discriminateConcealImpact, concealDepressionImpact]
+    toVary = list(params)
 
     # Used to produce labels of the graphs
     labels = ["Minority_Percentage", "Support_Impact", \
@@ -151,7 +200,6 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
         "ConcealDepression_Impact"]
 
     varyTrials = [.50, .75, .90, 1.0, 1.1, 1.25, 1.50]
-    '''
     for i in range(0, len(params)):
         print("Performing {} sensitivity analysis".format(labels[i]))
         trials = []
@@ -168,42 +216,13 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
             toVary[i] = params[i]
         splitTrial = Sensitivity_splitResults(changeParams, 
             trials, labels[i])
-        finalResults.append(splitTrial)'''
+        finalResults.append(splitTrial)
+    Sensitivity_printCorrelationResults(finalResults)
 
-    # Performs numerical analysis on the original trial
-    network = original.network.networkBase
-
-    minDiscriminatePrevalence = network.\
-        NetworkBase_findPercentAttr(attr="discrimination")
-
-    minDepressOdds = network.NetworkBase_getDepressOdds(
-        onlyMinority=2, withSupport=0, checkDensity=False)
-    nonMinDepressOdds = 2#network.NetworkBase_getDepressOdds(
-        #onlyMinority=1, withSupport=0, checkDensity=False)
-    minDepressOR = ["Minority_Depress", minDepressOdds/nonMinDepressOdds]
-
-    supportDepressOdds = network.NetworkBase_getDepressOdds(
-        onlyMinority=0, withSupport=2, checkDensity=False)
-    nonSupportDepressOdds = network.NetworkBase_getDepressOdds(
-        onlyMinority=0, withSupport=1, checkDensity=False)
-    supportDepressOR = ["Support_Depress", \
-        nonSupportDepressOdds/supportDepressOdds]
-
-    densityDepressOdds = network.NetworkBase_getDepressOdds(
-        onlyMinority=0, withSupport=0, checkDensity=True)
-    depressOdds = network.NetworkBase_getDepressOdds(
-        onlyMinority=0, withSupport=0, checkDensity=False)
-    densityDepressOR = ["Density_Depress", depressOdds/densityDepressOdds]
-    ORresults = [minDepressOR, supportDepressOR, densityDepressOR]
-
-    # Performs numerical analysis on sensitivity trials
-    resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
-    with open(resultsFile, 'w') as f:
-        writer = csv.writer(f, delimiter = ' ', quoting=csv.QUOTE_NONE, 
-            quotechar='', escapechar='\\')
-        for OR in ORresults:
-            writer.writerow(OR)
-
+#####################################################################
+# Prints the results of correlation analysis to separate csv file   #
+#####################################################################
+def Sensitivity_printCorrelationResults(finalResults):
     # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Sensitivity_Correlation.txt"
     with open(resultsFile, 'w') as f:
@@ -227,3 +246,15 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
 
             Sensitivity_plotGraphs(xArr, yArr_1, subResult[3], "Depression")
             Sensitivity_plotGraphs(xArr, yArr_2, subResult[3], "Concealment")
+
+#####################################################################
+# Conducts sensitivity tests for each of the paramaters of interest #
+# and produces graphical displays for each (appropriately named)    #
+#####################################################################
+def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
+        percentMinority, supportImpact, concealDiscriminateImpact, 
+        discriminateConcealImpact, concealDepressionImpact, original):
+    Sensitivity_oddRatioTests(original)
+    Sensitivity_correlationTests(networkType, timeSpan, numAgents, 
+        percentMinority, supportImpact, concealDiscriminateImpact, 
+        discriminateConcealImpact, concealDepressionImpact)
