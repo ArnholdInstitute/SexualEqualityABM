@@ -1,9 +1,3 @@
-''' 
-=====================================================================
-TO CHANGE:
-Really really ugly code: definitely try tidying up if possible
-=====================================================================
-'''
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: SensitivitySimulation.py                                    #
@@ -177,13 +171,41 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
         finalResults.append(splitTrial)'''
 
     # Performs numerical analysis on the original trial
-    minDepressOdds = original.network.networkBase.NetworkBase_getOdds\
-        (onlyMinority=True, attr="support")
-    nonMinDepressOdds = original.network.networkBase.NetworkBase_getOdds\
-        (onlyMinority=True, attr="support")
+    network = original.network.networkBase
+
+    minDiscriminatePrevalence = network.\
+        NetworkBase_findPercentAttr(attr="discrimination")
+
+    minDepressOdds = network.NetworkBase_getDepressOdds(
+        onlyMinority=2, withSupport=0, checkDensity=False)
+    nonMinDepressOdds = 2#network.NetworkBase_getDepressOdds(
+        #onlyMinority=1, withSupport=0, checkDensity=False)
+    minDepressOR = ["Minority_Depress", minDepressOdds/nonMinDepressOdds]
+
+    supportDepressOdds = network.NetworkBase_getDepressOdds(
+        onlyMinority=0, withSupport=2, checkDensity=False)
+    nonSupportDepressOdds = network.NetworkBase_getDepressOdds(
+        onlyMinority=0, withSupport=1, checkDensity=False)
+    supportDepressOR = ["Support_Depress", \
+        nonSupportDepressOdds/supportDepressOdds]
+
+    densityDepressOdds = network.NetworkBase_getDepressOdds(
+        onlyMinority=0, withSupport=0, checkDensity=True)
+    depressOdds = network.NetworkBase_getDepressOdds(
+        onlyMinority=0, withSupport=0, checkDensity=False)
+    densityDepressOR = ["Density_Depress", depressOdds/densityDepressOdds]
+    ORresults = [minDepressOR, supportDepressOR, densityDepressOR]
 
     # Performs numerical analysis on sensitivity trials
-    resultsFile = "Results\\Sensitivity\\Correlation.txt"
+    resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
+    with open(resultsFile, 'w') as f:
+        writer = csv.writer(f, delimiter = ' ', quoting=csv.QUOTE_NONE, 
+            quotechar='', escapechar='\\')
+        for OR in ORresults:
+            writer.writerow(OR)
+
+    # Performs numerical analysis on sensitivity trials
+    resultsFile = "Results\\Sensitivity\\Sensitivity_Correlation.txt"
     with open(resultsFile, 'w') as f:
         writer = csv.writer(f, delimiter = '\n', quoting=csv.QUOTE_NONE, 
             quotechar='', escapechar='\\')
@@ -195,10 +217,10 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
             yArrCorrelation_1 = np.corrcoef(xArr, yArr_1)[0][1]
             yArrCorrelation_2 = np.corrcoef(xArr, yArr_2)[0][1]
 
-            depressCorrelate = "{} vs. Depression Correlation: {}".format(subResult[3], 
-                yArrCorrelation_1)
-            concealCorrelate = "{} vs. Concealment Correlation: {}".format(subResult[3], 
-                yArrCorrelation_2)
+            depressCorrelate = "{} vs. Depression Correlation: {}".\
+                format(subResult[3], yArrCorrelation_1)
+            concealCorrelate = "{} vs. Concealment Correlation: {}".\
+                format(subResult[3], yArrCorrelation_2)
 
             row = [depressCorrelate, concealCorrelate]
             writer.writerow(row)

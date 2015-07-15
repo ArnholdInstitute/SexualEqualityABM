@@ -264,8 +264,8 @@ if __name__ == "__main__":
     checkSensitivity = True
 
     # ER, SW, or ASF
-    networkType = "SW"
-    timeSpan = 5
+    networkType = "ER"
+    timeSpan = 1
     numAgents = 25
 
     percentMinority = .75
@@ -276,7 +276,8 @@ if __name__ == "__main__":
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, discriminateImpact, concealImpact)
+        percentMinority, supportImpact, concealDiscriminateImpact, 
+            discriminateConcealImpact, concealDepressionImpact,)
     simulationModel.SMDModel_runSimulation(resultsFile)
 
     if checkSensitivity:

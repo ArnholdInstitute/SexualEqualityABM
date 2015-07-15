@@ -166,6 +166,7 @@ class NetworkBase:
     def NetworkBase_getNeighbors(self, agent):
         agentID = agent.agentID
         neighbors = self.NetworkBase_getFirstNeighbors(agent)
+        '''
         for neighbor in neighbors:
             curNeighbor = self.NetworkBase_getAgent(neighbor)
             secondDegree = self.\
@@ -173,6 +174,7 @@ class NetworkBase:
             for nextNeighbor in secondDegree:
                 if nextNeighbor not in neighbors:
                     neighbors.append(nextNeighbor)
+        '''
         return neighbors
 
     #################################################################
@@ -251,14 +253,15 @@ class NetworkBase:
     #################################################################
     # Determines all the nodes in the overall network/graph that are#
     # or are not of sexual minority: distinguishes based on value of#
-    # boolWantMinority. If specified as true, returns minority nodes#
+    # wantMinority. If specified as true, returns minority nodes    #
     # in an array; otherwise, returns those nodes not minority      #
     #################################################################
-    def NetworkBase_getMinorityNodes(self):
+    def NetworkBase_getMinorityNodes(self, wantMinority=True):
         collectNodes = []
         agents = self.NetworkBase_getAgentArray()
         for agent in agents:
-            if agent.isMinority:
+            if (wantMinority and agent.isMinority) or \
+                (not wantMinority and not agent.isMinority):
                 collectNodes.append(agent)
         return collectNodes
 
@@ -289,7 +292,6 @@ class NetworkBase:
                 minorityCount += 1
             totalCount += 1
 
-        # Adding 1.0 avoids division by 0
         return minorityCount/totalCount
 
     #################################################################
@@ -306,7 +308,6 @@ class NetworkBase:
                 nonAcceptingCount += 1
             totalCount += 1
 
-        # Adding 1.0 avoids division by 0
         return nonAcceptingCount/totalCount
 
     #################################################################
@@ -317,15 +318,17 @@ class NetworkBase:
         agents = self.NetworkBase_getMinorityNodes()
         
         minCount = len(agents)
-        attrCount = 0
+        attrTotal = 0
         
         for agent in agents:
             if  (attr == "depression" and agent.isDepressed) or \
                 (attr == "concealed" and agent.isConcealed):
-                attrCount += 1
+                attrTotal += 1
+            elif attr == "discrimination":
+                attrTotal += agent.discrimination
 
         if minCount:
-            return attrCount/minCount
+            return attrTotal/minCount
         return 0.0
 
     #################################################################
@@ -377,7 +380,6 @@ class NetworkBase:
         for agent in agents:
             densityArr.append(
                 self.NetworkBase_findPercentConnectedMinority(agent))
-
         if not self.densityMean: 
             self.densityMean = mean(densityArr)
         if not self.densityStd: 
@@ -392,64 +394,90 @@ class NetworkBase:
         if not (self.densityMean and self.densityStd):
             self.NetworkBase_setMeanStdDensity()
 
-        curVal = NetworkBase_findPercentConnectedMinority()
+        curVal = self.NetworkBase_findPercentConnectedMinority(agent)
         mean = self.densityMean
         std = self.densityStd
         return (curVal - mean)/std
 
     #################################################################
-    # Determines the odds of having a particular attribute in either#
-    # the entire population (default) or only the minority, if that #
-    # parameter (onlyMinority) is passed in as True. With support   #
+    # Determines the odds of having a particular depression in      #
+    # the entire population (default), only non-minority (1),or only# 
+    # minority (2), from the value of onlyMinority. withSupport     #
     # determines whether the attribute is only being checked against#
     # the supported agents (2), only non-supported (1), or any (0)  #
     #################################################################
-    def NetworkBase_getOdds(self, onlyMinority=False, withSupport=0,
-            attr):
+    def NetworkBase_getDepressOdds(self, onlyMinority=0, withSupport=0,
+            checkDensity=False):
         # Everyone with > .50 support will be considered "supported"
-        SUPPORT_CUTOFF = .50
+        SUPPORT_CUTOFF = .025
 
-        # Used for comparison on the withSupport parameter
-        ONLY_SUPPORTED = 2
-        NOT_SUPPORTED = 1
-        IRRELEVANT_SUPPORT = 0
+        # Used to calculate when the z-score is ".75" (never exact: 
+        # use a bounded set to compensate)
+        cutoffRange = [.90, 1.10]
 
-        if onlyMinority:
-            agents = self.NetworkBase_getMinorityNodes()
-        else:
-            agents = self.NetworkBase_getAgentArray()
+        # Used for checking the parameters passed in: whether check
+        # for the nodes with a property, without, or without regard
+        ONLY_WANT_WITH = 2
+        ONLY_WANT_WITHOUT = 1
+        IRRELEVANT = 0
 
-        totalAttrSum = 0
-        if attr == "support":
-            for agent in agents:
-                totalAttrSum += agent.support
+        # Determines which agents to check based on parameter
+        for case in switch(onlyMinority):
+            if case(ONLY_WANT_WITH):
+                agents = self.NetworkBase_getMinorityNodes()
+                break
+            if case(ONLY_WANT_WITHOUT):
+                agents = self.NetworkBase_getMinorityNodes(
+                    wantMinority=False)
+                break
+            if case(IRRELEVANT):
+                agents = self.NetworkBase_getAgentArray()
+                break
+            if case():
+                sys.stderr.write("Minority bool must be 0, 1, 2")
+                return False
 
-        elif attr == "depression":
-            for case in switch(withSupport):
-                # Gets total depression of those with support
-                if case(ONLY_SUPPORTED):
+        # Agent count: defaulted to number of agents being analyzed
+        count = len(agents)
+
+        totalDepression = 0
+        for case in switch(withSupport):
+            # Gets total depression of those with support
+            if case(ONLY_WANT_WITH):
+                for agent in agents:
+                    if agent.support >= SUPPORT_CUTOFF:
+                        totalDepression += agent.currentDepression
+                break
+
+            # Gets depression of those without support
+            if case(ONLY_WANT_WITHOUT): 
+                for agent in agents:
+                    if agent.support < SUPPORT_CUTOFF:
+                        totalDepression += agent.currentDepression
+                break
+
+            # Gets depression for all the agents in check
+            if case(IRRELEVANT):
+                # If calculating odds for specific level of density
+                if checkDensity:
+                    # Have to redo count for only agents in cutoff
+                    count = 0
                     for agent in agents:
-                        if agent.support >= SUPPORT_CUTOFF:
-                            totalAttrSum += agent.currentDepression
-                    break
+                        z = self.NetworkBase_getDensityZScore(agent)
+                        if cutoffRange[0] < z < cutoffRange[1]:
+                            totalDepression += agent.currentDepression
+                            count += 1
 
-                # Gets depression of those without support
-                if case(NOT_SUPPORTED): 
+                else:
                     for agent in agents:
-                        if agent.support < SUPPORT_CUTOFF:
-                            totalAttrSum += agent.currentDepression
-                    break
+                        totalDepression += agent.currentDepression
+                break
 
-                if case(IRRELEVANT_SUPPORT):
-                    for agent in agents:
-                        totalAttrSum += agent.currentDepression
-                    break
+            if case():
+                sys.stderr.write("Support bool must be 0, 1, 2")
+                return False
 
-                if case():
-                    sys.stderr.write("Support bool must be 0, 1, 2")
-                    return False
-
-        prob = totalAttrSum/len(agents)
+        prob = totalDepression/count
         return prob/(1 - prob)
 
     #################################################################
