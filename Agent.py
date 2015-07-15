@@ -189,18 +189,19 @@ class MinorityAgent(BaseAgent):
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self, concealDepressionImpact, time):
-        SCALING_FACTOR = .075
+        SCALING_FACTOR = .035
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
 
-        # Time "threshold" after which a person can become undepressed
+        # Number of time intervals before which a reversal of 
+        # depressive condition can disappear
         TIME_THRESHOLD = 4
 
         if self.isDepressed:
             if (time - self.depressStart > TIME_THRESHOLD):
                 rand = random.random()
-                self.isDepressed = (rand < (1 - self.currentDepression))
+                self.isDepressed = (rand < (1 - self.currentDepression/2))
                 return
 
         numPolicies = self.network.policyScore
