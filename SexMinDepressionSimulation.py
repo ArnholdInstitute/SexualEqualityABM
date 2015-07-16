@@ -277,11 +277,11 @@ if __name__ == "__main__":
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = 1.25
+    supportDepressionImpact = .75
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 1.5
     discriminateDepressionImpact = 1.25
-    concealDepressionImpact = 3.0
+    concealDepressionImpact = 1.25
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 

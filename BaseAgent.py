@@ -208,14 +208,14 @@ class BaseAgent:
     # concealment, and depression for a single time step. Performs  #
     # new policy check every 10 time steps, requiring current time  #                                                   
     #################################################################
-    def Agent_updateAgent(self, time, supportDepressionImpact, concealDiscriminateImpact,
-        discriminateConcealImpact, discriminateDepressionImpact, 
-        concealDepressionImpact):
+    def Agent_updateAgent(self, time, supportDepressionImpact, 
+        concealDiscriminateImpact, discriminateConcealImpact, 
+        discriminateDepressionImpact, concealDepressionImpact):
         self.Agent_updateAttitude() 
 
         self.Agent_updateSupport()
         self.Agent_updateDiscrimination(time, concealDiscriminateImpact)
 
         self.Agent_updateConcealment(discriminateConcealImpact)
-        self.Agent_updateDepression(concealDepressionImpact, supportDepressionImpact,
-            discriminateDepressionImpact, time)
+        self.Agent_updateDepression(concealDepressionImpact, 
+            supportDepressionImpact, discriminateDepressionImpact, time)

@@ -192,12 +192,14 @@ def Sensitivity_oddRatioTests(original):
 # Similarly performs correlation tests to identify value of r btween#
 # the parameters and the final result (depression/concealment)      #
 #####################################################################
-def Sensitivity_correlationTests(original, percentMinority, supportDepressionImpact, 
-    concealDiscriminateImpact, discriminateConcealImpact, 
-    discriminateDepressionImpact, concealDepressionImpact):
+def Sensitivity_correlationTests(original, percentMinority, 
+    supportDepressionImpact,  concealDiscriminateImpact, 
+    discriminateConcealImpact, discriminateDepressionImpact, 
+    concealDepressionImpact):
     finalResults = []
-    params = [percentMinority, supportDepressionImpact, concealDiscriminateImpact, \
-        discriminateConcealImpact, discriminateDepressionImpact, concealDepressionImpact]
+    params = [percentMinority, supportDepressionImpact,   \
+    concealDiscriminateImpact, discriminateConcealImpact, \
+    discriminateDepressionImpact, concealDepressionImpact]
     toVary = list(params)
 
     # Used to produce labels of the graphs
@@ -218,8 +220,8 @@ def Sensitivity_correlationTests(original, percentMinority, supportDepressionImp
             # Ensures that, when sensitivity analysis is conducted, the network
             # is equivalent to the one that was originally used (keeps constant)
             curTrial = deepcopy(original)
-            trialResult = Sensitivity_runSimulation(curTrial, toVary[0], toVary[1], 
-                toVary[2], toVary[3], toVary[4], toVary[5])
+            trialResult = Sensitivity_runSimulation(curTrial, toVary[0], 
+                toVary[1], toVary[2], toVary[3], toVary[4], toVary[5])
 
             trials.append(trialResult)
             toVary[i] = params[i]
