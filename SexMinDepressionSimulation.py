@@ -265,7 +265,7 @@ if __name__ == "__main__":
     checkSensitivity = True
     showOdd = True
     showRegression = False
-    onlyStreamlined = True
+    onlyStreamlined = False
 
     # ER, SW, or ASF
     networkType = "ER"

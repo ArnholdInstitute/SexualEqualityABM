@@ -18,11 +18,42 @@ from SexMinDepressionSimulation import *
 import matplotlib.pyplot as plt
 from operator import itemgetter 
 
+import unittest
+
 try:
     import networkx as nx
 except ImportError:
     raise ImportError("You must install NetworkX:\
     (http://networkx.lanl.gov/) for SE simulation")
+
+#####################################################################
+# Performs tests to ensure the values that were calculated are in   #
+# the ranges specified in the literature                            #
+#####################################################################
+class OddRatiosTest(unittest.TestCase):
+    def __init__(self, valuesArr):
+        self.discriminateTestVal = valuesArr[0]
+        self.minTestVal = valuesArr[1]
+        self.supportTestVal = valuesArr[2]
+        self.depressTestVal = valuesArr[3]
+
+    def test_results_in_range(self):
+       # Defines ranges (from literature) of values to test against
+        discriminateTestRange = [.175, .259]
+        minTestRange = [1.55, 2.65]
+        supportTestRange = [1.5, 4.7]
+        depressTestRange = [0.4, 1.2]
+
+        errorStr = "{} not in range"
+
+        self.assertTrue(discriminateTestRange[0] < self.discriminateTestVal \
+            < discriminateTestRange[1], errorStr.format("Discrimination OR"))
+        self.assertTrue(minTestRange[0] < self.minTestVal \
+            < minTestRange[1], errorStr.format("Minority OR"))
+        self.assertTrue(supportTestRange[0] < self.supportTestVal \
+            < supportTestRange[1], errorStr.format("Support OR"))
+        self.assertTrue(depressTestRange[0] < self.depressTestVal \
+            < depressTestRange[1], errorStr.format("Depression OR"))
 
 #####################################################################
 # Given the parameters needed for running simulation, executes the  #
@@ -150,11 +181,13 @@ def Sensitivity_oddRatioTests(original):
     ORTests = [minTest, supportTest, depressTest]
 
     ORresults = []
+    values = []
 
-    minDiscriminatePrevalence = network.\
+    discriminateTestRange = network.\
         NetworkBase_findPercentAttr(attr="discrimination")
     ORresults.append(["Minority_Discrimination_Prevalence", \
-            minDiscriminatePrevalence])
+            discriminateTestRange])
+    values.append(discriminateTestRange)
 
     # Iterates through each of the odds ratio tests and performs
     # from the above testing values
@@ -175,7 +208,11 @@ def Sensitivity_oddRatioTests(original):
             else:
                 currentOR /= trialResult
         ORresults.append([labels[i], currentOR])
+        values.append(currentOR)
         args = list(copy)
+
+    # ORTest = OddRatiosTest(values)
+    # ORTest.test_results_in_range()
 
     # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
@@ -262,7 +299,7 @@ def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents,
         showOdd=True, showRegression=True):
     if showOdd:
         Sensitivity_oddRatioTests(original)
-        
+
     if showRegression:
         Sensitivity_correlationTests(networkType, timeSpan, numAgents, 
             percentMinority, supportImpact, concealDiscriminateImpact, 

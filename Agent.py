@@ -191,7 +191,7 @@ class MinorityAgent(BaseAgent):
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self, concealDepressionImpact, time):
-        SCALING_FACTOR = .075
+        SCALING_FACTOR = .065
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
