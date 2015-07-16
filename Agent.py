@@ -79,7 +79,7 @@ class NonMinorityAgent(BaseAgent):
     def Agent_updateDepression(self, concealImpact, time):
         DEPRESSION_THRESHOLD = .025
         SCALING_FACTOR = .0025
-        TIME_DECAY = .95
+        TIME_DECAY = .925
 
         self.baseDepression *= TIME_DECAY
         if self.isDiscriminatory:
@@ -131,7 +131,7 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateDiscrimination(self, time, concealDiscriminateImpact):
         DECAY_FACTOR = 5.0
-        SCALE_FACTOR = .95
+        SCALE_FACTOR = .075
 
         numPolicies = self.network.policyScore
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
@@ -150,9 +150,11 @@ class MinorityAgent(BaseAgent):
                 self.initialNegative = attitudes[1]
 
             deltaTime = time - self.time
-            self.discrimination = 1 - (numPolicies/self.network.policyCap \
+            discrimination = 1 - (numPolicies/self.network.policyCap \
                 + (self.initialPositive + self.initialNegative * \
                 concealDiscriminateImpact ** (-deltaTime)))
+            discrimination *= SCALE_FACTOR
+            self.discrimination = self.Agent_normalizeParam(discrimination)
             return
 
         # "Resets" the clock for concealed discrimination
@@ -174,8 +176,8 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
         probConceal = ((self.discrimination - self.support) * \
-            discriminateConcealImpact - numPolicies/self.network.policyCap) * SCALE_FACTOR \
-            + self.network.NetworkBase_getNetworkAttitude()
+            discriminateConcealImpact - numPolicies/self.network.policyCap) \
+            * SCALE_FACTOR + self.network.NetworkBase_getNetworkAttitude()
 
         self.probConceal = self.Agent_getLogistic(probConceal)
         
@@ -189,7 +191,7 @@ class MinorityAgent(BaseAgent):
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self, concealDepressionImpact, time):
-        SCALING_FACTOR = .040
+        SCALING_FACTOR = .075
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
