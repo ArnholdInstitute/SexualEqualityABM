@@ -38,9 +38,9 @@ class SMDSimulationModel:
     # defaults have been provided                                   #
     #################################################################
     def __init__(self, networkType='ER', timeSpan=10, numAgents=10,
-        percentMinority=.5, supportImpact=1.25, 
+        percentMinority=.5, supportDepressionImpact=1.25, 
         concealDiscriminateImpact=5.0, discriminateConcealImpact=1.0, 
-        concealDepressionImpact=2.0):
+        discriminateDepressionImpact=3.0, concealDepressionImpact=2.0):
 
         if not self.SMDModel_verifySE(networkType, timeSpan, numAgents):
             return None
@@ -50,9 +50,10 @@ class SMDSimulationModel:
         self.numAgents = numAgents
         self.percentMinority = percentMinority
 
-        self.supportImpact = supportImpact
+        self.supportDepressionImpact = supportDepressionImpact
         self.concealDiscriminateImpact = concealDiscriminateImpact
         self.discriminateConcealImpact = discriminateConcealImpact
+        self.discriminateDepressionImpact = discriminateDepressionImpact
         self.concealDepressionImpact = concealDepressionImpact
 
         self.SMDModel_setNetwork()
@@ -217,9 +218,9 @@ class SMDSimulationModel:
 
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact,
+            self.network.networkBase.NetworkBase_timeStep(i, self.supportDepressionImpact,
                 self.concealDiscriminateImpact, self.discriminateConcealImpact, 
-                self.concealDepressionImpact)
+                self.discriminateDepressionImpact, self.concealDepressionImpact)
             self.network.Agents = self.network.networkBase.Agents 
 
         for agent in agents:
@@ -249,9 +250,9 @@ class SMDSimulationModel:
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i, self.supportImpact,
+            self.network.networkBase.NetworkBase_timeStep(i, self.supportDepressionImpact,
                 self.concealDiscriminateImpact, self.discriminateConcealImpact, 
-                self.concealDepressionImpact)
+                self.discriminateDepressionImpact, self.concealDepressionImpact)
             
             self.network.Agents = self.network.networkBase.Agents
             
@@ -269,19 +270,23 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 5
-    numAgents = 25
-
+    timeSpan = 3
+    numAgents = 100
     percentMinority = .25
-    supportImpact = 1.25
+
+    # The following denote "impact constants" for which we have adopted 
+    # the naming convention of firstSecondImpact to denote the impact of
+    # first on second
+    supportDepressionImpact = 1.25
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 1.5
-    concealDepressionImpact = 5.0
+    discriminateDepressionImpact = 1.25
+    concealDepressionImpact = 3.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, concealDepressionImpact)
+        percentMinority, supportDepressionImpact, concealDiscriminateImpact, 
+        discriminateConcealImpact, discriminateDepressionImpact, concealDepressionImpact)
     original = deepcopy(simulationModel)
     
     if onlyStreamlined: 
@@ -290,9 +295,9 @@ if __name__ == "__main__":
         simulationModel.SMDModel_runSimulation(resultsFile)
 
     if checkSensitivity:
-        Sensitivity_sensitivitySimulation(percentMinority, supportImpact, 
+        Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
             concealDiscriminateImpact, discriminateConcealImpact, 
-            concealDepressionImpact, original, simulationModel, 
-            showOdd, showRegression)
+            discriminateDepressionImpact, concealDepressionImpact, 
+            original, simulationModel, showOdd, showRegression)
 
     print("Terminating simulation...")

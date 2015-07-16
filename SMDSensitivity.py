@@ -61,16 +61,17 @@ class OddRatiosTest(unittest.TestCase):
 # exercise and SE levels                                            #
 #####################################################################
 def Sensitivity_runSimulation(simulationModel, percentMinority, 
-        supportImpact, concealDiscriminateImpact,
-        discriminateConcealImpact, concealDepressionImpact):
+    supportDepressionImpact, concealDiscriminateImpact, discriminateConcealImpact, 
+    discriminateDepressionImpact, concealDepressionImpact):
 
     if percentMinority > 1.0:
         percentMinority = 1.0
 
     simulationModel.percentMinority = percentMinority
-    simulationModel.supportImpact = supportImpact
+    simulationModel.supportDepressionImpact = supportDepressionImpact
     simulationModel.concealDiscriminateImpact = concealDiscriminateImpact
     simulationModel.discriminateConcealImpact = discriminateConcealImpact
+    simulationModel.discriminateDepressionImpact = discriminateDepressionImpact
     simulationModel.concealDepressionImpact = concealDepressionImpact
 
     simulationModel.SMDModel_runStreamlineSimulation()
@@ -106,48 +107,6 @@ def Sensitivity_splitResults(indVarScales, mixedArr, label):
     finalArr.append(label)
 
     return finalArr
-
-#####################################################################
-# Investigates the sensitivity of the mean population/SE caused by  #
-# the type of network employed for clustering                       #
-#####################################################################
-def Sensitivity_networkCluster(timeSpan, numAgents, numCoaches, \
-        timeImpact, coachImpact, pastImpact, socialImpact):
-    print("Performing sensitivity on clustering method")
-    networkTypeTrials = ["ER", "SW", "ASF"]
-    trials = []
-
-    for networkType in networkTypeTrials:
-        trial = Sensitivity_runSimulation(networkType, timeSpan, \
-            numAgents, numCoaches, timeImpact, coachImpact, \
-            pastImpact, socialImpact)
-        trials.append(trial)
-    return Sensitivity_splitResults(networkTypeTrials, trials, \
-    	"Networks")
-
-#####################################################################
-# Produces graphical display for the sensitivity results of the     #
-# different network types: produces single bar graphs for SE and Ex #
-#####################################################################
-def Sensitivity_networkGraphs(xArray, yArray, xLabel, yLabel):
-    N = len(xArray)
-
-    ind = np.arange(N)  # the x locations for the groups
-    width = 0.5        # the width of the bars
-    fig, ax = plt.subplots()
-
-    rects1 = ax.bar(ind, yArray, width, color='b')
-
-    # add some text for labels, title and axes ticks
-    ax.set_xlabel(yLabel)
-    ax.set_ylabel(xLabel)
-    ax.set_title("{} vs. {}".format(xLabel, yLabel))
-    ax.set_xticks(ind + width/2)
-
-    ax.set_xticklabels(xArray)
-    plt.savefig("Results\\Sensitivity\\Networks\\{}vs{}.png"\
-    	.format(xLabel, yLabel))
-    plt.close()
 
 #####################################################################
 # Produces graphical display for the sensitivity results of all     #
@@ -233,18 +192,18 @@ def Sensitivity_oddRatioTests(original):
 # Similarly performs correlation tests to identify value of r btween#
 # the parameters and the final result (depression/concealment)      #
 #####################################################################
-def Sensitivity_correlationTests(original, percentMinority, 
-        supportImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, concealDepressionImpact):
+def Sensitivity_correlationTests(original, percentMinority, supportDepressionImpact, 
+    concealDiscriminateImpact, discriminateConcealImpact, 
+    discriminateDepressionImpact, concealDepressionImpact):
     finalResults = []
-    params = [percentMinority, supportImpact, concealDiscriminateImpact, \
-        discriminateConcealImpact, concealDepressionImpact]
+    params = [percentMinority, supportDepressionImpact, concealDiscriminateImpact, \
+        discriminateConcealImpact, discriminateDepressionImpact, concealDepressionImpact]
     toVary = list(params)
 
     # Used to produce labels of the graphs
-    labels = ["Minority_Percentage", "Support_Impact", \
+    labels = ["Minority_Percentage", "SupportDepression_Impact", \
         "ConcealDiscrimination_Impact", "DiscriminateConceal_Impact", \
-        "ConcealDepression_Impact"]
+        "DiscriminationDepression_Impact", "ConcealDepression_Impact"]
 
     varyTrials = [.50, 1.0, 2.0, 3.0, 4.0, 5.0]
     for i in range(0, len(params)):
@@ -260,7 +219,7 @@ def Sensitivity_correlationTests(original, percentMinority,
             # is equivalent to the one that was originally used (keeps constant)
             curTrial = deepcopy(original)
             trialResult = Sensitivity_runSimulation(curTrial, toVary[0], toVary[1], 
-                toVary[2], toVary[3], toVary[4])
+                toVary[2], toVary[3], toVary[4], toVary[5])
 
             trials.append(trialResult)
             toVary[i] = params[i]
@@ -303,13 +262,16 @@ def Sensitivity_printCorrelationResults(finalResults):
 # Can also use showOdd and showRegression to respectively choose    #
 # to specifically perform odd ratio/regression sensitivity tests    #
 #####################################################################
-def Sensitivity_sensitivitySimulation(percentMinority, supportImpact, 
+def Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
     concealDiscriminateImpact, discriminateConcealImpact, 
-    concealDepressionImpact, original, final, showOdd=True, showRegression=True):
+    concealDepressionImpact, discriminateDepressionImpact, original, 
+    final, showOdd=True, showRegression=True):
+
     if showOdd:
         Sensitivity_oddRatioTests(final)
 
     if showRegression:
         Sensitivity_correlationTests(original, percentMinority, 
-            supportImpact, concealDiscriminateImpact, 
-            discriminateConcealImpact, concealDepressionImpact)
+            supportDepressionImpact, concealDiscriminateImpact, 
+            discriminateConcealImpact, discriminateDepressionImpact, 
+            concealDepressionImpact)
