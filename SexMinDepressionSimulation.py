@@ -265,12 +265,12 @@ if __name__ == "__main__":
     checkSensitivity = True
     showOdd = True
     showRegression = False
-    onlyStreamlined = False
+    onlyStreamlined = True
 
     # ER, SW, or ASF
     networkType = "ER"
     timeSpan = 1
-    numAgents = 1000
+    numAgents = 500
 
     percentMinority = .03
     supportImpact = 1.25

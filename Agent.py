@@ -79,7 +79,7 @@ class NonMinorityAgent(BaseAgent):
     def Agent_updateDepression(self, concealImpact, time):
         DEPRESSION_THRESHOLD = .025
         SCALING_FACTOR = .0025
-        TIME_DECAY = .925
+        TIME_DECAY = .875
 
         self.baseDepression *= TIME_DECAY
         if self.isDiscriminatory:
@@ -109,6 +109,7 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateSupport(self, supportImpact):
         ADDITIONAL_BOOST = .10
+        BASELINE_SUPPORT = .0
 
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
@@ -116,12 +117,13 @@ class MinorityAgent(BaseAgent):
 
         # Accounts for additional boost felt when those opposing are
         # in significant minority
-        const = 0
+        const = BASELINE_SUPPORT
         if att > .75:
-            const = ADDITIONAL_BOOST
+            const += ADDITIONAL_BOOST
 
-        support = supportImpact * localConnect * att + const
+        support = supportImpact * (localConnect + att) + const
         self.support = self.Agent_normalizeParam(support)
+        print(self.support)
 
     #################################################################
     # Given an agent, updates his discrimination, based on whether  #
@@ -191,7 +193,7 @@ class MinorityAgent(BaseAgent):
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self, concealDepressionImpact, time):
-        SCALING_FACTOR = .065
+        SCALING_FACTOR = .060
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
