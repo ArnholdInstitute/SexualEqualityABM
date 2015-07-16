@@ -121,7 +121,7 @@ class Policy:
     # Passes or rejects a policy for the network under question     #
     #################################################################
     def Policy_considerPolicy(self, network, time, policyCap):
-        probAdd = self.Policy_getProbability(network, policyCap) * 2.5
+        probAdd = self.Policy_getProbability(network, policyCap)
 
         rand = random.random()
         if rand < probAdd:

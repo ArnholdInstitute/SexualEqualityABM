@@ -64,7 +64,7 @@ class SMDSimulationModel:
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
             self.network = ERNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, .50)
+                self.percentMinority, self.timeSpan, .40)
         elif self.networkType == 'SW':
             self.network = SWNetwork(self.numAgents, 
                 self.percentMinority, self.timeSpan, 10, 0.25)
@@ -262,13 +262,15 @@ class SMDSimulationModel:
 #####################################################################
 if __name__ == "__main__":
     checkSensitivity = True
+    showOdd = True
+    showRegression = False
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 10
-    numAgents = 25
+    timeSpan = 5
+    numAgents = 40
 
-    percentMinority = .45
+    percentMinority = .55
     supportImpact = 1.25
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 1.5
@@ -284,6 +286,6 @@ if __name__ == "__main__":
         Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
             percentMinority, supportImpact, concealDiscriminateImpact, 
             discriminateConcealImpact, concealDepressionImpact,
-            simulationModel)
+            simulationModel, showOdd, showRegression)
 
     print("Terminating simulation...")

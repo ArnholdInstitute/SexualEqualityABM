@@ -252,12 +252,18 @@ def Sensitivity_printCorrelationResults(finalResults):
 
 #####################################################################
 # Conducts sensitivity tests for each of the paramaters of interest #
-# and produces graphical displays for each (appropriately named)    #
+# and produces graphical displays for each (appropriately named).   #
+# Can also use showOdd and showRegression to respectively choose    #
+# to specifically perform odd ratio/regression sensitivity tests    #
 #####################################################################
 def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
         percentMinority, supportImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, concealDepressionImpact, original):
-    Sensitivity_oddRatioTests(original)
-    Sensitivity_correlationTests(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, concealDepressionImpact)
+        discriminateConcealImpact, concealDepressionImpact, original,
+        showOdd=True, showRegression=True):
+    if showOdd:
+        Sensitivity_oddRatioTests(original)
+        
+    if showRegression:
+        Sensitivity_correlationTests(networkType, timeSpan, numAgents, 
+            percentMinority, supportImpact, concealDiscriminateImpact, 
+            discriminateConcealImpact, concealDepressionImpact)
