@@ -60,12 +60,19 @@ class OddRatiosTest(unittest.TestCase):
 # simulation and returns an array of the final (population) mean    #
 # exercise and SE levels                                            #
 #####################################################################
-def Sensitivity_runSimulation(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, concealDiscriminateImpact,
+def Sensitivity_runSimulation(simulationModel, percentMinority, 
+        supportImpact, concealDiscriminateImpact,
         discriminateConcealImpact, concealDepressionImpact):
-    simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, concealDiscriminateImpact,
-        discriminateConcealImpact, concealDepressionImpact)
+
+    if percentMinority > 1.0:
+        percentMinority = 1.0
+
+    simulationModel.percentMinority = percentMinority
+    simulationModel.supportImpact = supportImpact
+    simulationModel.concealDiscriminateImpact = concealDiscriminateImpact
+    simulationModel.discriminateConcealImpact = discriminateConcealImpact
+    simulationModel.concealDepressionImpact = concealDepressionImpact
+
     simulationModel.SMDModel_runStreamlineSimulation()
 
     curTrial = []
@@ -226,8 +233,8 @@ def Sensitivity_oddRatioTests(original):
 # Similarly performs correlation tests to identify value of r btween#
 # the parameters and the final result (depression/concealment)      #
 #####################################################################
-def Sensitivity_correlationTests(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, concealDiscriminateImpact, 
+def Sensitivity_correlationTests(original, percentMinority, 
+        supportImpact, concealDiscriminateImpact, 
         discriminateConcealImpact, concealDepressionImpact):
     finalResults = []
     params = [percentMinority, supportImpact, concealDiscriminateImpact, \
@@ -239,7 +246,7 @@ def Sensitivity_correlationTests(networkType, timeSpan, numAgents,
         "ConcealDiscrimination_Impact", "DiscriminateConceal_Impact", \
         "ConcealDepression_Impact"]
 
-    varyTrials = [.50, .75, .90, 1.0, 1.1, 1.25, 1.50]
+    varyTrials = [.50, 1.0, 2.0, 3.0, 4.0, 5.0]
     for i in range(0, len(params)):
         print("Performing {} sensitivity analysis".format(labels[i]))
         trials = []
@@ -249,10 +256,13 @@ def Sensitivity_correlationTests(networkType, timeSpan, numAgents,
             toVary[i] *= trial
             changeParams.append(toVary[i])
 
-            trial = Sensitivity_runSimulation(networkType, 
-                timeSpan, numAgents, toVary[0], toVary[1], 
+            # Ensures that, when sensitivity analysis is conducted, the network
+            # is equivalent to the one that was originally used (keeps constant)
+            curTrial = deepcopy(original)
+            trialResult = Sensitivity_runSimulation(curTrial, toVary[0], toVary[1], 
                 toVary[2], toVary[3], toVary[4])
-            trials.append(trial)
+
+            trials.append(trialResult)
             toVary[i] = params[i]
         splitTrial = Sensitivity_splitResults(changeParams, 
             trials, labels[i])
@@ -293,14 +303,13 @@ def Sensitivity_printCorrelationResults(finalResults):
 # Can also use showOdd and showRegression to respectively choose    #
 # to specifically perform odd ratio/regression sensitivity tests    #
 #####################################################################
-def Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
-        percentMinority, supportImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, concealDepressionImpact, original,
-        showOdd=True, showRegression=True):
+def Sensitivity_sensitivitySimulation(percentMinority, supportImpact, 
+    concealDiscriminateImpact, discriminateConcealImpact, 
+    concealDepressionImpact, original, final, showOdd=True, showRegression=True):
     if showOdd:
-        Sensitivity_oddRatioTests(original)
+        Sensitivity_oddRatioTests(final)
 
     if showRegression:
-        Sensitivity_correlationTests(networkType, timeSpan, numAgents, 
-            percentMinority, supportImpact, concealDiscriminateImpact, 
+        Sensitivity_correlationTests(original, percentMinority, 
+            supportImpact, concealDiscriminateImpact, 
             discriminateConcealImpact, concealDepressionImpact)

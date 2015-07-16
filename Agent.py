@@ -55,7 +55,7 @@ class NonMinorityAgent(BaseAgent):
     # As those not of minorities are assumed to have full support,  #
     # no update is needed                                           #
     #################################################################
-    def Agent_updateSupport(self, supportImpact):
+    def Agent_updateSupport(self):
         return
 
     #################################################################
@@ -68,7 +68,8 @@ class NonMinorityAgent(BaseAgent):
     #################################################################
     # As concealment only applies to minorities, no update is needed#
     #################################################################
-    def Agent_updateConcealment(self, discriminateConcealImpact):
+    def Agent_updateConcealment(self, discriminateConcealImpact, 
+        supportImpact):
         return
 
     #################################################################
@@ -107,7 +108,7 @@ class MinorityAgent(BaseAgent):
     # economic status and current attitudes towards minorities. If  #
     # not a minority, returns 1.0                                   #
     #################################################################
-    def Agent_updateSupport(self, supportImpact):
+    def Agent_updateSupport(self):
         ADDITIONAL_BOOST = .10
         BASELINE_SUPPORT = .0
 
@@ -121,9 +122,8 @@ class MinorityAgent(BaseAgent):
         if att > .75:
             const += ADDITIONAL_BOOST
 
-        support = supportImpact * (localConnect + att) + const
+        support = localConnect * att + const
         self.support = self.Agent_normalizeParam(support)
-        print(self.support)
 
     #################################################################
     # Given an agent, updates his discrimination, based on whether  #
@@ -173,12 +173,13 @@ class MinorityAgent(BaseAgent):
     # concealed in the simulation, he can later unconceal himself or#
     # vice versa                                                    #
     #################################################################
-    def Agent_updateConcealment(self, discriminateConcealImpact):
+    def Agent_updateConcealment(self, discriminateConcealImpact, 
+        supportImpact):
         SCALE_FACTOR = 2.0
 
         numPolicies = self.network.policyScore
-        probConceal = ((self.discrimination - self.support) * \
-            discriminateConcealImpact - numPolicies/self.network.policyCap) \
+        probConceal = ((self.discrimination * discriminateConcealImpact \
+            - self.support * supportImpact) - numPolicies/self.network.policyCap) \
             * SCALE_FACTOR + self.network.NetworkBase_getNetworkAttitude()
 
         self.probConceal = self.Agent_getLogistic(probConceal)
@@ -215,6 +216,7 @@ class MinorityAgent(BaseAgent):
 
         if self.isConcealed:
             probIncrease *= concealDepressionImpact
+            probIncrease = abs(probIncrease)
 
         baseProb = self.currentDepression + probIncrease
 

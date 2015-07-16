@@ -332,9 +332,10 @@ class NetworkBase:
         attrTotal = 0
         
         for agent in agents:
-            if  (attr == "depression" and agent.isDepressed) or \
-                (attr == "concealed" and agent.isConcealed):
-                attrTotal += 1
+            if  attr == "depression":
+                attrTotal += agent.currentDepression 
+            elif attr == "concealed":
+                attrTotal += agent.probConceal
             elif attr == "discrimination":
                 attrTotal += agent.discrimination
 

@@ -263,34 +263,36 @@ class SMDSimulationModel:
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
-    showOdd = True
-    showRegression = False
+    showOdd = False
+    showRegression = True
     onlyStreamlined = True
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 1
-    numAgents = 500
+    timeSpan = 5
+    numAgents = 25
 
-    percentMinority = .03
+    percentMinority = .25
     supportImpact = 1.25
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 1.5
-    concealDepressionImpact = 2.0
+    concealDepressionImpact = 5.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
         percentMinority, supportImpact, concealDiscriminateImpact, 
-            discriminateConcealImpact, concealDepressionImpact)
+        discriminateConcealImpact, concealDepressionImpact)
+    original = deepcopy(simulationModel)
+    
     if onlyStreamlined: 
         simulationModel.SMDModel_runStreamlineSimulation()
     else:
         simulationModel.SMDModel_runSimulation(resultsFile)
 
     if checkSensitivity:
-        Sensitivity_sensitivitySimulation(networkType, timeSpan, numAgents, 
-            percentMinority, supportImpact, concealDiscriminateImpact, 
-            discriminateConcealImpact, concealDepressionImpact,
-            simulationModel, showOdd, showRegression)
+        Sensitivity_sensitivitySimulation(percentMinority, supportImpact, 
+            concealDiscriminateImpact, discriminateConcealImpact, 
+            concealDepressionImpact, original, simulationModel, 
+            showOdd, showRegression)
 
     print("Terminating simulation...")

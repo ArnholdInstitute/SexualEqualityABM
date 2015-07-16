@@ -212,8 +212,8 @@ class BaseAgent:
         discriminateConcealImpact, concealDepressionImpact):
         self.Agent_updateAttitude() 
 
-        self.Agent_updateSupport(supportImpact)
+        self.Agent_updateSupport()
         self.Agent_updateDiscrimination(time, concealDiscriminateImpact)
 
-        self.Agent_updateConcealment(discriminateConcealImpact)
+        self.Agent_updateConcealment(discriminateConcealImpact, supportImpact)
         self.Agent_updateDepression(concealDepressionImpact, time)
