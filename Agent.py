@@ -42,8 +42,8 @@ class NonMinorityAgent(BaseAgent):
 
         # Accounts for those who reflect feeling uneasy when with 
         # those of the sexual minority community
-        deltaMinority = .75 * percentConnect/50
-        deltaNonMinority = percentPoorNonAccept/50
+        deltaMinority = .75 * percentConnect/self.network.policyCap
+        deltaNonMinority = percentPoorNonAccept/self.network.policyCap
 
         if self.isDiscriminatory:
             self.attitude -= deltaMinority
@@ -150,7 +150,7 @@ class MinorityAgent(BaseAgent):
                 self.initialNegative = attitudes[1]
 
             deltaTime = time - self.time
-            self.discrimination = 1 - (numPolicies/50 \
+            self.discrimination = 1 - (numPolicies/self.network.policyCap \
                 + (self.initialPositive + self.initialNegative * \
                 concealDiscriminateImpact ** (-deltaTime)))
             return
@@ -158,7 +158,7 @@ class MinorityAgent(BaseAgent):
         # "Resets" the clock for concealed discrimination
         self.hasMultipleStagnant = False    
 
-        discrimination = 1 - (numPolicies/50 + avgAttitude)
+        discrimination = 1 - (numPolicies/self.network.policyCap + avgAttitude)
         discrimination *= SCALE_FACTOR
         self.discrimination = self.Agent_normalizeParam(discrimination)
 
@@ -174,7 +174,7 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
         probConceal = ((self.discrimination - self.support) * \
-            discriminateConcealImpact - numPolicies/50) * SCALE_FACTOR \
+            discriminateConcealImpact - numPolicies/self.network.policyCap) * SCALE_FACTOR \
             + self.network.NetworkBase_getNetworkAttitude()
 
         self.probConceal = self.Agent_getLogistic(probConceal)
@@ -189,20 +189,20 @@ class MinorityAgent(BaseAgent):
     # become 'undepressed')                                         #
     #################################################################
     def Agent_updateDepression(self, concealDepressionImpact, time):
-        SCALING_FACTOR = .035
+        SCALING_FACTOR = .040
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
 
         # Number of time intervals before which a reversal of 
         # depressive condition can disappear
-        TIME_THRESHOLD = 4
+        TIME_THRESHOLD = 20
 
         if self.isDepressed:
             if (time - self.depressStart > TIME_THRESHOLD):
                 rand = random.random()
                 self.isDepressed = (rand < (1 - self.currentDepression/2))
-                return
+            return
 
         numPolicies = self.network.policyScore
         probIncrease = self.discrimination - self.support

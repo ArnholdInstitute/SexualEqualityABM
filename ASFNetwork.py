@@ -33,7 +33,8 @@ class ASFNetwork:
     # of edges to be added at each step of the initialization (m)   #
     # produces an ASF network                                       #
     #################################################################
-    def __init__(self, nodeCount, percentMinority, m_0 = 4, m = 4):
+    def __init__(self, nodeCount, percentMinority, timeSpan, m_0 = 4, 
+            m = 4):
         if not self.ASFNetwork_verifyNetwork(nodeCount, m_0, m):
             return None
 
@@ -45,7 +46,7 @@ class ASFNetwork:
         self.percentMinority = percentMinority
 
         self.Agents = {}
-        self.networkBase = NetworkBase("ASFNetwork")
+        self.networkBase = NetworkBase("ASFNetwork", timeSpan)
         
         self.ASFNetwork_createAgents()
 

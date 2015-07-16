@@ -77,15 +77,12 @@ class Policy:
     # network being considered, based on the "acceptance" by the    #
     # population and the bill's influence score                     #
     #################################################################
-    def Policy_getProbability(self, network):
-        MIN_POLICY = -50
-        MAX_POLICY = 50
-
+    def Policy_getProbability(self, network, policyCap):
         # Ensures that the score does not exceed max/min 
         finalScore = network.potentialScore + self.score
-        if finalScore > MAX_POLICY:
+        if finalScore > policyCap:
             return 0.0
-        elif finalScore < MIN_POLICY:
+        elif finalScore < -policyCap:
             return 0.0
 
         attitudeFor = network.\
@@ -101,13 +98,11 @@ class Policy:
     # Determines, based on the initial time of passing, the extent  #
     # to which a bill's "effects" have been experienced             #
     #################################################################
-    def Policy_updateTimeEffect(self, time):
+    def Policy_updateTimeEffect(self, time, policyCap):
         # Only resets prevEffect if curEffect has been calculated at
         # least once
         if self.curEffect:
             self.prevEffect = self.curEffect
-        
-        MAX_SCORE = 50
         
         DISC_FACTOR = 1
         ADD_FACTOR = 1
@@ -120,13 +115,13 @@ class Policy:
         rating = self.score
 
         self.curEffect = int(rating * (1 - exp(-DISC_FACTOR * \
-            (MAX_SCORE * deltaTime)/rating))) + ADD_FACTOR
+            (policyCap * deltaTime)/rating))) + ADD_FACTOR
 
     #################################################################
     # Passes or rejects a policy for the network under question     #
     #################################################################
-    def Policy_considerPolicy(self, network, time):
-        probAdd = self.Policy_getProbability(network) * 2.5
+    def Policy_considerPolicy(self, network, time, policyCap):
+        probAdd = self.Policy_getProbability(network, policyCap) * 2.5
 
         rand = random.random()
         if rand < probAdd:

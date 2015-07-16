@@ -55,7 +55,7 @@ class NetworkBase:
     # Initializes the base of the network with the type it is to be #
     # i.e. SW, ER, etc... and number of coaches                     #
     #################################################################
-    def __init__(self, networkType):
+    def __init__(self, networkType, timeSpan):
         if not self.NetworkBase_verifyBase(networkType):
             return None
         self.networkType = networkType
@@ -78,6 +78,10 @@ class NetworkBase:
         # Parameters to be set later: default to 0 (False) -> not set
         self.densityMean = 0 
         self.densityStd = 0
+
+        # Marks the "max points" that can be achieved in the network
+        # for the policy score
+        self.policyCap = 10 * timeSpan
 
     #################################################################
     # Given parameters for initializing the network base, ensures   #
@@ -111,7 +115,7 @@ class NetworkBase:
     def NetworkBase_timeStep(self, time, supportImpact, concealDiscriminateImpact, 
             discriminateConcealImpact, concealDepressionImpact): 
         newPolicy = Policy(time)
-        newPolicy.Policy_considerPolicy(self, time)
+        newPolicy.Policy_considerPolicy(self, time, self.policyCap)
         self.NetworkBase_updatePolicyScore(time)
         for agentID in self.Agents:
             self.Agents[agentID].Agent_updateAgent(time, supportImpact,
@@ -166,6 +170,7 @@ class NetworkBase:
     def NetworkBase_getNeighbors(self, agent):
         agentID = agent.agentID
         neighbors = self.NetworkBase_getFirstNeighbors(agent)
+        '''
         for neighbor in neighbors:
             curNeighbor = self.NetworkBase_getAgent(neighbor)
             secondDegree = self.\
@@ -173,6 +178,7 @@ class NetworkBase:
             for nextNeighbor in secondDegree:
                 if nextNeighbor not in neighbors:
                     neighbors.append(nextNeighbor)
+        '''
         return neighbors
 
     #################################################################
@@ -232,7 +238,7 @@ class NetworkBase:
     #################################################################
     def NetworkBase_updatePolicyScore(self, time):
         for incompletePolicy in self.incompletePolicies:
-            incompletePolicy.Policy_updateTimeEffect(time)
+            incompletePolicy.Policy_updateTimeEffect(time, self.policyCap)
 
             self.policyScore -= incompletePolicy.prevEffect
 

@@ -64,13 +64,13 @@ class SMDSimulationModel:
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
             self.network = ERNetwork(self.numAgents, 
-                self.percentMinority, .50)
+                self.percentMinority, self.timeSpan, .50)
         elif self.networkType == 'SW':
             self.network = SWNetwork(self.numAgents, 
-                self.percentMinority, 10, 0.25)
+                self.percentMinority, self.timeSpan, 10, 0.25)
         else:
             self.network = ASFNetwork(self.numAgents, 
-                self.percentMinority, 9, 5)
+                self.percentMinority, self.timeSpan, 9, 5)
 
     #################################################################
     # Given parameters for initializing the simulation, ensures they#
@@ -265,10 +265,10 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 5
+    timeSpan = 10
     numAgents = 25
 
-    percentMinority = .65
+    percentMinority = .45
     supportImpact = 1.25
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 1.5
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
         percentMinority, supportImpact, concealDiscriminateImpact, 
-            discriminateConcealImpact, concealDepressionImpact,)
+            discriminateConcealImpact, concealDepressionImpact)
     simulationModel.SMDModel_runSimulation(resultsFile)
 
     if checkSensitivity:
