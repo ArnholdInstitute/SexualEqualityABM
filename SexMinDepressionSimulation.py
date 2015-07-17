@@ -271,8 +271,8 @@ if __name__ == "__main__":
     # ER, SW, or ASF
     networkType = "ER"
     timeSpan = 3
-    numAgents = 250
-    percentMinority = .03
+    numAgents = 125
+    percentMinority = .05
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of

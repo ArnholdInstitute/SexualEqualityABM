@@ -426,7 +426,7 @@ class NetworkBase:
     def NetworkBase_getDepressOdds(self, onlyMinority=0, withSupport=0,
             checkDensity=False):
         # Everyone with < 0.10 support will be considered "NOT supported"
-        NO_SUPPORT = 0.10
+        NO_SUPPORT = 0.050
 
         # Used to calculate when the z-score is ".75" (never exact: 
         # use a bounded set to compensate)
