@@ -182,7 +182,7 @@ class MinorityAgent(BaseAgent):
     def Agent_updateConcealment(self, discriminateConcealImpact,
         supportConcealImpact, time):
         SCALE_FACTOR = .675
-        DEPRESS_FACTOR = 2.5
+        DEPRESS_FACTOR = 3.0
         NETWORK_SCALE = .125
         FINAL_SCALE = .125
 
@@ -196,8 +196,12 @@ class MinorityAgent(BaseAgent):
             - numPolicies/self.network.policyCap) * SCALE_FACTOR          \
             - self.network.NetworkBase_getNetworkAttitude() * NETWORK_SCALE
 
+        # Significant increase if depression has actually happened
         if self.isDepressed:
             probConceal *= DEPRESS_FACTOR
+        else:
+            depressFactor = 1.0 + 15.0 * self.currentDepression
+            probConceal *= depressFactor
 
         self.probConceal = self.Agent_getLogistic(probConceal)
 
@@ -242,9 +246,13 @@ class MinorityAgent(BaseAgent):
         probIncrease -= numPolicies/25
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 
+        # Significant bump if agent is already concealed
         if self.isConcealed:
             probIncrease *= concealDepressionImpact
             probIncrease = abs(probIncrease)
+        else:
+            concealFactor = 1.0 + 1.125 * self.probConceal
+            probIncrease *= concealFactor
 
         baseProb = self.currentDepression + probIncrease
 
