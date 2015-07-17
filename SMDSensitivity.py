@@ -30,30 +30,50 @@ except ImportError:
 # Performs tests to ensure the values that were calculated are in   #
 # the ranges specified in the literature                            #
 #####################################################################
-class OddRatiosTest(unittest.TestCase):
+class SensitivityLiteratureTest(unittest.TestCase):
     def __init__(self, valuesArr):
         self.discriminateTestVal = valuesArr[0]
         self.minTestVal = valuesArr[1]
         self.supportTestVal = valuesArr[2]
         self.depressTestVal = valuesArr[3]
+        self.ORTestVals = valuesArr
 
-    def test_results_in_range(self):
-       # Defines ranges (from literature) of values to test against
+    def test_in_range(self, value, lower, upper, err):
+        self.assertTrue(lower < value < upper, err)
+
+    def test_odd_ratios(self):
+        # Defines ranges (from literature) of OR values
         discriminateTestRange = [.175, .259]
         minTestRange = [1.55, 2.65]
         supportTestRange = [1.5, 4.7]
         depressTestRange = [0.4, 1.2]
 
+        ORRanges = [discriminateTestRange, minTestRange, \
+            supportTestRange, depressTestRange]
+        labels = ["Discrimination", "Minority", "Support", "Depression"]
+
         errorStr = "{} not in range"
 
-        self.assertTrue(discriminateTestRange[0] < self.discriminateTestVal \
-            < discriminateTestRange[1], errorStr.format("Discrimination OR"))
-        self.assertTrue(minTestRange[0] < self.minTestVal \
-            < minTestRange[1], errorStr.format("Minority OR"))
-        self.assertTrue(supportTestRange[0] < self.supportTestVal \
-            < supportTestRange[1], errorStr.format("Support OR"))
-        self.assertTrue(depressTestRange[0] < self.depressTestVal \
-            < depressTestRange[1], errorStr.format("Depression OR"))
+        for i in range(0, len(ORRanges)):
+            self.test_in_range(self.ORTestVals[i], curRange[i][0], 
+                curRange[i][1], errorStr.format("{} OR".format(labels[i])))
+
+    def test_regression_values(self):
+        # Defines ranges (from literature) of regression values
+        discriminateTestRange = [-.40, -.30] 
+        minTestRange = [-.20, -.10]
+        supportTestRange = [.20, .30]
+        depressTestRange = [.22, .33]
+
+        ORRanges = [discriminateTestRange, minTestRange, \
+            supportTestRange, depressTestRange]
+        labels = ["Discrimination", "Minority", "Support", "Depression"]
+
+        errorStr = "{} not in range"
+
+        for i in range(0, len(ORRanges)):
+            self.test_in_range(self.ORTestVals[i], curRange[i][0], 
+                curRange[i][1], errorStr.format("{} OR".format(labels[i])))
 
 #####################################################################
 # Given the parameters needed for running simulation, executes the  #
@@ -177,8 +197,9 @@ def Sensitivity_oddRatioTests(original):
         values.append(currentOR)
         args = list(copy)
 
-    # ORTest = OddRatiosTest(values)
-    # ORTest.test_results_in_range()
+    # ORTest = SensitivityLiteratureTest(values)
+    # ORTest.test_odd_ratios()
+    # ORTest.test_regression_values()
 
     # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
@@ -207,7 +228,7 @@ def Sensitivity_correlationTests(original, percentMinority,
         "ConcealDiscrimination_Impact", "DiscriminateConceal_Impact", \
         "DiscriminationDepression_Impact", "ConcealDepression_Impact"]
 
-    varyTrials = [.50, 1.0, 2.0, 3.0, 4.0, 5.0]
+    varyTrials = [.50, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0]
     for i in range(0, len(params)):
         print("Performing {} sensitivity analysis".format(labels[i]))
         trials = []

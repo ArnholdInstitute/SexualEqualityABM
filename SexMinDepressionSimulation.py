@@ -271,16 +271,16 @@ if __name__ == "__main__":
     # ER, SW, or ASF
     networkType = "ER"
     timeSpan = 3
-    numAgents = 100
-    percentMinority = .25
+    numAgents = 250
+    percentMinority = .05
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = .75
+    supportDepressionImpact = 2.50
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 1.5
-    discriminateDepressionImpact = 1.25
+    discriminateDepressionImpact = .75
     concealDepressionImpact = 1.25
 
     resultsFile = "Results\\TimeResults\\results.csv"
