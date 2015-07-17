@@ -259,20 +259,20 @@ class SMDSimulationModel:
 #####################################################################
 # Given the paramters of the simulation (upon being prompted on)    #
 # command line, runs simulation, outputting a CSV with each time    #
-# step and a graphical display corresponding to the final iteration #
+# step and a graphical display corresponding to the final iteration #   
 #####################################################################
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
-    showOdd = False
-    showRegression = True
+    showOdd = True
+    showRegression = False
     onlyStreamlined = True
 
     # ER, SW, or ASF
     networkType = "ER"
     timeSpan = 3
     numAgents = 250
-    percentMinority = .05
+    percentMinority = .03
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of

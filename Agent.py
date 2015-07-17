@@ -43,7 +43,7 @@ class NonMinorityAgent(BaseAgent):
         # Accounts for those who reflect feeling uneasy when with 
         # those of the sexual minority community
         deltaMinority = .75 * percentConnect/self.network.policyCap
-        deltaNonMinority = percentPoorNonAccept/self.network.policyCap
+        deltaNonMinority = .25 * percentPoorNonAccept/self.network.policyCap
 
         if self.isDiscriminatory:
             self.attitude -= deltaMinority
@@ -182,7 +182,9 @@ class MinorityAgent(BaseAgent):
     def Agent_updateConcealment(self, discriminateConcealImpact,
         supportConcealImpact, time):
         SCALE_FACTOR = .675
-        DEPRESS_FACTOR = 3.0
+        FULL_DEPRESS_FACTOR = 3.0
+        DEPRESS_FACTOR = 12.5 
+
         NETWORK_SCALE = .125
         FINAL_SCALE = .125
 
@@ -198,9 +200,9 @@ class MinorityAgent(BaseAgent):
 
         # Significant increase if depression has actually happened
         if self.isDepressed:
-            probConceal *= DEPRESS_FACTOR
+            probConceal *= FULL_DEPRESS_FACTOR
         else:
-            depressFactor = 1.0 + 15.0 * self.currentDepression
+            depressFactor = .5 + DEPRESS_FACTOR * self.currentDepression ** 2
             probConceal *= depressFactor
 
         self.probConceal = self.Agent_getLogistic(probConceal)
@@ -226,6 +228,7 @@ class MinorityAgent(BaseAgent):
     def Agent_updateDepression(self, concealDepressionImpact, 
         supportDepressionImpact, discriminateDepressionImpact, time):
         SCALING_FACTOR = .060
+        CONCEAL_FACTOR = .875
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
@@ -251,7 +254,7 @@ class MinorityAgent(BaseAgent):
             probIncrease *= concealDepressionImpact
             probIncrease = abs(probIncrease)
         else:
-            concealFactor = 1.0 + 1.125 * self.probConceal
+            concealFactor = .5 + CONCEAL_FACTOR * self.probConceal ** 2
             probIncrease *= concealFactor
 
         baseProb = self.currentDepression + probIncrease

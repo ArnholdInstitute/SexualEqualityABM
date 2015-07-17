@@ -224,7 +224,7 @@ def Sensitivity_oddRatioTests(original):
 
     # Iterates through each of the odds ratio tests and performs
     # from the above testing values
-    args = [IRRELEVANT, IRRELEVANT, False]
+    args = [ONLY_WANT_WITH, IRRELEVANT, False]
     copy = list(args)
     for i in range (0, len(ORTests)):
         print("Performing {} odds ratio test".format(labels[i]))
@@ -239,7 +239,9 @@ def Sensitivity_oddRatioTests(original):
                 currentOR = trialResult
                 originalSet = True
             else:
-                currentOR /= trialResult
+                currentOR = 0.0
+                if trialResult:
+                    currentOR /= trialResult
         ORresults.append([labels[i], currentOR])
         values.append(currentOR)
         args = list(copy)

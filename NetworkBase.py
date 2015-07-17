@@ -423,8 +423,8 @@ class NetworkBase:
     #################################################################
     def NetworkBase_getDepressOdds(self, onlyMinority=0, withSupport=0,
             checkDensity=False):
-        # Everyone with 0.0 support will be considered "NOT supported"
-        NO_SUPPORT = 0.0
+        # Everyone with < 0.10 support will be considered "NOT supported"
+        NO_SUPPORT = 0.10
 
         # Used to calculate when the z-score is ".75" (never exact: 
         # use a bounded set to compensate)
@@ -454,7 +454,6 @@ class NetworkBase:
 
         # Agent count: defaulted to number of agents being analyzed
         count = len(agents)
-
         totalDepression = 0
         for case in switch(withSupport):
             # Gets total depression of those with support
@@ -467,7 +466,7 @@ class NetworkBase:
             # Gets depression of those without support
             if case(ONLY_WANT_WITHOUT): 
                 for agent in agents:
-                    if agent.support == NO_SUPPORT:
+                    if agent.support <= NO_SUPPORT:
                         totalDepression += agent.currentDepression
                 break
 
