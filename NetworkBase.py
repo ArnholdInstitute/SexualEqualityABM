@@ -112,9 +112,9 @@ class NetworkBase:
     # at, if the "effectiveness" of the coaches is different, how   #
     # would the final results vary) with default values given       #
     #################################################################
-    def NetworkBase_timeStep(self, time, supportDepressionImpact, concealDiscriminateImpact, 
-            discriminateConcealImpact, discriminateDepressionImpact, 
-            concealDepressionImpact): 
+    def NetworkBase_timeStep(self, time, supportDepressionImpact, 
+        concealDiscriminateImpact, discriminateConcealImpact, 
+        discriminateDepressionImpact, concealDepressionImpact): 
         newPolicy = Policy(time)
         newPolicy.Policy_considerPolicy(self, time, self.policyCap)
         self.NetworkBase_updatePolicyScore(time)

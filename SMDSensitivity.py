@@ -27,19 +27,20 @@ except ImportError:
     (http://networkx.lanl.gov/) for SE simulation")
 
 #####################################################################
-# Performs tests to ensure the values that were calculated are in   #
+# Defines test on which an additional test (to determine whether a  #
+# given value is in a specified range) is provided                  #
+#####################################################################
+class RangeTest(unittest.TestCase):
+    def assertInRange(self, value, lower, upper, err):
+        self.assertTrue(lower < value < upper, err)
+
+#####################################################################
+# Performs tests to ensure OR values that were calculated are in    #
 # the ranges specified in the literature                            #
 #####################################################################
-class SensitivityLiteratureTest(unittest.TestCase):
+class OddRatiosTest(RangeTest):
     def __init__(self, valuesArr):
-        self.discriminateTestVal = valuesArr[0]
-        self.minTestVal = valuesArr[1]
-        self.supportTestVal = valuesArr[2]
-        self.depressTestVal = valuesArr[3]
         self.ORTestVals = valuesArr
-
-    def test_in_range(self, value, lower, upper, err):
-        self.assertTrue(lower < value < upper, err)
 
     def test_odd_ratios(self):
         # Defines ranges (from literature) of OR values
@@ -55,25 +56,71 @@ class SensitivityLiteratureTest(unittest.TestCase):
         errorStr = "{} not in range"
 
         for i in range(0, len(ORRanges)):
-            self.test_in_range(self.ORTestVals[i], curRange[i][0], 
+            self.assertInRange(self.ORTestVals[i], curRange[i][0], 
                 curRange[i][1], errorStr.format("{} OR".format(labels[i])))
 
-    def test_regression_values(self):
-        # Defines ranges (from literature) of regression values
-        discriminateTestRange = [-.40, -.30] 
-        minTestRange = [-.20, -.10]
-        supportTestRange = [.20, .30]
-        depressTestRange = [.22, .33]
+#####################################################################
+# Performs tests to ensure the regression values both match the     #
+# values present in literature and too follows expected behavior    #
+#####################################################################
+class RegressionValueTest(RangeTest):
+    def __init__(self, valuesArr):
+        # For these variables, we adopt the naming convention of 
+        # varxVary_(Depress/Conceal), where the value measures the 
+        # value of regression on the variable relating var x to 
+        # var y on either the depression or concealment result
+        self.regressionValues = valuesArr
 
-        ORRanges = [discriminateTestRange, minTestRange, \
-            supportTestRange, depressTestRange]
-        labels = ["Discrimination", "Minority", "Support", "Depression"]
+    def test_sanity_checks(self):
+        shouldBeNegative = [0, 1, 2, 4]
+        shouldBePositive = [6, 7, 8, 9, 10]
+
+        labels = {
+            0: "minPercentage_Depress",
+            1: "minPercentage_Conceal",
+            2: "supportDepress_Depress",
+            4: "concealDiscrimination_Depress",
+            6: "discriminateConceal_Depress",
+            7: "discriminateConceal_Conceal",
+            8: "discriminationDepression_Depress",
+            9: "discriminationDepression_Conceal",
+            10: "concealDepression_Depress"
+        }
+
+        posError = "{} should be > 0"
+        negError = "{} should be < 0"
+
+        for negativeVal in shouldBeNegative:
+            self.assertTrue(self.regressionValues[positiveVal] < 0,
+                negError.format(labels[negativeVal]))
+        for positiveVal in shouldBePositive:
+            self.assertTrue(self.regressionValues[positiveVal] > 0,
+                posError.format(labels[positiveVal]))
+
+    def test_numerical_values(self):
+        # Defines ranges (from literature) of regression values
+        supportConcealTestRange = [-.40, -.30] 
+        discriminationConcealTestRange = [-.20, -.10]
+        discriminationDepressTestRange = [.20, .30]
+        concealDepressTestRange = [.22, .33]
+
+        regressionRanges = [supportConcealTestRange,                        \
+            discriminationConcealTestRange, discriminationDepressTestRange, \
+            concealDepressTestRange]
+
+        # Denotes where the respective variables are in regressions 
+        # val array
+        testIndices = [3, 5, 8, 10]
+        labels = ["Support_Conceal", "Discrimination_Conceal", \
+            "Discrimination_Depress", "Conceal_Depress"]
 
         errorStr = "{} not in range"
 
-        for i in range(0, len(ORRanges)):
-            self.test_in_range(self.ORTestVals[i], curRange[i][0], 
-                curRange[i][1], errorStr.format("{} OR".format(labels[i])))
+        for i in range(0, len(regressionRanges)):
+            testIndex = testIndices[i]
+            self.assertInRange(self.regressionValues[testIndex], 
+                curRange[i][0], curRange[i][1], errorStr.format(
+                    "{} Regression".format(labels[i])))
 
 #####################################################################
 # Given the parameters needed for running simulation, executes the  #
@@ -197,9 +244,8 @@ def Sensitivity_oddRatioTests(original):
         values.append(currentOR)
         args = list(copy)
 
-    # ORTest = SensitivityLiteratureTest(values)
+    # ORTest = OddRatioTest(values)
     # ORTest.test_odd_ratios()
-    # ORTest.test_regression_values()
 
     # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
@@ -249,6 +295,11 @@ def Sensitivity_correlationTests(original, percentMinority,
         splitTrial = Sensitivity_splitResults(changeParams, 
             trials, labels[i])
         finalResults.append(splitTrial)
+
+    # RegressionTest = RegressionValueTest(finalResults)
+    # RegressionTest.test_sanity_checks()
+    # RegressionTest.test_numerical_values()
+
     Sensitivity_printCorrelationResults(finalResults)
 
 #####################################################################
