@@ -111,7 +111,7 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateSupport(self):
         ADDITIONAL_BOOST = .10
-        BASELINE_SUPPORT = .0
+        BASELINE_SUPPORT = .05
 
         att = self.network.NetworkBase_getNetworkAttitude()
         localConnect = self.network.\
@@ -119,11 +119,12 @@ class MinorityAgent(BaseAgent):
 
         # Accounts for additional boost felt when those opposing are
         # in significant minority
-        const = BASELINE_SUPPORT
+        const = 0
         if att > .75:
             const += ADDITIONAL_BOOST
 
-        support = localConnect + att * const
+        support = BASELINE_SUPPORT
+        support += localConnect + att * const
         self.support = self.Agent_normalizeParam(support)
 
     #################################################################
@@ -180,13 +181,14 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateConcealment(self, discriminateConcealImpact,
         supportConcealImpact, time):
-        SCALE_FACTOR = 1.75
-        DEPRESS_FACTOR = 5.0
-        NETWORK_SCALE = .10
+        SCALE_FACTOR = .675
+        DEPRESS_FACTOR = 2.5
+        NETWORK_SCALE = .125
+        FINAL_SCALE = .125
 
         # Number of time intervals before which a reversal of 
         # depressive condition can disappear
-        TIME_THRESHOLD = 10
+        TIME_THRESHOLD = 5
 
         numPolicies = self.network.policyScore
         probConceal = ((self.discrimination * discriminateConcealImpact   \
@@ -194,7 +196,7 @@ class MinorityAgent(BaseAgent):
             - numPolicies/self.network.policyCap) * SCALE_FACTOR          \
             - self.network.NetworkBase_getNetworkAttitude() * NETWORK_SCALE
 
-        if not self.isConcealed and self.isDepressed:
+        if self.isDepressed:
             probConceal *= DEPRESS_FACTOR
 
         self.probConceal = self.Agent_getLogistic(probConceal)
@@ -203,7 +205,7 @@ class MinorityAgent(BaseAgent):
         if self.isConcealed:
             if (time - self.concealStart > TIME_THRESHOLD):
                 rand = random.random()
-                self.isConcealed = (rand < (1 - self.probConceal))
+                self.isConcealed = (rand < (1 - self.probConceal/2))
             return
         
         rand = random.random()
@@ -228,6 +230,12 @@ class MinorityAgent(BaseAgent):
         # depressive condition can disappear
         TIME_THRESHOLD = 20
 
+        if self.isDepressed:
+            if (time - self.depressStart > TIME_THRESHOLD):
+                rand = random.random()
+                self.isDepressed = (rand < (1 - self.currentDepression/2))
+            return
+
         numPolicies = self.network.policyScore
         probIncrease = self.discrimination * discriminateDepressionImpact
         probIncrease -= self.support * supportDepressionImpact
@@ -243,12 +251,6 @@ class MinorityAgent(BaseAgent):
         # Uses logit scale
         self.currentDepression = self.Agent_getLogistic(baseProb) \
             * SCALING_FACTOR
-
-        if self.isDepressed:
-            if (time - self.depressStart > TIME_THRESHOLD):
-                rand = random.random()
-                self.isDepressed = (rand < (1 - self.currentDepression/2))
-            return
 
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression and \

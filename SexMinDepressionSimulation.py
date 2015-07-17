@@ -277,9 +277,9 @@ if __name__ == "__main__":
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = 5.0
+    supportDepressionImpact = 3.0
     concealDiscriminateImpact = 5.0
-    discriminateConcealImpact = 1.5
+    discriminateConcealImpact = 5.0
     discriminateDepressionImpact = .75
     concealDepressionImpact = 1.25
 
