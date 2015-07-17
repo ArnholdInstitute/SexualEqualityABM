@@ -59,15 +59,19 @@ class BaseAgent:
         self.discrimination = discrimination
         self.support = support
 
-        self.isConcealed = isConcealed
         self.probConceal = probConceal
+        self.isConcealed = isConcealed
+        
+        # If initialized to concealed, "start conceal time" marked as 0
+        if self.isConcealed:
+            self.concealStart = 0
 
         # Base depression is only used for non-minority members
         self.baseDepression = currentDepression
         self.currentDepression = currentDepression
         self.isDepressed = isDepressed
 
-        # If initialized to depressed, "start time" marked as 0
+        # If initialized to depressed, "start depress time" marked as 0
         if self.isDepressed:
             self.depressStart = 0
 
@@ -211,11 +215,14 @@ class BaseAgent:
     def Agent_updateAgent(self, time, supportDepressionImpact, 
         concealDiscriminateImpact, discriminateConcealImpact, 
         discriminateDepressionImpact, concealDepressionImpact):
+        supportConcealImpact = supportDepressionImpact
+
         self.Agent_updateAttitude() 
 
         self.Agent_updateSupport()
         self.Agent_updateDiscrimination(time, concealDiscriminateImpact)
 
-        self.Agent_updateConcealment(discriminateConcealImpact)
+        self.Agent_updateConcealment(discriminateConcealImpact,
+            supportConcealImpact, time)
         self.Agent_updateDepression(concealDepressionImpact, 
             supportDepressionImpact, discriminateDepressionImpact, time)
