@@ -52,8 +52,7 @@ class BaseAgent:
 
         self.currentSES = currentSES
 
-        self.minorityAttitude = minorityAttitude
-        self.attitude = self.minorityAttitude
+        self.attitude = minorityAttitude
         self.isMinority = isMinority
 
         self.discrimination = discrimination
@@ -102,7 +101,6 @@ class BaseAgent:
         # conditions, namely between 0.0-1.0
         boundsVerficationDict = {
             currentSES: "Current socio-economic",
-            minorityAttitude: "Baseline attitude",
             discrimination: "Discrimination",
             support: "Support",
             currentDepression: "Current depression level",

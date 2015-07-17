@@ -288,7 +288,8 @@ class NetworkBase:
     # whether you wish to only find the percent in 1st degree or 2nd#
     #################################################################
     def NetworkBase_findPercentConnectedMinority(self, agent, 
-        firstDegree=False):
+        firstDegree=False, allSupport=False):
+        SUPPORT_ATTITUDE = .50
 
         if firstDegree: 
             neighbors = self.NetworkBase_getFirstNeighbors(agent)
@@ -299,8 +300,9 @@ class NetworkBase:
         minorityCount = 0
 
         for neighbor in neighbors:
-            if self.Agents[neighbor].isMinority and \
-                not self.Agents[neighbor].isConcealed:
+            if (self.Agents[neighbor].isMinority and \
+                not self.Agents[neighbor].isConcealed) or \
+                (allSupport and self.Agents[neighbor].attitude > SUPPORT_ATTITUDE):
                 minorityCount += 1
             totalCount += 1
 

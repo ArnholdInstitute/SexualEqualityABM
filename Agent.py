@@ -34,7 +34,7 @@ class NonMinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateAttitude(self): 
         percentConnect = self.network.\
-            NetworkBase_findPercentConnectedMinority(self)
+            NetworkBase_findPercentConnectedMinority(self, allSupport=True)
 
         # Accounts for negative sentiments diffusing in network
         percentPoorNonAccept = self.network.\
@@ -43,8 +43,8 @@ class NonMinorityAgent(BaseAgent):
         # Accounts for those who reflect feeling uneasy when with 
         # those of the sexual minority community
         deltaMinority = .75 * percentConnect/self.network.policyCap
-        deltaNonMinority = .25 * percentPoorNonAccept/self.network.policyCap
-
+        deltaNonMinority = .025 * percentPoorNonAccept/self.network.policyCap
+        
         if self.isDiscriminatory:
             self.attitude -= deltaMinority
         else:
@@ -110,7 +110,7 @@ class MinorityAgent(BaseAgent):
     # not a minority, returns 1.0                                   #
     #################################################################
     def Agent_updateSupport(self):
-        ADDITIONAL_BOOST = .10
+        ADDITIONAL_BOOST = .50
         BASELINE_SUPPORT = .05
 
         att = self.network.NetworkBase_getNetworkAttitude()
@@ -119,12 +119,12 @@ class MinorityAgent(BaseAgent):
 
         # Accounts for additional boost felt when those opposing are
         # in significant minority
-        const = 0
+        const = 1.00
         if att > .75:
             const += ADDITIONAL_BOOST
 
         support = BASELINE_SUPPORT
-        support += localConnect + att * const
+        support += localConnect ** 2 + att * const
         self.support = self.Agent_normalizeParam(support)
 
     #################################################################
@@ -227,8 +227,8 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateDepression(self, concealDepressionImpact, 
         supportDepressionImpact, discriminateDepressionImpact, time):
-        SCALING_FACTOR = .060
-        CONCEAL_FACTOR = .875
+        SCALING_FACTOR = .075
+        CONCEAL_FACTOR = 1.375
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
@@ -244,8 +244,8 @@ class MinorityAgent(BaseAgent):
             return
 
         numPolicies = self.network.policyScore
-        probIncrease = self.discrimination * discriminateDepressionImpact
-        probIncrease -= self.support * supportDepressionImpact
+        probIncrease = self.discrimination ** 2 * discriminateDepressionImpact
+        probIncrease -= self.support ** 2 * supportDepressionImpact
         probIncrease -= numPolicies/25
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 

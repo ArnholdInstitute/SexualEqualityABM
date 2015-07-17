@@ -29,7 +29,7 @@ except ImportError:
 class AgentFactory(object):
     def AgentFactory_createAgent(network, agentID, percentMinority):
         # Constant values (can change for variation in simulation)
-        BASELINE_ATTITUDE = .05
+        BASELINE_ATTITUDE = .75
 
         BASELINE_DISCRIMINATION = .025
         NO_DISCRIMINATION = 0.0
@@ -64,7 +64,7 @@ class AgentFactory(object):
         # fully present for those not of minority status
         if not isMinority:
             discrimination = NO_DISCRIMINATION
-            minorityAttitude = random.random() * BASELINE_ATTITUDE
+            minorityAttitude = (random.random() - .5) * BASELINE_ATTITUDE
             support = FULL_SUPPORT
         else:
             discrimination = random.random() * BASELINE_DISCRIMINATION
