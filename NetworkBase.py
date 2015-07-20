@@ -76,8 +76,14 @@ class NetworkBase:
         self.localSES = {}
 
         # Parameters to be set later: default to 0 (False) -> not set
+        # used to determine the mean/std values for support in network
         self.densityMean = 0 
         self.densityStd = 0
+
+        # Parameters to be set later: default to 0 (False) -> not set
+        # used to determine the mean/std values for support in network
+        self.supportMean = 0 
+        self.supportStd = 0
 
         # Marks the "max points" that can be achieved in the network
         # for the policy score
@@ -397,10 +403,21 @@ class NetworkBase:
                 self.NetworkBase_findPercentConnectedMinority(agent, 
                     firstDegree=True))
 
-        if not self.densityMean: 
-            self.densityMean = mean(densityArr)
-        if not self.densityStd: 
-            self.densityStd = std(densityArr)
+        self.densityMean = mean(densityArr)
+        self.densityStd = std(densityArr)
+
+    #################################################################
+    # Sets the network properties of mean density and std deviation #
+    # of support to the corresponding values of the network         #
+    #################################################################
+    def NetworkBase_setMeanStdSupport(self):
+        agents = self.NetworkBase_getMinorityNodes()
+        supportArr = []
+        for agent in agents:
+            supportArr.append(agent.support)
+
+        self.supportMean = mean(supportArr)
+        self.supportStd = std(supportArr)
 
     #################################################################
     # Given an agent, determines his corresponding z-score for the  #
@@ -414,7 +431,31 @@ class NetworkBase:
         curVal = self.NetworkBase_findPercentConnectedMinority(agent)
         mean = self.densityMean
         std = self.densityStd
-        return (curVal - mean)/std
+
+        return self.NetworkBase_getZScore(curVal, mean, std)
+
+    #################################################################
+    # Given an agent, determines his corresponding z-score for the  #
+    # support of LGBs in his network                                #
+    #################################################################
+    def NetworkBase_getSupportZScore(self, agent): 
+        # Sets the densities only if not already determined
+        if not (self.supportMean and self.supportStd):
+            self.NetworkBase_setMeanStdSupport()
+
+        curVal = agent.support
+        mean = self.supportMean
+        std = self.supportStd
+
+        return self.NetworkBase_getZScore(curVal, mean, std)
+
+    #################################################################
+    # Given a value, the mean corresponding to that value in the    #
+    # network, and the std deviation of such in network, determines #
+    # the corresponding z-value                                     #
+    #################################################################
+    def NetworkBase_getZScore(self, val, mean, std):
+        return (val - mean)/std
 
     #################################################################
     # Determines the odds of having a particular depression in      #
@@ -426,7 +467,7 @@ class NetworkBase:
     def NetworkBase_getDepressOdds(self, onlyMinority=0, withSupport=0,
             checkDensity=False):
         # Everyone with < 0.10 support will be considered "NOT supported"
-        NO_SUPPORT = 0.050
+        NO_SUPPORT = 0.50
 
         # Used to calculate when the z-score is ".75" (never exact: 
         # use a bounded set to compensate)
@@ -461,14 +502,17 @@ class NetworkBase:
             # Gets total depression of those with support
             if case(ONLY_WANT_WITH):
                 for agent in agents:
-                    if agent.support > NO_SUPPORT:
+                    z = self.NetworkBase_getSupportZScore(agent)
+                    print(z)
+                    if z > NO_SUPPORT:
                         totalDepression += agent.currentDepression
                 break
 
             # Gets depression of those without support
             if case(ONLY_WANT_WITHOUT): 
                 for agent in agents:
-                    if agent.support <= NO_SUPPORT:
+                    z = self.NetworkBase_getSupportZScore(agent)
+                    if z <= NO_SUPPORT:
                         totalDepression += agent.currentDepression
                 break
 

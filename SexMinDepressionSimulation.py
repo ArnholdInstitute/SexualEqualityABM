@@ -1,6 +1,6 @@
 #####################################################################
 # Name: Yash Patel                                                  #
-# File: SESimulation.py                                             #
+# File: SexMinDepressionSimulation.py                               #
 # Description: Contains all the methods pertinent to producing the  #
 # simulation for modelling the relation between sexual minorities   #
 # and depression (SMD simulation)                                   #
@@ -65,13 +65,13 @@ class SMDSimulationModel:
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
             self.network = ERNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, .50)
+                self.percentMinority, self.timeSpan, 0.05)
         elif self.networkType == 'SW':
             self.network = SWNetwork(self.numAgents, 
                 self.percentMinority, self.timeSpan, 10, 0.25)
         else:
             self.network = ASFNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 9, 5)
+                self.percentMinority, self.timeSpan, 3, 2)
 
     #################################################################
     # Given parameters for initializing the simulation, ensures they#
@@ -265,28 +265,29 @@ if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
     showOdd = True
-    showRegression = True
+    showRegression = False
     onlyStreamlined = True
 
     # ER, SW, or ASF
-    networkType = "ER"
+    networkType = "ASF"
     timeSpan = 3
-    numAgents = 125
+    numAgents = 250
     percentMinority = .05
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = 2.0
+    supportDepressionImpact = 2.5
     concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 7.5 
-    discriminateDepressionImpact = 1.25
-    concealDepressionImpact = 2.50
+    discriminateDepressionImpact = 1.5
+    concealDepressionImpact = 5.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
         percentMinority, supportDepressionImpact, concealDiscriminateImpact, 
-        discriminateConcealImpact, discriminateDepressionImpact, concealDepressionImpact)
+        discriminateConcealImpact, discriminateDepressionImpact, 
+        concealDepressionImpact)
     original = deepcopy(simulationModel)
     
     if onlyStreamlined: 

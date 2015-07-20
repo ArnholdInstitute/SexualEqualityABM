@@ -1,7 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: ASFNetwork.py                                               #
-# Description: Contains all the methods pertinent to modelling SW   #
+# Description: Contains all the methods pertinent to modelling ASF  #
 # network (small world)                                             #
 #####################################################################
 

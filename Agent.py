@@ -186,7 +186,7 @@ class MinorityAgent(BaseAgent):
         DEPRESS_FACTOR = 15.0 
 
         NETWORK_SCALE = .125
-        FINAL_SCALE = .125
+        FINAL_SCALE = .50
 
         # Number of time intervals before which a reversal of 
         # depressive condition can disappear
@@ -207,6 +207,7 @@ class MinorityAgent(BaseAgent):
             probConceal *= depressFactor
 
         self.probConceal = self.Agent_getLogistic(probConceal)
+        self.probConceal *= FINAL_SCALE
 
         # Agents will not alternate between concealed/unconcealed rapidly
         if self.isConcealed:

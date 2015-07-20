@@ -1,10 +1,11 @@
 #####################################################################
 # Name: Yash Patel                                                  #
-# File: SensitivitySimulation.py                                    #
-# Description: Performs the overall simulations again for SE over   #
-# time, but does not display outputs for each simulation. Instead,  #
-# looks at and plots sensitivity of exercise levels/SE results vs.  #
-# variables, particularly focusing on the impacts of the updates    #
+# File: SMDySimulation.py                                           #
+# Description: Performs the overall simulations again for depression#
+# and concealment, not displaying results of each simulation.Instead#
+# looks at and plots sensitivity of these results on each of the    #
+# independent parameters while also analyzing the odd ratios of     #
+# particular variables to align with values from literature         #
 #####################################################################
 
 import sys
