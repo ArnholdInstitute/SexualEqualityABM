@@ -335,20 +335,39 @@ class NetworkBase:
     # network (either the %depressed or %concealed from minority)   #
     #################################################################
     def NetworkBase_findPercentAttr(self, attr):
+        # Denotes the maximum "scaled" values for each parameter
+        MAX_DEPRESS = .075
+        MAX_DISCRIMINATE = .125
+        MAX_CONCEALMENT = .125
+
         agents = self.NetworkBase_getMinorityNodes()
         
         minCount = len(agents)
         attrTotal = 0
         
-        for agent in agents:
-            if  attr == "depression":
-                attrTotal += agent.currentDepression 
-            elif attr == "concealed":
-                attrTotal += agent.probConceal
-            elif attr == "discrimination":
-                attrTotal += agent.discrimination
+        # Determines which agents to check based on parameter
+        for case in switch(attr):
+            if case("depression"):
+                for agent in agents:
+                    attrTotal += agent.currentDepression 
+                MAX_CONST = MAX_DEPRESS
+                break
+            if case("concealed"):
+                for agent in agents:
+                    attrTotal += agent.probConceal
+                MAX_CONST = MAX_DISCRIMINATE
+                break
+            if case("discrimination"):
+                for agent in agents:
+                    attrTotal += agent.discrimination
+                MAX_CONST = MAX_CONCEALMENT
+                break
+            if case():
+                sys.stderr.write("Invalid parameter")
+                return False
 
         if minCount:
+            maxTotal = minCount * MAX_CONST
             return attrTotal/minCount
         return 0.0
 
@@ -467,7 +486,7 @@ class NetworkBase:
     def NetworkBase_getDepressOdds(self, onlyMinority=0, withSupport=0,
             checkDensity=False):
         # Everyone with < 0.10 support will be considered "NOT supported"
-        NO_SUPPORT = 0.50
+        NO_SUPPORT = .75
 
         # Used to calculate when the z-score is ".75" (never exact: 
         # use a bounded set to compensate)
@@ -503,7 +522,6 @@ class NetworkBase:
             if case(ONLY_WANT_WITH):
                 for agent in agents:
                     z = self.NetworkBase_getSupportZScore(agent)
-                    print(z)
                     if z > NO_SUPPORT:
                         totalDepression += agent.currentDepression
                 break

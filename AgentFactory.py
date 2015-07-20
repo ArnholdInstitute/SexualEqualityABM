@@ -39,8 +39,8 @@ class AgentFactory(object):
 
         FULL_ACCEPTANCE = 1.0
 
-        UNCONCEAL_DEPRESS_PROB = .025
-        CONCEAL_DEPRESS_PROB = .050
+        UNCONCEAL_DEPRESS_PROB = .00125
+        CONCEAL_DEPRESS_PROB = .0050
         
         CENTER_SES_RAND = 3
         BASELINE_SES = .1
@@ -71,7 +71,7 @@ class AgentFactory(object):
             minorityAttitude = FULL_ACCEPTANCE
             support = random.random() * BASELINE_SUPPORT
 
-        SCALING_FACTOR = .50
+        SCALING_FACTOR = .125 * (2.0 - percentMinority)
         if not isMinority:
             probConceal = 0
         else:
@@ -91,6 +91,9 @@ class AgentFactory(object):
             const = UNCONCEAL_DEPRESS_PROB
             if isConcealed:
                 const = CONCEAL_DEPRESS_PROB
+
+            # More likely to start depressed if less minority
+            const *= (2.0 - percentMinority)
 
         rand = random.random()
         currentDepression = rand * const

@@ -80,17 +80,34 @@ class NonMinorityAgent(BaseAgent):
     def Agent_updateDepression(self, concealImpact, supportDepressionImpact,
         discriminateDepressionImpact, time):
         DEPRESSION_THRESHOLD = .025
-        SCALING_FACTOR = .0025
+        SCALING_FACTOR = .025
         TIME_DECAY = .875
+        FINAL_SCALE = .0075
+
+        # Number of time intervals before which a reversal of 
+        # depressive condition can disappear
+        TIME_THRESHOLD = 20
+
+        if self.isDepressed:
+            if (time - self.depressStart > TIME_THRESHOLD):
+                rand = random.random()
+                self.isDepressed = (rand < (1 - self.currentDepression/2))
+            return
 
         self.baseDepression *= TIME_DECAY
+        baseProb = self.baseDepression
         if self.isDiscriminatory:
-            self.currentDepression = self.baseDepression + self.network.\
+            sbaseProb = self.baseDepression + self.network.\
                 NetworkBase_findPercentConnectedMinority(self) * SCALING_FACTOR
+
+        self.currentDepression = self.Agent_getLogistic(baseProb) \
+            * FINAL_SCALE
 
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression and \
             self.currentDepression > DEPRESSION_THRESHOLD)
+        if self.isDepressed:
+            self.depressStart = time
 
 #####################################################################
 # A model for agents not part of sexual minority                    #
@@ -185,8 +202,8 @@ class MinorityAgent(BaseAgent):
         FULL_DEPRESS_FACTOR = 3.0
         DEPRESS_FACTOR = 15.0 
 
-        NETWORK_SCALE = .125
-        FINAL_SCALE = .50
+        NETWORK_SCALE = .75
+        FINAL_SCALE = .125
 
         # Number of time intervals before which a reversal of 
         # depressive condition can disappear
@@ -206,14 +223,14 @@ class MinorityAgent(BaseAgent):
             depressFactor = .50 + (DEPRESS_FACTOR * self.currentDepression) ** 2
             probConceal *= depressFactor
 
-        self.probConceal = self.Agent_getLogistic(probConceal)
+        self.probConceal = self.Agent_getLogistic(probConceal ** 2 * np.sign(probConceal))
         self.probConceal *= FINAL_SCALE
 
         # Agents will not alternate between concealed/unconcealed rapidly
         if self.isConcealed:
             if (time - self.concealStart > TIME_THRESHOLD):
                 rand = random.random()
-                self.isConcealed = (rand < (1 - self.probConceal/2))
+                self.isConcealed = (rand < (1 - self.probConceal/2)) * FINAL_SCALE
             return
         
         rand = random.random()
@@ -242,19 +259,20 @@ class MinorityAgent(BaseAgent):
         if self.isDepressed:
             if (time - self.depressStart > TIME_THRESHOLD):
                 rand = random.random()
-                self.isDepressed = (rand < (1 - self.currentDepression/2))
+                self.isDepressed = (rand < (1 - self.currentDepression/2)) * SCALING_FACTOR
             return
 
         numPolicies = self.network.policyScore
+
         probIncrease = self.discrimination ** 2 * discriminateDepressionImpact
         probIncrease -= self.support ** 2 * supportDepressionImpact
-        probIncrease -= numPolicies/25
+        probIncrease -= numPolicies/self.network.policyCap
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 
         # Significant bump if agent is already concealed
         if self.isConcealed:
             if probIncrease > 0:
-                probIncrease *= concealDepressionImpact ** 2
+                probIncrease *= concealDepressionImpact
         else:
             concealFactor = .25 + (CONCEAL_FACTOR * self.probConceal) ** 2
             probIncrease *= concealFactor
@@ -262,9 +280,8 @@ class MinorityAgent(BaseAgent):
         baseProb = self.currentDepression + probIncrease
 
         # Uses logit scale
-        self.currentDepression = self.Agent_getLogistic(baseProb) \
+        self.currentDepression = self.Agent_getLogistic(baseProb ** 2 * np.sign(baseProb)) \
             * SCALING_FACTOR
-
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression and \
             self.currentDepression > DEPRESSION_THRESHOLD)

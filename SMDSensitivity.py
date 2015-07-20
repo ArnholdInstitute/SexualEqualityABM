@@ -240,9 +240,10 @@ def Sensitivity_oddRatioTests(original):
                 currentOR = trialResult
                 originalSet = True
             else:
-                currentOR = 0.0
                 if trialResult:
                     currentOR /= trialResult
+                else:
+                    currentOR = 0.0
         ORresults.append([labels[i], currentOR])
         values.append(currentOR)
         args = list(copy)

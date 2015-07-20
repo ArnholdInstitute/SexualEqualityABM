@@ -68,10 +68,10 @@ class SMDSimulationModel:
                 self.percentMinority, self.timeSpan, 0.05)
         elif self.networkType == 'SW':
             self.network = SWNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 10, 0.25)
+                self.percentMinority, self.timeSpan, 10, 0.50)
         else:
             self.network = ASFNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 3, 2)
+                self.percentMinority, self.timeSpan, 3, 4)
 
     #################################################################
     # Given parameters for initializing the simulation, ensures they#
@@ -201,7 +201,7 @@ class SMDSimulationModel:
         timeLabels = ["Before", "After"]
         curNetwork = self.network.networkBase
 
-        agents = curNetwork.NetworkBase_getAgentArray()
+        agents = curNetwork.NetworkBase_getMinorityNodes()
         for agent in agents:
             if agent.isMinority:
                 beforeDepressLevels.append(agent.currentDepression)
@@ -263,25 +263,25 @@ class SMDSimulationModel:
 #####################################################################
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
-    checkSensitivity = True
+    checkSensitivity = False
     showOdd = True
-    showRegression = False
-    onlyStreamlined = True
+    showRegression = True
+    onlyStreamlined = False
 
     # ER, SW, or ASF
     networkType = "ASF"
     timeSpan = 3
-    numAgents = 250
-    percentMinority = .05
+    numAgents = 125
+    percentMinority = .75
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = 2.5
-    concealDiscriminateImpact = 5.0
-    discriminateConcealImpact = 7.5 
+    supportDepressionImpact = 0.75
+    concealDiscriminateImpact = 7.5
+    discriminateConcealImpact = 5.0 
     discriminateDepressionImpact = 1.5
-    concealDepressionImpact = 5.0
+    concealDepressionImpact = 7.5
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
