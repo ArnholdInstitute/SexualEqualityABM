@@ -212,8 +212,7 @@ class MinorityAgent(BaseAgent):
         numPolicies = self.network.policyScore
         probConceal = (self.discrimination * discriminateConcealImpact   \
             - self.support * supportConcealImpact)
-        probConceal -= (numPolicies/self.network.policyCap) ** 2 \
-            * np.sign(numPolicies)
+        probConceal -= (numPolicies/self.network.policyCap) ** 3
         probConceal *= SCALE_FACTOR 
         probConceal -= self.network.NetworkBase_getNetworkAttitude() * NETWORK_SCALE
 

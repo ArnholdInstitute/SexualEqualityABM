@@ -336,7 +336,7 @@ class NetworkBase:
     #################################################################
     def NetworkBase_findPercentAttr(self, attr):
         # Denotes the maximum "scaled" values for each parameter
-        MAX_DEPRESS = 1/15
+        MAX_DEPRESS = .067
         MAX_DISCRIMINATE = .125
         MAX_CONCEALMENT = .125
 
