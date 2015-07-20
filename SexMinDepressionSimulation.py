@@ -38,7 +38,7 @@ class SMDSimulationModel:
     # defaults have been provided                                   #
     #################################################################
     def __init__(self, networkType='ER', timeSpan=10, numAgents=10,
-        percentMinority=.5, supportDepressionImpact=1.25, 
+        percentMinority=.5, supportDepressionImpact=1.25,   
         concealDiscriminateImpact=5.0, discriminateConcealImpact=1.0, 
         discriminateDepressionImpact=3.0, concealDepressionImpact=2.0):
 
@@ -263,16 +263,16 @@ class SMDSimulationModel:
 #####################################################################
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
-    checkSensitivity = False
+    checkSensitivity = True
     showOdd = True
     showRegression = True
-    onlyStreamlined = False
+    onlyStreamlined = True
 
     # ER, SW, or ASF
     networkType = "ASF"
-    timeSpan = 3
-    numAgents = 125
-    percentMinority = .75
+    timeSpan = 5
+    numAgents = 500
+    percentMinority = .30   
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
