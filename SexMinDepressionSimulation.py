@@ -263,16 +263,16 @@ class SMDSimulationModel:
 #####################################################################
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
-    checkSensitivity = False
+    checkSensitivity = True
     showOdd = True
     showRegression = True
     onlyStreamlined = False
 
     # ER, SW, or ASF
     networkType = "ASF"
-    timeSpan = 2
-    numAgents = 125
-    percentMinority = .30   
+    timeSpan = 3
+    numAgents = 250
+    percentMinority = .05   
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of

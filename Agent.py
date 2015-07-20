@@ -97,7 +97,7 @@ class NonMinorityAgent(BaseAgent):
         self.baseDepression *= TIME_DECAY
         baseProb = self.baseDepression
         if self.isDiscriminatory:
-            sbaseProb = self.baseDepression + self.network.\
+            baseProb = self.baseDepression + self.network.\
                 NetworkBase_findPercentConnectedMinority(self) * SCALING_FACTOR
 
         self.currentDepression = self.Agent_getLogistic(baseProb) \
