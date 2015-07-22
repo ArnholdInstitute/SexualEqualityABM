@@ -247,6 +247,7 @@ class SMDSimulationModel:
         numTicks = self.timeSpan * 26
         pos = nx.random_layout(self.network.G)
 
+        print("Running simulation...")
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
@@ -264,14 +265,15 @@ class SMDSimulationModel:
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
-    showOdd = True
+    showOdd = False
+    showSensitivity = False
     showRegression = True
-    onlyStreamlined = False
+    onlyStreamlined = True
 
     # ER, SW, or ASF
     networkType = "ASF"
     timeSpan = 3
-    numAgents = 250
+    numAgents = 125
     percentMinority = .05   
 
     # The following denote "impact constants" for which we have adopted 
@@ -299,6 +301,6 @@ if __name__ == "__main__":
         Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
             concealDiscriminateImpact, discriminateConcealImpact, 
             discriminateDepressionImpact, concealDepressionImpact, 
-            original, simulationModel, showOdd, showRegression)
+            original, simulationModel, showOdd, showSensitivity, showRegression)
 
     print("Terminating simulation...")

@@ -198,6 +198,19 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel):
     plt.close()
 
 #####################################################################
+# Used for plotting the results throughout the simulation (used in  #
+# regression calculations)                                          #
+#####################################################################
+def Sensitivity_plotRegression(xArray, yArray, xLabel, yLabel):
+    plt.scatter(xArray,yArray)
+    plt.xlabel(xLabel)
+    plt.ylabel(yLabel)
+    plt.title('{} Vs. {}'.format(xLabel, yLabel))
+
+    plt.savefig("Results\\Regression\\{}vs{}.png".format(xLabel, yLabel))
+    plt.close()
+
+#####################################################################
 # Performs all the tests for odds ratios to check if results match  #
 # empirically verified/identified values from literature            #
 #####################################################################
@@ -248,9 +261,6 @@ def Sensitivity_oddRatioTests(original):
         values.append(currentOR)
         args = list(copy)
 
-    # ORTest = OddRatioTest(values)
-    # ORTest.test_odd_ratios()
-
     # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
     with open(resultsFile, 'w') as f:
@@ -263,7 +273,65 @@ def Sensitivity_oddRatioTests(original):
 # Similarly performs correlation tests to identify value of r btween#
 # the parameters and the final result (depression/concealment)      #
 #####################################################################
-def Sensitivity_correlationTests(original, percentMinority, 
+def Sensitivity_regressionTests(original):
+    # Used to determine the names of files (length of "_vs_" string)
+    SEPARATOR_LENGTH = 4
+
+    supportArr = []
+    concealArr = []
+    discriminationArr = []
+    depressionArr = []
+
+    minAgents = original.network.networkBase.NetworkBase_getMinorityNodes()
+    for agent in minAgents:
+        supportArr.append(agent.support)
+        concealArr.append(agent.probConceal)
+        discriminationArr.append(agent.discrimination)
+        depressionArr.append(agent.currentDepression)
+
+    labels = ["Support_vs_Concealment", "Concealment_vs_Discrimination", \
+        "Discrimination_vs_Depression", "Concealment_vs_Depression"]
+
+    tests = {
+        1: [supportArr, concealArr],
+        2: [concealArr, discriminationArr],
+        3: [discriminationArr, depressionArr], 
+        4: [concealArr, depressionArr]
+    }
+
+    finalResults = {}
+
+    # Goes through tests defined in above dictionary (structured as 
+    # [a, b] when testing a vs. b) and performs regression analysis
+    for test in tests:
+        testLabel = labels[test - 1]
+        print("Performing {} regression analysis".format(testLabel))
+
+        endIndex = testLabel.index("_vs_")
+        startIndex = endIndex + SEPARATOR_LENGTH
+        xLabel = testLabel[:endIndex]
+        yLabel = testLabel[startIndex:]
+
+        xArr = tests[test][0]
+        yArr = tests[test][1]
+
+        Sensitivity_plotRegression(xArr, yArr, xLabel, yLabel)
+        finalResults[test] = np.corrcoef(xArr, yArr)[0][1]
+
+    resultsFile = "Results\\Regression\\Regression_Values.txt"
+    with open(resultsFile, 'w') as f:
+        writer = csv.writer(f, delimiter = '\n', quoting=csv.QUOTE_NONE, 
+            quotechar='', escapechar='\\')
+        for result in finalResults:
+            testLabel = labels[result - 1]
+            row = [testLabel, finalResults[result]]
+            writer.writerow(row)
+
+#####################################################################
+# Performs sensitivity tests to check the various parameters on how #
+# the output varies per their variation                             #
+#####################################################################
+def Sensitivity_sensitivityTests(original, percentMinority, 
     supportDepressionImpact,  concealDiscriminateImpact, 
     discriminateConcealImpact, discriminateDepressionImpact, 
     concealDepressionImpact):
@@ -300,16 +368,12 @@ def Sensitivity_correlationTests(original, percentMinority,
             trials, labels[i])
         finalResults.append(splitTrial)
 
-    # RegressionTest = RegressionValueTest(finalResults)
-    # RegressionTest.test_sanity_checks()
-    # RegressionTest.test_numerical_values()
-
     Sensitivity_printCorrelationResults(finalResults)
 
 #####################################################################
 # Prints the results of correlation analysis to separate csv file   #
 #####################################################################
-def Sensitivity_printCorrelationResults(finalResults):
+def Sensitivity_printSensitivityResults(finalResults):
     # Performs numerical analysis on sensitivity trials
     resultsFile = "Results\\Sensitivity\\Sensitivity_Correlation.txt"
     with open(resultsFile, 'w') as f:
@@ -343,13 +407,16 @@ def Sensitivity_printCorrelationResults(finalResults):
 def Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
     concealDiscriminateImpact, discriminateConcealImpact, 
     concealDepressionImpact, discriminateDepressionImpact, original, 
-    final, showOdd=True, showRegression=True):
+    final, showOdd=True, showSensitivity=True, showRegression=True):
 
     if showOdd:
         Sensitivity_oddRatioTests(final)
 
     if showRegression:
-        Sensitivity_correlationTests(original, percentMinority, 
+        Sensitivity_regressionTests(final)
+
+    if showSensitivity:
+        Sensitivity_sensitivityTests(original, percentMinority, 
             supportDepressionImpact, concealDiscriminateImpact, 
             discriminateConcealImpact, discriminateDepressionImpact, 
             concealDepressionImpact)
