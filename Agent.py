@@ -268,8 +268,8 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = self.discrimination * discriminateDepressionImpact
-        probIncrease -= self.support * supportDepressionImpact
+        probIncrease = self.discrimination ** 2 * discriminateDepressionImpact
+        probIncrease -= self.support ** 2 * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3 
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 

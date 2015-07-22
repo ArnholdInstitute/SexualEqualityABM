@@ -347,7 +347,7 @@ def Sensitivity_regressionTests(original):
             testLabel = labels[result - 1]
             currentResult = finalResults[result]
             row = [testLabel, currentResult[UNCONCEALED_INDEX],\
-                [UNCONCEALED_INDEX]]
+                currentResult[CONCEALED_INDEX]]
             writer.writerow(row)
 
 #####################################################################
