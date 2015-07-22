@@ -272,6 +272,7 @@ def Sensitivity_oddRatioTests(original):
 def Sensitivity_regressionTests(original):
     UNCONCEALED_INDEX = 0
     CONCEALED_INDEX = 1
+    OVERALL_INDEX = 2
 
     # Used to determine the names of files (length of "_vs_" string)
     SEPARATOR_LENGTH = 4
@@ -334,6 +335,7 @@ def Sensitivity_regressionTests(original):
             yArrUnconceal)[0][1]]
         finalResults[test].append(np.corrcoef(xArrConceal, 
             yArrConceal)[0][1])
+        finalResults[test].append(np.corrcoef(xArr, yArr)[0][1])
 
     resultsFile = "Results\\Regression\\Regression_Values.txt"
     with open(resultsFile, 'w') as f:
@@ -344,7 +346,8 @@ def Sensitivity_regressionTests(original):
             currentResult = finalResults[result]
             row = [testLabel, \
                 "Unconcealed: " + str(currentResult[UNCONCEALED_INDEX]), \
-                "Concealed: " + str(currentResult[CONCEALED_INDEX])]
+                "Concealed: " + str(currentResult[CONCEALED_INDEX]),     \
+                "Overall: " + str(currentResult[OVERALL_INDEX])]
             writer.writerow(row)
 
 #####################################################################

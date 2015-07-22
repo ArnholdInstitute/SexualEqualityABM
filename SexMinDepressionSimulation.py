@@ -265,14 +265,14 @@ class SMDSimulationModel:
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
-    showOdd = True
-    showSensitivity = True
+    showOdd = False
+    showSensitivity = False
     showRegression = True
-    onlyStreamlined = False 
+    onlyStreamlined = True 
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 3
+    timeSpan = 5
     numAgents = 500
     percentMinority = .05   
 
