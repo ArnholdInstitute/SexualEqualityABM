@@ -178,36 +178,32 @@ def Sensitivity_splitResults(indVarScales, mixedArr, label):
 
 #####################################################################
 # Produces graphical display for the sensitivity results of all     #
-# other variables aside from network type: plots line plot for each #
+# other variables aside from network type: plots line plot for each.#
+# graphType can be specified as either "regression" or "sensitivity"#
+# (strings), which will display the graph accordingly               #
 #####################################################################
-def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel):
+def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
     minX = min(xArray)
     maxX = max(xArray)
     
     minY = min(yArray)
     maxY = max(yArray)
 
-    plt.plot(xArray, yArray)
-    plt.axis([minX, maxX, .9 * minY, 1.25 * maxY])
+    if graphType == "regression":
+        xScale = [.75, 1.25]
+        plt.scatter(xArray,yArray)
+        folder = "Regression"
+    else:
+        xScale = [1.0, 1.0]
+        plt.plot(xArray, yArray)
+        folder = "Sensitivity\\{}".format(xLabel)
+
+    plt.axis([xScale[0] * minX, xScale[1] * maxX, .9 * minY, 1.25 * maxY])
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
     plt.title('{} Vs. {}'.format(xLabel, yLabel))
 
-    plt.savefig("Results\\Sensitivity\\{}\\{}vs{}.png"\
-    	.format(xLabel, xLabel, yLabel))
-    plt.close()
-
-#####################################################################
-# Used for plotting the results throughout the simulation (used in  #
-# regression calculations)                                          #
-#####################################################################
-def Sensitivity_plotRegression(xArray, yArray, xLabel, yLabel):
-    plt.scatter(xArray,yArray)
-    plt.xlabel(xLabel)
-    plt.ylabel(yLabel)
-    plt.title('{} Vs. {}'.format(xLabel, yLabel))
-
-    plt.savefig("Results\\Regression\\{}vs{}.png".format(xLabel, yLabel))
+    plt.savefig("Results\\{}\\{}vs{}.png".format(folder, xLabel, yLabel))
     plt.close()
 
 #####################################################################
@@ -330,7 +326,7 @@ def Sensitivity_regressionTests(original):
         xArr = xArrUnconceal + xArrConceal
         yArr = yArrUnconceal + yArrConceal
 
-        Sensitivity_plotRegression(xArr, yArr, xLabel, yLabel)
+        Sensitivity_plotGraphs(xArr, yArr, xLabel, yLabel, "regression")
 
         # Adds both the unconcealed and concealed test results to the
         # corresponding dictionary entry
@@ -346,8 +342,9 @@ def Sensitivity_regressionTests(original):
         for result in finalResults:
             testLabel = labels[result - 1]
             currentResult = finalResults[result]
-            row = [testLabel, currentResult[UNCONCEALED_INDEX],\
-                currentResult[CONCEALED_INDEX]]
+            row = [testLabel, \
+                "Unconcealed: " + str(currentResult[UNCONCEALED_INDEX]), \
+                "Concealed: " + str(currentResult[CONCEALED_INDEX])]
             writer.writerow(row)
 
 #####################################################################
@@ -418,8 +415,10 @@ def Sensitivity_printSensitivityResults(finalResults):
             row = [depressCorrelate, concealCorrelate]
             writer.writerow(row)
 
-            Sensitivity_plotGraphs(xArr, yArr_1, subResult[3], "Depression")
-            Sensitivity_plotGraphs(xArr, yArr_2, subResult[3], "Concealment")
+            Sensitivity_plotGraphs(xArr, yArr_1, subResult[3], 
+                "Depression", "sensitivity")
+            Sensitivity_plotGraphs(xArr, yArr_2, subResult[3], 
+                "Concealment", "sensitivity")
 
 #####################################################################
 # Conducts sensitivity tests for each of the paramaters of interest #

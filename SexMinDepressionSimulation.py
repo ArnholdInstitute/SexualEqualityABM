@@ -265,14 +265,14 @@ class SMDSimulationModel:
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
-    showOdd = False
-    showSensitivity = False
+    showOdd = True
+    showSensitivity = True
     showRegression = True
-    onlyStreamlined = True
+    onlyStreamlined = False 
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 5
+    timeSpan = 3
     numAgents = 500
     percentMinority = .05   
 
@@ -280,10 +280,10 @@ if __name__ == "__main__":
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
     supportDepressionImpact = 2.25
-    concealDiscriminateImpact = 12.5
+    concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 5.0 
     discriminateDepressionImpact = 2.5
-    concealDepressionImpact = 7.5
+    concealDepressionImpact = 5.0
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 

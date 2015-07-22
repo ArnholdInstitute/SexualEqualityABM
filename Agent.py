@@ -226,7 +226,7 @@ class MinorityAgent(BaseAgent):
                 self.currentDepression) ** 2
             probConceal *= depressFactor
 
-        self.probConceal = self.Agent_getLogistic(probConceal * FINAL_SCALE)/5
+        self.probConceal = (self.Agent_getLogistic(probConceal) ** 2)/3
 
         # Agents will not alternate between concealed/unconcealed rapidly
         if self.isConcealed:
@@ -268,8 +268,8 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = self.discrimination ** 2 * discriminateDepressionImpact
-        probIncrease -= self.support ** 2 * supportDepressionImpact
+        probIncrease = self.discrimination * discriminateDepressionImpact
+        probIncrease -= self.support * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3 
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 
@@ -284,8 +284,7 @@ class MinorityAgent(BaseAgent):
         baseProb = self.currentDepression + probIncrease
 
         # Uses logit scale
-        self.currentDepression = self.Agent_getLogistic(baseProb \
-            * 5)/15
+        self.currentDepression = (self.Agent_getLogistic(baseProb) ** 2)/4
 
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression and \
