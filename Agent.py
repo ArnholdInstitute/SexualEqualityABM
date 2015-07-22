@@ -214,14 +214,16 @@ class MinorityAgent(BaseAgent):
             - self.support * supportConcealImpact)
         probConceal -= (numPolicies/self.network.policyCap) ** 3
         probConceal *= SCALE_FACTOR 
-        probConceal -= self.network.NetworkBase_getNetworkAttitude() * NETWORK_SCALE
+        probConceal -= self.network.NetworkBase_getNetworkAttitude() \
+            * NETWORK_SCALE
 
         # Significant increase if depression has actually happened
         if self.isDepressed:
             if probConceal > 0:
                 probConceal *= FULL_DEPRESS_FACTOR
         else:
-            depressFactor = .50 + (DEPRESS_FACTOR * self.currentDepression) ** 2
+            depressFactor = .50 + (DEPRESS_FACTOR * \
+                self.currentDepression) ** 2
             probConceal *= depressFactor
 
         self.probConceal = self.Agent_getLogistic(probConceal * FINAL_SCALE)/5
@@ -266,8 +268,8 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = self.discrimination ** 2 * discriminateDepressionImpact
-        probIncrease -= self.support ** 2 * supportDepressionImpact
+        probIncrease = self.discrimination * discriminateDepressionImpact
+        probIncrease -= self.support * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3 
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 

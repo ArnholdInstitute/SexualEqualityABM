@@ -247,7 +247,7 @@ class SMDSimulationModel:
         numTicks = self.timeSpan * 26
         pos = nx.random_layout(self.network.G)
 
-        print("Running simulation...")
+        print("Running streamlined simulation...")
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
@@ -271,18 +271,18 @@ if __name__ == "__main__":
     onlyStreamlined = True
 
     # ER, SW, or ASF
-    networkType = "ASF"
-    timeSpan = 3
-    numAgents = 125
+    networkType = "ER"
+    timeSpan = 5
+    numAgents = 500
     percentMinority = .05   
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = 0.75
-    concealDiscriminateImpact = 7.5
+    supportDepressionImpact = 2.25
+    concealDiscriminateImpact = 12.5
     discriminateConcealImpact = 5.0 
-    discriminateDepressionImpact = 1.5
+    discriminateDepressionImpact = 2.5
     concealDepressionImpact = 7.5
 
     resultsFile = "Results\\TimeResults\\results.csv"

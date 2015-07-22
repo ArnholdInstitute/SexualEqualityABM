@@ -274,20 +274,30 @@ def Sensitivity_oddRatioTests(original):
 # the parameters and the final result (depression/concealment)      #
 #####################################################################
 def Sensitivity_regressionTests(original):
+    UNCONCEALED_INDEX = 0
+    CONCEALED_INDEX = 1
+
     # Used to determine the names of files (length of "_vs_" string)
     SEPARATOR_LENGTH = 4
 
-    supportArr = []
-    concealArr = []
-    discriminationArr = []
-    depressionArr = []
+    # Each of these arrays will be used for regression analysis, but
+    # as there are very distinct behaviors for concealed vs. not, we
+    # consider here separating them into arrays and analyzing separate
+    supportArr = [[], []]
+    concealArr = [[], []]
+    discriminationArr = [[], []]
+    depressionArr = [[], []]
 
     minAgents = original.network.networkBase.NetworkBase_getMinorityNodes()
     for agent in minAgents:
-        supportArr.append(agent.support)
-        concealArr.append(agent.probConceal)
-        discriminationArr.append(agent.discrimination)
-        depressionArr.append(agent.currentDepression)
+        # The first entry of above arrays contains values corresponding
+        # to unconcealed agents and the second for concealed
+        concealIndex = int(agent.isConcealed)
+
+        supportArr[concealIndex].append(agent.support)
+        concealArr[concealIndex].append(agent.probConceal)
+        discriminationArr[concealIndex].append(agent.discrimination)
+        depressionArr[concealIndex].append(agent.currentDepression)
 
     labels = ["Support_vs_Concealment", "Concealment_vs_Discrimination", \
         "Discrimination_vs_Depression", "Concealment_vs_Depression"]
@@ -312,11 +322,22 @@ def Sensitivity_regressionTests(original):
         xLabel = testLabel[:endIndex]
         yLabel = testLabel[startIndex:]
 
-        xArr = tests[test][0]
-        yArr = tests[test][1]
+        xArrUnconceal = tests[test][0][UNCONCEALED_INDEX]
+        xArrConceal = tests[test][0][CONCEALED_INDEX]
+        yArrUnconceal = tests[test][1][UNCONCEALED_INDEX] 
+        yArrConceal = tests[test][1][CONCEALED_INDEX]
+
+        xArr = xArrUnconceal + xArrConceal
+        yArr = yArrUnconceal + yArrConceal
 
         Sensitivity_plotRegression(xArr, yArr, xLabel, yLabel)
-        finalResults[test] = np.corrcoef(xArr, yArr)[0][1]
+
+        # Adds both the unconcealed and concealed test results to the
+        # corresponding dictionary entry
+        finalResults[test] = [np.corrcoef(xArrUnconceal, 
+            yArrUnconceal)[0][1]]
+        finalResults[test].append(np.corrcoef(xArrConceal, 
+            yArrConceal)[0][1])
 
     resultsFile = "Results\\Regression\\Regression_Values.txt"
     with open(resultsFile, 'w') as f:
@@ -324,7 +345,9 @@ def Sensitivity_regressionTests(original):
             quotechar='', escapechar='\\')
         for result in finalResults:
             testLabel = labels[result - 1]
-            row = [testLabel, finalResults[result]]
+            currentResult = finalResults[result]
+            row = [testLabel, currentResult[UNCONCEALED_INDEX],\
+                [UNCONCEALED_INDEX]]
             writer.writerow(row)
 
 #####################################################################
@@ -368,7 +391,7 @@ def Sensitivity_sensitivityTests(original, percentMinority,
             trials, labels[i])
         finalResults.append(splitTrial)
 
-    Sensitivity_printCorrelationResults(finalResults)
+    Sensitivity_printSensitivityResults(finalResults)
 
 #####################################################################
 # Prints the results of correlation analysis to separate csv file   #
