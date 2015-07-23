@@ -219,15 +219,15 @@ class BaseAgent:
 
         # Have to explicitly test again none, to allow 0 to be passed
         # in as the default value for some of the parameters
-        if attitude == None:
+        if attitude is not None:
             self.attitude = attitude
-        if support == None:
+        if support is not None:
             self.support = support
-        if discrimination == None:
+        if discrimination is not None:
             self.discrimination = discrimination
-        if conceal == None:
+        if conceal is not None:
             self.conceal = conceal
-        if depression == None:
+        if depression is not None:
             self.depression = depression
 
         self.Agent_updateAgent(time, supportDepressionImpact, 

@@ -429,10 +429,11 @@ def Sensitivity_printImpactResults(finalResults):
 # Can also use showOdd and showRegression to respectively choose    #
 # to specifically perform odd ratio/regression sensitivity tests    #
 #####################################################################
-def Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
-    concealDiscriminateImpact, discriminateConcealImpact, 
-    concealDepressionImpact, discriminateDepressionImpact, original, 
-    final, showOdd=True, showImpact=True, showRegression=True):
+def Sensitivity_sensitivitySimulation(percentMinority, 
+    supportDepressionImpact, concealDiscriminateImpact, 
+    discriminateConcealImpact, discriminateDepressionImpact, 
+    concealDepressionImpact, original, final, showOdd=True, 
+    showImpact=True, showRegression=True, showSensitivity=True):
 
     if showOdd:
         Sensitivity_oddRatioTests(final)
@@ -442,6 +443,12 @@ def Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact,
 
     if showImpact:
         Sensitivity_impactTests(original, percentMinority, 
+            supportDepressionImpact, concealDiscriminateImpact, 
+            discriminateConcealImpact, discriminateDepressionImpact, 
+            concealDepressionImpact)
+
+    if showSensitivity:
+        Sensitivity_sensitivityTests(original, percentMinority, 
             supportDepressionImpact, concealDiscriminateImpact, 
             discriminateConcealImpact, discriminateDepressionImpact, 
             concealDepressionImpact)

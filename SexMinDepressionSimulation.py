@@ -268,6 +268,8 @@ if __name__ == "__main__":
     showOdd = False
     showImpact = False
     showRegression = True
+    showSensitivity = False
+
     onlyStreamlined = True 
 
     # ER, SW, or ASF
@@ -298,9 +300,10 @@ if __name__ == "__main__":
         simulationModel.SMDModel_runSimulation(resultsFile)
 
     if checkSensitivity:
-        Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
-            concealDiscriminateImpact, discriminateConcealImpact, 
-            discriminateDepressionImpact, concealDepressionImpact, 
-            original, simulationModel, showOdd, showImpact, showRegression)
+        Sensitivity_sensitivitySimulation(percentMinority, 
+            supportDepressionImpact, concealDiscriminateImpact, 
+            discriminateConcealImpact, discriminateDepressionImpact, 
+            concealDepressionImpact, original, simulationModel, 
+            showOdd, showImpact, showRegression, showSensitivity)
 
     print("Terminating simulation...")
