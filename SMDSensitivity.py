@@ -28,6 +28,13 @@ except ImportError:
     (http://networkx.lanl.gov/) for SE simulation")
 
 #####################################################################
+# Given a number n, generates that particular number of empty arrays#
+#####################################################################
+def generateEmpty(n):
+    for _ in range(n):
+        yield []
+
+#####################################################################
 # Defines test on which an additional test (to determine whether a  #
 # given value is in a specified range) is provided                  #
 #####################################################################
@@ -125,8 +132,8 @@ class RegressionValueTest(RangeTest):
 
 #####################################################################
 # Given the parameters needed for running simulation, executes the  #
-# simulation and returns an array of the final (population) mean    #
-# exercise and SE levels                                            #
+# simulation and returns an array of all results in the following   #
+# format: [depression, concealed, discrimination, support, policy]  #
 #####################################################################
 def Sensitivity_runSimulation(simulationModel, percentMinority, 
     supportDepressionImpact, concealDiscriminateImpact, discriminateConcealImpact, 
@@ -145,35 +152,45 @@ def Sensitivity_runSimulation(simulationModel, percentMinority,
     simulationModel.SMDModel_runStreamlineSimulation()
 
     curTrial = []
+    network = simulationModel.network.networkBase
 
-    curTrial.append(simulationModel.network.networkBase.\
-        NetworkBase_findPercentAttr("depression"))
-    curTrial.append(simulationModel.network.networkBase.\
-        NetworkBase_findPercentAttr("concealed"))
+    curTrial.append(network.NetworkBase_findPercentAttr("depression"))
+    curTrial.append(network.NetworkBase_findPercentAttr("concealed"))
+    curTrial.append(network.NetworkBase_findPercentAttr("discrimination"))
+    if not network.supportMean:
+        network.NetworkBase_setMeanStdSupport()
+    curTrial.append(network.supportMean)
+    curTrial.append(network.policyScore)
 
     return curTrial
 
 #####################################################################
-# Given an array formatted as [[ExerciseResults, SEResults]...],    #
+# Given an array formatted as [[DepressResult, ConcealResult]...],  #
 # as is the case for the results for each of the sensitivity trials #
 # reformats the results to be of the form:                          #
-# [[Independent Variable Levels], [ExerciseResult1, 2 ...],         # 
-# [SEResult1, 2, ...], [Label (text for plotting)]].                #
+# [[Independent Variable Levels], [DepressResult1, 2 ...],          # 
+# [ConcealResult1, 2, ...], [Label (text for plotting)]].           #
 #####################################################################
 def Sensitivity_splitResults(indVarScales, mixedArr, label):
-    depressArr = []
-    concealArr = []
+    depressArr, concealArr, discriminationArr, supportArr, policyArr, \
+        finalArr = generateEmpty(6)
 
     for resultsPair in mixedArr:
         depressArr.append(resultsPair[0])
-        concealArr.append(resultsPair[1]) 
+        concealArr.append(resultsPair[1])
+        discriminationArr.append(resultsPair[2])
+        supportArr.append(resultsPair[3])
+        policyArr.append(resultsPair[4]) 
 
-    finalArr = []
     finalArr.append(indVarScales)
+
     finalArr.append(depressArr)
     finalArr.append(concealArr)
-    finalArr.append(label)
+    finalArr.append(discriminationArr)
+    finalArr.append(supportArr)
+    finalArr.append(policyArr)
 
+    finalArr.append(label)
     return finalArr
 
 #####################################################################
@@ -223,8 +240,7 @@ def Sensitivity_oddRatioTests(original):
     depressTest = [True, False]
     ORTests = [minTest, supportTest, depressTest]
 
-    ORresults = []
-    values = []
+    ORresults, values = generateEmpty(2)
 
     discriminateTestRange = network.\
         NetworkBase_findPercentAttr(attr="discrimination")
@@ -372,8 +388,7 @@ def Sensitivity_impactTests(original, percentMinority,
     varyTrials = [.50, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0]
     for i in range(0, len(params)):
         print("Performing {} sensitivity analysis".format(labels[i]))
-        trials = []
-        changeParams = []
+        trials, changeParams = generateEmpty(2)
         
         for trial in varyTrials: 
             toVary[i] *= trial
@@ -403,25 +418,31 @@ def Sensitivity_printImpactResults(finalResults):
         writer = csv.writer(f, delimiter = '\n', quoting=csv.QUOTE_NONE, 
             quotechar='', escapechar='\\')
         for subResult in finalResults:
-            xArr = subResult[0]
-            yArr_1 = subResult[1]
-            yArr_2 = subResult[2]
+            plots = {
+                1: "Depression", 
+                2: "Concealment", 
+                3: "Discrimination", 
+                4: "Support", 
+                5: "Policy Score"
+            }
 
-            yArrCorrelation_1 = np.corrcoef(xArr, yArr_1)[0][1]
-            yArrCorrelation_2 = np.corrcoef(xArr, yArr_2)[0][1]
+            xArr = subResult[0]
+            label = subResult[-1]
+
+            yArrCorrelation_1 = np.corrcoef(xArr, subResult[1])[0][1]
+            yArrCorrelation_2 = np.corrcoef(xArr, subResult[2])[0][1]
 
             depressCorrelate = "{} vs. Depression Correlation: {}".\
-                format(subResult[3], yArrCorrelation_1)
+                format(label, yArrCorrelation_1)
             concealCorrelate = "{} vs. Concealment Correlation: {}".\
-                format(subResult[3], yArrCorrelation_2)
+                format(label, yArrCorrelation_2)
 
             row = [depressCorrelate, concealCorrelate]
             writer.writerow(row)
 
-            Sensitivity_plotGraphs(xArr, yArr_1, subResult[3], 
-                "Depression", "impact")
-            Sensitivity_plotGraphs(xArr, yArr_2, subResult[3], 
-                "Concealment", "impact")
+            for plot in plots:
+                Sensitivity_plotGraphs(xArr, subResult[plot], label, 
+                    plots[plot], "impact")
 
 #####################################################################
 # Conducts sensitivity tests for each of the paramaters of interest #

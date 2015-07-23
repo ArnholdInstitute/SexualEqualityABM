@@ -49,7 +49,7 @@ class NetworkBase:
         self.localSES = {}
 
         # Parameters to be set later: default to 0 (False) -> not set
-        # used to determine the mean/std values for support in network
+        # used to determine the mean/std values for density in network
         self.densityMean = 0 
         self.densityStd = 0
 

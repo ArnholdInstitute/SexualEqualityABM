@@ -247,7 +247,6 @@ class SMDSimulationModel:
         numTicks = self.timeSpan * 26
         pos = nx.random_layout(self.network.G)
 
-        print("Running streamlined simulation...")
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
@@ -266,7 +265,7 @@ if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
     showOdd = False
-    showImpact = False
+    showImpact = True
     showRegression = True
     showSensitivity = False
 
@@ -275,8 +274,8 @@ if __name__ == "__main__":
     # ER, SW, or ASF
     networkType = "ER"
     timeSpan = 5
-    numAgents = 500
-    percentMinority = .05   
+    numAgents = 120
+    percentMinority = .25   
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
