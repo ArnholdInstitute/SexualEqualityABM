@@ -179,7 +179,7 @@ def Sensitivity_splitResults(indVarScales, mixedArr, label):
 #####################################################################
 # Produces graphical display for the sensitivity results of all     #
 # other variables aside from network type: plots line plot for each.#
-# graphType can be specified as either "regression" or "sensitivity"#
+# graphType can be specified as either "regression" or "impact"     #
 # (strings), which will display the graph accordingly               #
 #####################################################################
 def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
@@ -196,7 +196,7 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
     else:
         xScale = [1.0, 1.0]
         plt.plot(xArray, yArray)
-        folder = "Sensitivity\\{}".format(xLabel)
+        folder = "Impact\\{}".format(xLabel)
 
     plt.axis([xScale[0] * minX, xScale[1] * maxX, .9 * minY, 1.25 * maxY])
     plt.xlabel(xLabel)
@@ -258,7 +258,7 @@ def Sensitivity_oddRatioTests(original):
         args = list(copy)
 
     # Performs numerical analysis on sensitivity trials
-    resultsFile = "Results\\Sensitivity\\Sensitivity_OR.txt"
+    resultsFile = "Results\\Impact\\Impact_OR.txt"
     with open(resultsFile, 'w') as f:
         writer = csv.writer(f, delimiter = ' ', quoting=csv.QUOTE_NONE, 
             quotechar='', escapechar='\\')
@@ -354,7 +354,7 @@ def Sensitivity_regressionTests(original):
 # Performs sensitivity tests to check the various parameters on how #
 # the output varies per their variation                             #
 #####################################################################
-def Sensitivity_sensitivityTests(original, percentMinority, 
+def Sensitivity_impactTests(original, percentMinority, 
     supportDepressionImpact,  concealDiscriminateImpact, 
     discriminateConcealImpact, discriminateDepressionImpact, 
     concealDepressionImpact):
@@ -391,14 +391,14 @@ def Sensitivity_sensitivityTests(original, percentMinority,
             trials, labels[i])
         finalResults.append(splitTrial)
 
-    Sensitivity_printSensitivityResults(finalResults)
+    Sensitivity_printImpactResults(finalResults)
 
 #####################################################################
 # Prints the results of correlation analysis to separate csv file   #
 #####################################################################
-def Sensitivity_printSensitivityResults(finalResults):
+def Sensitivity_printImpactResults(finalResults):
     # Performs numerical analysis on sensitivity trials
-    resultsFile = "Results\\Sensitivity\\Sensitivity_Correlation.txt"
+    resultsFile = "Results\\Impact\\Impact_Correlation.txt"
     with open(resultsFile, 'w') as f:
         writer = csv.writer(f, delimiter = '\n', quoting=csv.QUOTE_NONE, 
             quotechar='', escapechar='\\')
@@ -419,9 +419,9 @@ def Sensitivity_printSensitivityResults(finalResults):
             writer.writerow(row)
 
             Sensitivity_plotGraphs(xArr, yArr_1, subResult[3], 
-                "Depression", "sensitivity")
+                "Depression", "impact")
             Sensitivity_plotGraphs(xArr, yArr_2, subResult[3], 
-                "Concealment", "sensitivity")
+                "Concealment", "impact")
 
 #####################################################################
 # Conducts sensitivity tests for each of the paramaters of interest #
@@ -432,7 +432,7 @@ def Sensitivity_printSensitivityResults(finalResults):
 def Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
     concealDiscriminateImpact, discriminateConcealImpact, 
     concealDepressionImpact, discriminateDepressionImpact, original, 
-    final, showOdd=True, showSensitivity=True, showRegression=True):
+    final, showOdd=True, showImpact=True, showRegression=True):
 
     if showOdd:
         Sensitivity_oddRatioTests(final)
@@ -440,8 +440,8 @@ def Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact,
     if showRegression:
         Sensitivity_regressionTests(final)
 
-    if showSensitivity:
-        Sensitivity_sensitivityTests(original, percentMinority, 
+    if showImpact:
+        Sensitivity_impactTests(original, percentMinority, 
             supportDepressionImpact, concealDiscriminateImpact, 
             discriminateConcealImpact, discriminateDepressionImpact, 
             concealDepressionImpact)

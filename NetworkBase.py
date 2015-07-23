@@ -12,6 +12,7 @@ from numpy import array, zeros, std, mean, sqrt
 
 from Verification import *
 from Policy import Policy
+from Switch import switch
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
@@ -21,34 +22,6 @@ try:
 except ImportError:
     raise ImportError("You must install NetworkX:\
     (http://networkx.lanl.gov/) for SE simulation")
-
-
-class switch(object):
-    #################################################################
-    # Replicates the behavior of a switch statement (for clarity)   #
-    #################################################################
-    def __init__(self, value):
-        self.value = value
-        self.fall = False
-
-    #################################################################
-    # Return the match method once, then stop                       #
-    #################################################################
-    def __iter__(self):
-        yield self.match
-        raise StopIteration
-    
-    #################################################################
-    # Indicate whether or not to enter a case suite                 #
-    #################################################################
-    def match(self, *args):
-        if self.fall or not args:
-            return True
-        elif self.value in args: # changed for v1.5, see below
-            self.fall = True
-            return True
-        else:
-            return False
 
 class NetworkBase:
     #################################################################
@@ -231,6 +204,28 @@ class NetworkBase:
         return max(SESarr)
 
     #################################################################
+    # Enforces a certain policy on the network in question. If a    #
+    # particular strength for the policy is desired, it can be given#
+    # Similarly, defaultDisc can be used to determine whether or not#
+    # the policy is defaulted to only discriminatory or only non-   #
+    # discriminatory. The option for neither is excluded since this #
+    # behavior would then be equivalent to standard policy passing  #
+    #################################################################
+    def NetworkBase_enforcePolicy(self, network, time, score=None, 
+        defaultDisc=False):
+        ONLY_NON_DISCRIMINATORY = 1
+        ONLY_DISCRIMINATORY = 2 
+
+        if score:
+            enforcedPolicy = Policy(time=time, score=score)
+        else:
+            # Maps from boolean value to the ints specified above
+            biasType = int(defaultDisc) + 1
+            enforcedPolicy = Policy(time=time, biasPass=biasType)
+            
+        NetworkBase_addToPolicies(enforcedPolicy)
+
+    #################################################################
     # Given a policy, adds it to the policies present in the network#
     # and updates corresponding network score                       #
     #################################################################
@@ -337,7 +332,7 @@ class NetworkBase:
     def NetworkBase_findPercentAttr(self, attr):
         # Denotes the maximum "scaled" values for each parameter
         MAX_DEPRESS = .067
-        MAX_DISCRIMINATE = .125
+        MAX_DISCRIMINATE = .25
         MAX_CONCEALMENT = .125
 
         agents = self.NetworkBase_getMinorityNodes()
@@ -355,12 +350,12 @@ class NetworkBase:
             if case("concealed"):
                 for agent in agents:
                     attrTotal += agent.probConceal
-                MAX_CONST = MAX_DISCRIMINATE
+                MAX_CONST = MAX_CONCEALMENT
                 break
             if case("discrimination"):
                 for agent in agents:
                     attrTotal += agent.discrimination
-                MAX_CONST = MAX_CONCEALMENT
+                MAX_CONST = MAX_DISCRIMINATE
                 break
             if case():
                 sys.stderr.write("Invalid parameter")

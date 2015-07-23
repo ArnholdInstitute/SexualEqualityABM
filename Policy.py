@@ -13,6 +13,7 @@ import random
 import numpy as np
 
 from Verification import *
+from Switch import switch
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
@@ -29,13 +30,48 @@ except ImportError:
 # be considered "passed" and given an "influence" score - determines#
 # how much change it will bring if passed. The higher the score, the#
 # more difficult it is for the policy to pass. The "time" denotes   #
-# when the bill was originally proposed and (possibly) passed       #
+# when the bill was originally proposed and (possibly) passed. A    #
+# score for the policy may also be supplied (defaulted to not being #
+# the case) in which case a policy with that score will be given.   #
+# The biasPass allows for selective production of bills, namely with#
+# 0 specifying all bills are possibly, 2 being only discriminatory  #
+# and 1 being only non-discriminatory                               #
 #####################################################################
 class Policy:
-    def __init__(self, time):
-        self.score = int(np.random.normal(0, 3))
-        while self.score == 0 or self.score > 5 or self.score < -5:
-            self.score = int(np.random.normal(0, 3))
+    def __init__(self, time, score=None, biasPass=0):
+        IRRELEVANT = 0
+        ONLY_NON_DISCRIMINATORY = 1
+        ONLY_DISCRIMINATORY = 2
+
+        # Probabilistically finds the score: less likely to get large
+        # magnitudes of scores
+        if not score:
+            for case in switch(biasPass):
+                if case(IRRELEVANT):
+                    self.score = int(np.random.normal(0, 3))
+                    while (self.score == 0 or self.score > 5 or
+                        self.score < -5):
+                        self.score = int(np.random.normal(0, 3))
+                    break
+
+                if case(ONLY_NON_DISCRIMINATORY):
+                    self.score = int(np.random.normal(2.5, 1.5))
+                    while (self.score <= 0 or self.score > 5):
+                        self.score = int(np.random.normal(2.5, 1.5))
+                    break
+
+                if case(ONLY_DISCRIMINATORY):
+                    self.score = int(np.random.normal(-2.5, 1.5))
+                    while (self.score >= 0 or self.score < -5):
+                        self.score = int(np.random.normal(-2.5, 1.5))
+                    break
+
+                if case():
+                    sys.stderr.write("Invalid value for bias")
+                    return False
+
+        else:
+            self.score = score
 
         # If bill has score < 0: hurts LGB sentiments
         self.isDiscriminatory = (self.score < 0)
@@ -116,6 +152,7 @@ class Policy:
 
         self.curEffect = int(rating * (1 - exp(-DISC_FACTOR * \
             (policyCap * deltaTime)/rating))) + ADD_FACTOR
+
 
     #################################################################
     # Passes or rejects a policy for the network under question     #

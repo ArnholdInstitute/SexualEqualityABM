@@ -205,22 +205,77 @@ class BaseAgent:
         return influence/(billRank ** 2)
 
     #################################################################
+    # Constrains the given agent's behaviors to those that are given#
+    # as parameters: used for sensitivity analysis. Performs the    #
+    # update to agent with respect to only those variables not given#
+    # (should have at least one "constrained" variable, else is     #
+    # equivalent to default update agent function)                  #
+    #################################################################
+    def Agent_constrainAgent(self, time, supportDepressionImpact, 
+        concealDiscriminateImpact, discriminateConcealImpact, 
+        discriminateDepressionImpact, concealDepressionImpact,
+        support=None, conceal=None, discrimination=None, 
+        attitude=None, depression=None):
+
+        # Have to explicitly test again none, to allow 0 to be passed
+        # in as the default value for some of the parameters
+        if attitude == None:
+            self.attitude = attitude
+        if support == None:
+            self.support = support
+        if discrimination == None:
+            self.discrimination = discrimination
+        if conceal == None:
+            self.conceal = conceal
+        if depression == None:
+            self.depression = depression
+
+        self.Agent_updateAgent(time, supportDepressionImpact, 
+            concealDiscriminateImpact, discriminateConcealImpact, 
+            discriminateDepressionImpact, concealDepressionImpact,
+            not attitude, not support, not discrimination, 
+            not conceal, not depression)
+
+    #################################################################
     # Given an agent, updates his attitudes towards minorities, does#
     # a simulated passing of policy, updates support, discrimination#
     # concealment, and depression for a single time step. Performs  #
-    # new policy check every 10 time steps, requiring current time  #                                                   
+    # new policy check every 10 time steps, requiring current time. #
+    # All input variables of the form runAttribute (default True)   #
+    # refer to whether the corresponding attribute will be updated  #
+    # at this time step. Note: all should be true unless either a   #
+    # sensitivity analysis or hypothetical test is being performed  #
     #################################################################
     def Agent_updateAgent(self, time, supportDepressionImpact, 
         concealDiscriminateImpact, discriminateConcealImpact, 
-        discriminateDepressionImpact, concealDepressionImpact):
+        discriminateDepressionImpact, concealDepressionImpact, 
+        runAttitude=True, runSupport=True, runDiscrimination=True, 
+        runConceal=True, runDepression=True):
         supportConcealImpact = supportDepressionImpact
 
-        self.Agent_updateAttitude() 
+        # Refers to index in the dictionary entry arrays where the 
+        # corresponding elements are found (explained below)
+        BEING_RUN = 0
+        RUN_FUNCTION = 1
+        FUNCTION_ARGS = 2
 
-        self.Agent_updateSupport()
-        self.Agent_updateDiscrimination(time, concealDiscriminateImpact)
+        # Dictionary whose entries (named correspondingly) have arrays
+        # have the form [bool, function, args], where the bool determines 
+        # whether the attribute in question is being updated, the function
+        # is that which governs the update, and args are its arguments
+        updateSteps = {
+            "attitude": [runAttitude, self.Agent_updateAttitude, ()],
+            "support": [runSupport, self.Agent_updateSupport, ()],
+            "discrimination": [runDiscrimination,                  \
+                self.Agent_updateDiscrimination, (time, concealDiscriminateImpact)],
+            "conceal": [runConceal, self.Agent_updateConcealment,       \
+                (discriminateConcealImpact, supportConcealImpact, time)],
+            "depress": [runDepression, self.Agent_updateDepression,     \
+                (concealDepressionImpact, supportDepressionImpact, \
+                    discriminateDepressionImpact, time)]
+        }
 
-        self.Agent_updateConcealment(discriminateConcealImpact,
-            supportConcealImpact, time)
-        self.Agent_updateDepression(concealDepressionImpact, 
-            supportDepressionImpact, discriminateDepressionImpact, time)
+        for step in updateSteps:
+            curUpdate = updateSteps[step]
+            if curUpdate[BEING_RUN]:
+                curUpdate[RUN_FUNCTION](*curUpdate[FUNCTION_ARGS])

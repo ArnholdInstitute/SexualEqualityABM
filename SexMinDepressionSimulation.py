@@ -266,7 +266,7 @@ if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
     showOdd = False
-    showSensitivity = False
+    showImpact = False
     showRegression = True
     onlyStreamlined = True 
 
@@ -279,7 +279,7 @@ if __name__ == "__main__":
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = 1.25
+    supportDepressionImpact = .75
     concealDiscriminateImpact = 7.5
     discriminateConcealImpact = 5.0 
     discriminateDepressionImpact = 1.25
@@ -301,6 +301,6 @@ if __name__ == "__main__":
         Sensitivity_sensitivitySimulation(percentMinority, supportDepressionImpact, 
             concealDiscriminateImpact, discriminateConcealImpact, 
             discriminateDepressionImpact, concealDepressionImpact, 
-            original, simulationModel, showOdd, showSensitivity, showRegression)
+            original, simulationModel, showOdd, showImpact, showRegression)
 
     print("Terminating simulation...")
