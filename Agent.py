@@ -152,8 +152,8 @@ class MinorityAgent(BaseAgent):
     # and attitudes                                                 #
     #################################################################
     def Agent_updateDiscrimination(self, time, concealDiscriminateImpact):
-        DECAY_FACTOR = 5.0
         SCALE_FACTOR = .125
+        CONCEAL_DECAY = .60
 
         numPolicies = self.network.policyScore
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
@@ -175,19 +175,21 @@ class MinorityAgent(BaseAgent):
                 return
 
             deltaTime = time - self.time
-            discrimination = 1 - (numPolicies/self.network.policyCap \
-                            + (self.initialPositive + self.initialNegative * \
-                            concealDiscriminateImpact ** (-deltaTime))) 
-            discrimination **= 2
+            discrimination = 1 - (numPolicies/self.network.policyCap       \
+                            + (self.initialPositive + self.initialNegative \
+                            * concealDiscriminateImpact ** (-deltaTime))) - (self.probConceal ** .75) * 5
+
+            discrimination *= CONCEAL_DECAY ** deltaTime
             discrimination *= SCALE_FACTOR 
             
             self.discrimination = self.Agent_normalizeParam(discrimination)
             return
 
         # "Resets" the clock for concealed discrimination
-        self.hasMultipleStagnant = False    
-
-        discrimination = 1 - (numPolicies/self.network.policyCap + avgAttitude)
+        self.hasMultipleStagnant = False
+        discrimination = 1 - (numPolicies/self.network.policyCap + avgAttitude) \
+            - (self.probConceal  ** .75) * 5
+            
         discrimination *= SCALE_FACTOR
         self.discrimination = self.Agent_normalizeParam(discrimination)
 
@@ -270,9 +272,9 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = self.discrimination * discriminateDepressionImpact
+        probIncrease = (self.discrimination ** .25) * discriminateDepressionImpact
         probIncrease -= self.support * supportDepressionImpact
-        probIncrease -= (numPolicies/self.network.policyCap) ** 3 
+        probIncrease -= (numPolicies/self.network.policyCap) ** 3
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 
         # Significant bump if agent is already concealed
