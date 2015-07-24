@@ -436,9 +436,10 @@ def Sensitivity_impactTests(original, percentMinority,
 def Sensitivity_sensitivityTests(original):
     DEFAULT_VAL = 1.0
 
-    attitudeRange = [-1.0, -.5, 0.0, .5, 1.0]
+    attitudeRange = [-1.0, -.75, -.5, -.25, 0.0, .25, .5, .75, 1.0]
     supportRange, discriminationRange, concealRange, depressionRange,\
-        minorityRange = generateMultiple(5, [0.0, .25, .50, .75, 1.0])
+        minorityRange = generateMultiple(5, [0.0, .125, .25, .375, \
+            .50, .675, .75, .875, 1.0])
 
     sensitivityTests = {
         "Attitude": [attitudeRange, None], 
@@ -466,8 +467,6 @@ def Sensitivity_sensitivityTests(original):
             conceal = sensitivityTests["Concealment"][1]
             depression = sensitivityTests["Depression"][1]
             percentMinority = sensitivityTests["Minority_Percentage"][1]
-            if percentMinority != original.percentMinority:
-                print(percentMinority)
 
             trialResult = Sensitivity_runSimulation(curTrial, 
                 percentMinority, curTrial.supportDepressionImpact, 

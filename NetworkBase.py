@@ -291,6 +291,8 @@ class NetworkBase:
     # Finds the percentage of locally connected nodes (to some given#
     # agent) marked as of sexual minority. firstDegree determines   #
     # whether you wish to only find the percent in 1st degree or 2nd#
+    # allSupport can be used to determine the percentage of people  #
+    # connected who are in support of minorities (support > .5)     #
     #################################################################
     def NetworkBase_findPercentConnectedMinority(self, agent, 
         firstDegree=False, allSupport=False):
