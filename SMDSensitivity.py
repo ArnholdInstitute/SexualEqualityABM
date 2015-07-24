@@ -213,12 +213,6 @@ def Sensitivity_splitResults(indVarScales, mixedArr, label):
 # (strings), which will display the graph accordingly               #
 #####################################################################
 def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
-    minX = min(xArray)
-    maxX = max(xArray)
-    
-    minY = min(yArray)
-    maxY = max(yArray)
-
     if graphType == "regression":
         xScale = [.75, 1.25]
         plt.scatter(xArray,yArray)
@@ -231,7 +225,6 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
         else:
             folder = "Sensitivity\\{}".format(xLabel)
 
-    plt.axis([xScale[0] * minX, xScale[1] * maxX, .9 * minY, 1.25 * maxY])
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
     plt.title('{} Vs. {}'.format(xLabel, yLabel))
@@ -433,21 +426,23 @@ def Sensitivity_sensitivityTests(original):
     DEFAULT_VAL = 1.0
 
     attitudeRange = [-1.0, -.5, 0.0, .5, 1.0]
-    supportRange, discriminationRange, concealRange, depressionRange = \
-        generateMultiple(4, [0.0, .25, .50, .75, 1.0])
+    supportRange, discriminationRange, concealRange, depressionRange,\
+        minorityRange = generateMultiple(5, [0.0, .25, .50, .75, 1.0])
 
     sensitivityTests = {
         "Attitude": [attitudeRange, None], 
         "Support": [supportRange, None], 
         "Discrimination": [discriminationRange, None], 
         "Conceal": [concealRange, None], 
-        "Depression": [depressionRange, None]
+        "Depression": [depressionRange, None],
+        "Minority_Percentage": [minorityRange, original.percentMinority]
     }
 
     finalResults = []
     for test in sensitivityTests:
         print("Performing {} sensitivity test".format(test))
         curRange = sensitivityTests[test]
+        originalVal = curRange[1]
         trials = []
 
         for value in curRange[0]:
@@ -459,16 +454,17 @@ def Sensitivity_sensitivityTests(original):
             discrimination = sensitivityTests["Discrimination"][1]
             conceal = sensitivityTests["Conceal"][1]
             depression = sensitivityTests["Depression"][1]
+            percentMinority = sensitivityTests["Minority_Percentage"][1]
 
             trialResult = Sensitivity_runSimulation(curTrial, 
-                curTrial.percentMinority, curTrial.supportDepressionImpact, 
+                percentMinority, curTrial.supportDepressionImpact, 
                 curTrial.concealDiscriminateImpact, curTrial.discriminateConcealImpact, 
                 curTrial.discriminateDepressionImpact, 
                 curTrial.concealDepressionImpact, attitude, support, 
                 discrimination, conceal, depression)
             trials.append(trialResult)
 
-        curRange[1] = None
+        curRange[1] = originalVal
         splitTrial = Sensitivity_splitResults(curRange[0], 
             trials, test)
         finalResults.append(splitTrial)  

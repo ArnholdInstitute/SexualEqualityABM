@@ -229,11 +229,11 @@ class BaseAgent:
         RUN_FUNCTION = 1
         FUNCTION_ARGS = 2
 
-        setAttitude = attitude is not None
-        setSupport = support is not None
-        setDiscrimination = discrimination is not None 
-        setConceal = conceal is not None  
-        setDepression = depression is not None
+        setAttitude = attitude is not None and not self.isMinority
+        setSupport = support is not None and self.isMinority
+        setDiscrimination = discrimination is not None and self.isMinority
+        setConceal = conceal is not None and self.isMinority
+        setDepression = depression is not None and self.isMinority
         
         if setAttitude:
             self.attitude = attitude

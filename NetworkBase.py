@@ -331,43 +331,42 @@ class NetworkBase:
 
     #################################################################
     # Determines the average value of an attribute for the entire   #
-    # network (either the %depressed or %concealed from minority)   #
+    # network. If getPercentage is specified, determines the current# 
+    #level of an attribute out of the maximal total, rather than the#
+    # average (such as the %depressed or %concealed from minority)  #
     #################################################################
-    def NetworkBase_findPercentAttr(self, attr):
+    def NetworkBase_findPercentAttr(self, attr, getPercentage=False):
         # Denotes the maximum "scaled" values for each parameter
         MAX_DEPRESS = .067
-        MAX_DISCRIMINATE = .25
         MAX_CONCEALMENT = .125
+        MAX_DISCRIMINATE = .25
+
+        # Used as the denominator when calculating "average" (changes
+        # if want the percentage rather than the mean)
+        MAX_CONST = 1.00
 
         agents = self.NetworkBase_getMinorityNodes()
-        
         minCount = len(agents)
-        attrTotal = 0
+        attrArr = []
         
-        # Determines which agents to check based on parameter
-        for case in switch(attr):
-            if case("depression"):
-                for agent in agents:
-                    attrTotal += agent.currentDepression 
-                MAX_CONST = MAX_DEPRESS
-                break
-            if case("concealed"):
-                for agent in agents:
-                    attrTotal += agent.probConceal
-                MAX_CONST = MAX_CONCEALMENT
-                break
-            if case("discrimination"):
-                for agent in agents:
-                    attrTotal += agent.discrimination
-                MAX_CONST = MAX_DISCRIMINATE
-                break
-            if case():
-                sys.stderr.write("Invalid parameter")
-                return False
+        whichAttr = {
+            # Lambdas are used to obtain the current agent's parameters
+            # while iterating through entire list of agents
+            "depression": [MAX_DEPRESS, lambda x: x.currentDepression],
+            "concealed": [MAX_CONCEALMENT, lambda x: x.probConceal],
+            "discrimination": [MAX_DISCRIMINATE, \
+                lambda x: x.discrimination]
+        }
+
+        attrCapVal = whichAttr[attr]
+        if getPercentage:
+            MAX_CONST = attrCapVal[0]
+        for agent in agents:
+            attrArr.append(attrCapVal[1](agent))
 
         if minCount:
             maxTotal = minCount * MAX_CONST
-            return attrTotal/minCount
+            return sum(attrArr)/maxTotal
         return 0.0
 
     #################################################################
