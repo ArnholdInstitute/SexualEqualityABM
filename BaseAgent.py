@@ -242,9 +242,9 @@ class BaseAgent:
         if setDiscrimination:
             self.discrimination = discrimination
         if setConceal:
-            self.conceal = conceal
+            self.probConceal = conceal
         if setDepression:
-            self.depression = depression
+            self.currentDepression = depression
 
         # Dictionary whose entries (named correspondingly) have arrays
         # have the form [bool, function, args], where the bool determines 

@@ -433,7 +433,7 @@ def Sensitivity_sensitivityTests(original):
         "Attitude": [attitudeRange, None], 
         "Support": [supportRange, None], 
         "Discrimination": [discriminationRange, None], 
-        "Conceal": [concealRange, None], 
+        "Concealment": [concealRange, None], 
         "Depression": [depressionRange, None],
         "Minority_Percentage": [minorityRange, original.percentMinority]
     }
@@ -452,7 +452,7 @@ def Sensitivity_sensitivityTests(original):
             attitude = sensitivityTests["Attitude"][1]
             support = sensitivityTests["Support"][1]
             discrimination = sensitivityTests["Discrimination"][1]
-            conceal = sensitivityTests["Conceal"][1]
+            conceal = sensitivityTests["Concealment"][1]
             depression = sensitivityTests["Depression"][1]
             percentMinority = sensitivityTests["Minority_Percentage"][1]
 
