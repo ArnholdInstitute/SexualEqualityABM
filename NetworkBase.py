@@ -495,7 +495,7 @@ class NetworkBase:
         ONLY_WANT_WITH = 2
         ONLY_WANT_WITHOUT = 1
         IRRELEVANT = 0
-
+        
         # Determines which agents to check based on parameter
         for case in switch(onlyMinority):
             if case(ONLY_WANT_WITH):
