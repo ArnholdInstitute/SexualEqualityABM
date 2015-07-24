@@ -307,9 +307,11 @@ class NetworkBase:
         minorityCount = 0
 
         for neighbor in neighbors:
-            if (self.Agents[neighbor].isMinority and \
-                not self.Agents[neighbor].isConcealed) or \
-                (allSupport and self.Agents[neighbor].attitude > SUPPORT_ATTITUDE):
+            neighborAgent = self.Agents[neighbor]
+            if neighborAgent.isMinority and \
+                not self.Agents[neighbor].isConcealed:
+                minorityCount += neighborAgent.probConceal ** 2
+            elif allSupport and neighborAgent.attitude > SUPPORT_ATTITUDE:
                 minorityCount += 1
             totalCount += 1
 

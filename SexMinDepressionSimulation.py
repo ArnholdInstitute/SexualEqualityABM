@@ -291,8 +291,8 @@ if __name__ == "__main__":
     supportDepressionImpact = .75
     concealDiscriminateImpact = 7.5
     discriminateConcealImpact = 5.0 
-    discriminateDepressionImpact = 1.25
-    concealDepressionImpact = 12.5
+    discriminateDepressionImpact = 2.25
+    concealDepressionImpact = 7.5
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
