@@ -65,7 +65,7 @@ class SMDSimulationModel:
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
             self.network = ERNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 0.75)
+                self.percentMinority, self.timeSpan, 0.50)
         elif self.networkType == 'SW':
             self.network = SWNetwork(self.numAgents, 
                 self.percentMinority, self.timeSpan, 10, 0.50)
@@ -274,16 +274,16 @@ if __name__ == "__main__":
     checkSensitivity = True
     showOdd = False
     showImpact = False
-    showRegression = False
+    showRegression = True
     showSensitivity = True
 
     onlyStreamlined = True 
 
     # ER, SW, or ASF
-    networkType = "ER"
+    networkType = "ASF"
     timeSpan = 5
-    numAgents = 120
-    percentMinority = .25   
+    numAgents = 500
+    percentMinority = .05
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
@@ -292,7 +292,7 @@ if __name__ == "__main__":
     concealDiscriminateImpact = 7.5
     discriminateConcealImpact = 5.0 
     discriminateDepressionImpact = 1.25
-    concealDepressionImpact = 7.5
+    concealDepressionImpact = 12.5
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 

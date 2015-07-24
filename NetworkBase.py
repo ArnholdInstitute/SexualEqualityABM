@@ -337,7 +337,7 @@ class NetworkBase:
     #################################################################
     def NetworkBase_findPercentAttr(self, attr, getPercentage=False):
         # Denotes the maximum "scaled" values for each parameter
-        MAX_DEPRESS = .067
+        MAX_DEPRESS = .25
         MAX_CONCEALMENT = .125
         MAX_DISCRIMINATE = .25
 
@@ -425,14 +425,22 @@ class NetworkBase:
 
     #################################################################
     # Sets the network properties of mean density and std deviation #
-    # of support to the corresponding values of the network         #
+    # of support to the corresponding values of the network. Can    #
+    # also specify whether want the mean/std for just minority/not  #
     #################################################################
-    def NetworkBase_setMeanStdSupport(self):
-        agents = self.NetworkBase_getMinorityNodes()
+    def NetworkBase_setMeanStdSupport(self, onlyMinority=True):
+        if not onlyMinority:
+            agents = self.NetworkBase_getAgentArray()
+        else: agents = self.NetworkBase_getMinorityNodes()
+        
         supportArr = []
         for agent in agents:
             supportArr.append(agent.support)
 
+        if not onlyMinority:
+            return [mean(supportArr), std(supportArr)]
+
+        # Only sets the minority mean/std to the network properties
         self.supportMean = mean(supportArr)
         self.supportStd = std(supportArr)
 

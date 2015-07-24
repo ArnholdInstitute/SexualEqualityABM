@@ -142,7 +142,7 @@ class MinorityAgent(BaseAgent):
 
         support = BASELINE_SUPPORT
 
-        support += localConnect ** .25 + att ** 2 * const
+        support += localConnect ** .5 + att ** 2 * const
         self.support = self.Agent_normalizeParam(support)
 
     #################################################################
@@ -153,7 +153,6 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateDiscrimination(self, time, concealDiscriminateImpact):
         SCALE_FACTOR = .125
-        CONCEAL_DECAY = .60
 
         numPolicies = self.network.policyScore
         avgAttitude = self.network.NetworkBase_getLocalAvg(self, \
@@ -178,9 +177,7 @@ class MinorityAgent(BaseAgent):
             discrimination = 1 - (numPolicies/self.network.policyCap       \
                             + (self.initialPositive + self.initialNegative \
                             * concealDiscriminateImpact ** (-deltaTime)))  \
-                            - (self.probConceal ** .75) * 5
-
-            discrimination *= CONCEAL_DECAY ** deltaTime
+                            - (self.probConceal ** .75)
             discrimination *= SCALE_FACTOR 
             
             self.discrimination = self.Agent_normalizeParam(discrimination)
@@ -189,7 +186,7 @@ class MinorityAgent(BaseAgent):
         # "Resets" the clock for concealed discrimination
         self.hasMultipleStagnant = False
         discrimination = 1 - (numPolicies/self.network.policyCap + avgAttitude) \
-            - (self.probConceal  ** .75) * 5
+            - (self.probConceal  ** .75)
             
         discrimination *= SCALE_FACTOR
         self.discrimination = self.Agent_normalizeParam(discrimination)

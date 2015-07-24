@@ -81,16 +81,21 @@ class OddRatiosTest(RangeTest):
 #####################################################################
 class RegressionValueTest(RangeTest):
     def __init__(self, valuesArr):
-        # For these variables, we adopt the naming convention of 
-        # varxVary_(Depress/Conceal), where the value measures the 
-        # value of regression on the variable relating var x to 
-        # var y on either the depression or concealment result
         self.regressionValues = valuesArr
 
+    #################################################################
+    # Qualitative tests to ensure that the general behavior (for    #
+    # relations for which we do not have specific numerical values) #
+    # follows the expected/natural behaviors                        #
+    #################################################################
     def test_sanity_checks(self):
         shouldBeNegative = [0, 1, 2, 4]
         shouldBePositive = [6, 7, 8, 9, 10]
 
+        # For these variables, we adopt the naming convention of 
+        # varxVary_(Depress/Conceal), where the value measures the 
+        # value of regression on the variable relating var x to 
+        # var y on either the depression or concealment result
         labels = {
             0: "minPercentage_Depress",
             1: "minPercentage_Conceal",
@@ -113,6 +118,11 @@ class RegressionValueTest(RangeTest):
             self.assertTrue(self.regressionValues[positiveVal] > 0,
                 posError.format(labels[positiveVal]))
 
+    #################################################################
+    # Quantitative tests to ensure that the relations that have been#
+    # previously studied/published in literature align with those in#
+    # the simulation                                                #
+    #################################################################
     def test_numerical_values(self):
         # Defines ranges (from literature) of regression values
         supportConcealTestRange = [-.40, -.30] 
@@ -170,9 +180,7 @@ def Sensitivity_runSimulation(simulationModel, percentMinority,
     curTrial.append(network.NetworkBase_findPercentAttr("depression"))
     curTrial.append(network.NetworkBase_findPercentAttr("concealed"))
     curTrial.append(network.NetworkBase_findPercentAttr("discrimination"))
-    if not network.supportMean:
-        network.NetworkBase_setMeanStdSupport()
-    curTrial.append(network.supportMean)
+    curTrial.append(network.NetworkBase_setMeanStdSupport(onlyMinority=False)[0])
     curTrial.append(network.policyScore)
 
     return curTrial
@@ -252,7 +260,7 @@ def Sensitivity_oddRatioTests(original):
     ORresults, values = generateEmpty(2)
 
     discriminateTestRange = network.\
-        NetworkBase_findPercentAttr(attr="discrimination")
+        NetworkBase_findPercentAttr(attr="discrimination", getPercentage=True)
     ORresults.append(["Minority_Discrimination_Prevalence", \
             discriminateTestRange])
     values.append(discriminateTestRange)
@@ -301,6 +309,9 @@ def Sensitivity_regressionTests(original):
 
     # Used to determine the names of files (length of "_vs_" string)
     SEPARATOR_LENGTH = 4
+
+    print(original.network.networkBase.\
+        NetworkBase_findPercentAttr(attr="depression", getPercentage=False))
 
     # Each of these arrays will be used for regression analysis, but
     # as there are very distinct behaviors for concealed vs. not, we
@@ -455,6 +466,8 @@ def Sensitivity_sensitivityTests(original):
             conceal = sensitivityTests["Concealment"][1]
             depression = sensitivityTests["Depression"][1]
             percentMinority = sensitivityTests["Minority_Percentage"][1]
+            if percentMinority != original.percentMinority:
+                print(percentMinority)
 
             trialResult = Sensitivity_runSimulation(curTrial, 
                 percentMinority, curTrial.supportDepressionImpact, 
