@@ -205,52 +205,22 @@ class BaseAgent:
         return influence/(billRank ** 2)
 
     #################################################################
-    # Constrains the given agent's behaviors to those that are given#
-    # as parameters: used for sensitivity analysis. Performs the    #
-    # update to agent with respect to only those variables not given#
-    # (should have at least one "constrained" variable, else is     #
-    # equivalent to default update agent function)                  #
-    #################################################################
-    def Agent_constrainAgent(self, time, supportDepressionImpact, 
-        concealDiscriminateImpact, discriminateConcealImpact, 
-        discriminateDepressionImpact, concealDepressionImpact,
-        support=None, conceal=None, discrimination=None, 
-        attitude=None, depression=None):
-
-        # Have to explicitly test again none, to allow 0 to be passed
-        # in as the default value for some of the parameters
-        if attitude is not None:
-            self.attitude = attitude
-        if support is not None:
-            self.support = support
-        if discrimination is not None:
-            self.discrimination = discrimination
-        if conceal is not None:
-            self.conceal = conceal
-        if depression is not None:
-            self.depression = depression
-
-        self.Agent_updateAgent(time, supportDepressionImpact, 
-            concealDiscriminateImpact, discriminateConcealImpact, 
-            discriminateDepressionImpact, concealDepressionImpact,
-            not attitude, not support, not discrimination, 
-            not conceal, not depression)
-
-    #################################################################
     # Given an agent, updates his attitudes towards minorities, does#
     # a simulated passing of policy, updates support, discrimination#
     # concealment, and depression for a single time step. Performs  #
     # new policy check every 10 time steps, requiring current time. #
-    # All input variables of the form runAttribute (default True)   #
-    # refer to whether the corresponding attribute will be updated  #
-    # at this time step. Note: all should be true unless either a   #
-    # sensitivity analysis or hypothetical test is being performed  #
+    # All input variables defaulted to None may be used for any     #
+    # constrained trials (where a certain attribute does not update:#
+    # just remains fixed at given value. Otherwise, corresponding   #
+    # the attribute will be updated per usual. Note: all should be  #
+    # None unless either a sensitivity analysis or hypothetical test#
+    # is being performed                                            #
     #################################################################
     def Agent_updateAgent(self, time, supportDepressionImpact, 
         concealDiscriminateImpact, discriminateConcealImpact, 
         discriminateDepressionImpact, concealDepressionImpact, 
-        runAttitude=True, runSupport=True, runDiscrimination=True, 
-        runConceal=True, runDepression=True):
+        attitude=None, support=None, discrimination=None,
+        conceal=None, depression=None):
         supportConcealImpact = supportDepressionImpact
 
         # Refers to index in the dictionary entry arrays where the 
@@ -259,19 +229,36 @@ class BaseAgent:
         RUN_FUNCTION = 1
         FUNCTION_ARGS = 2
 
+        setAttitude = attitude is not None
+        setSupport = support is not None
+        setDiscrimination = discrimination is not None 
+        setConceal = conceal is not None  
+        setDepression = depression is not None
+        
+        if setAttitude:
+            self.attitude = attitude
+        if setSupport:
+            self.support = support
+        if setDiscrimination:
+            self.discrimination = discrimination
+        if setConceal:
+            self.conceal = conceal
+        if setDepression:
+            self.depression = depression
+
         # Dictionary whose entries (named correspondingly) have arrays
         # have the form [bool, function, args], where the bool determines 
         # whether the attribute in question is being updated, the function
         # is that which governs the update, and args are its arguments
         updateSteps = {
-            "attitude": [runAttitude, self.Agent_updateAttitude, ()],
-            "support": [runSupport, self.Agent_updateSupport, ()],
-            "discrimination": [runDiscrimination,                  \
+            "attitude": [not setAttitude, self.Agent_updateAttitude, ()],
+            "support": [not setSupport, self.Agent_updateSupport, ()],
+            "discrimination": [not setDiscrimination,                   \
                 self.Agent_updateDiscrimination, (time, concealDiscriminateImpact)],
-            "conceal": [runConceal, self.Agent_updateConcealment,       \
+            "conceal": [not setConceal, self.Agent_updateConcealment,   \
                 (discriminateConcealImpact, supportConcealImpact, time)],
-            "depress": [runDepression, self.Agent_updateDepression,     \
-                (concealDepressionImpact, supportDepressionImpact, \
+            "depress": [not setDepression, self.Agent_updateDepression, \
+                (concealDepressionImpact, supportDepressionImpact,      \
                     discriminateDepressionImpact, time)]
         }
 

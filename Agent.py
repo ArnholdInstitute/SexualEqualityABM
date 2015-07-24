@@ -177,7 +177,8 @@ class MinorityAgent(BaseAgent):
             deltaTime = time - self.time
             discrimination = 1 - (numPolicies/self.network.policyCap       \
                             + (self.initialPositive + self.initialNegative \
-                            * concealDiscriminateImpact ** (-deltaTime))) - (self.probConceal ** .75) * 5
+                            * concealDiscriminateImpact ** (-deltaTime)))  \
+                            - (self.probConceal ** .75) * 5
 
             discrimination *= CONCEAL_DECAY ** deltaTime
             discrimination *= SCALE_FACTOR 

@@ -65,7 +65,7 @@ class SMDSimulationModel:
     def SMDModel_setNetwork(self):
         if self.networkType == 'ER':
             self.network = ERNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 0.05)
+                self.percentMinority, self.timeSpan, 0.75)
         elif self.networkType == 'SW':
             self.network = SWNetwork(self.numAgents, 
                 self.percentMinority, self.timeSpan, 10, 0.50)
@@ -218,9 +218,10 @@ class SMDSimulationModel:
 
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i, self.supportDepressionImpact,
-                self.concealDiscriminateImpact, self.discriminateConcealImpact, 
-                self.discriminateDepressionImpact, self.concealDepressionImpact)
+            self.network.networkBase.NetworkBase_timeStep(i, 
+                self.supportDepressionImpact, self.concealDiscriminateImpact, 
+                self.discriminateConcealImpact, self.discriminateDepressionImpact, 
+                self.concealDepressionImpact)
             self.network.Agents = self.network.networkBase.Agents 
 
         for agent in agents:
@@ -240,9 +241,14 @@ class SMDSimulationModel:
 
     #################################################################
     # Runs simulation over the desired timespan without producing   #
-    # visible output: used for sensitivity analysis                 #
+    # visible output: used for sensitivity analysis. Each of the    #
+    # parameters allows manual sets the corresponding attribute (for#
+    # all of the agents) to the specified value. If none is given,  #
+    # (should be the case if not running sensitivity/hypotheticals) #
+    # agents follow given default update behavior for the attribute #
     #################################################################
-    def SMDModel_runStreamlineSimulation(self):
+    def SMDModel_runStreamlineSimulation(self, attitude=None, 
+        support=None, discrimination=None, conceal=None, depression=None):
         # Converts from years to "ticks" (represent 2 week span)
         numTicks = self.timeSpan * 26
         pos = nx.random_layout(self.network.G)
@@ -250,9 +256,11 @@ class SMDSimulationModel:
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
             # to the network
-            self.network.networkBase.NetworkBase_timeStep(i, self.supportDepressionImpact,
-                self.concealDiscriminateImpact, self.discriminateConcealImpact, 
-                self.discriminateDepressionImpact, self.concealDepressionImpact)
+            self.network.networkBase.NetworkBase_timeStep(i, 
+                self.supportDepressionImpact, self.concealDiscriminateImpact, 
+                self.discriminateConcealImpact, self.discriminateDepressionImpact, 
+                self.concealDepressionImpact, attitude, support, 
+                discrimination, conceal, depression)
             
             self.network.Agents = self.network.networkBase.Agents
             
@@ -265,9 +273,9 @@ if __name__ == "__main__":
     # Used for performing sensitivity analyses
     checkSensitivity = True
     showOdd = False
-    showImpact = True
-    showRegression = True
-    showSensitivity = False
+    showImpact = False
+    showRegression = False
+    showSensitivity = True
 
     onlyStreamlined = True 
 

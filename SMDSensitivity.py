@@ -35,6 +35,14 @@ def generateEmpty(n):
         yield []
 
 #####################################################################
+# Given a number n and an array, generates that particular number of# 
+# equivalent arrays. Note: simply yields pointers to the same array #
+#####################################################################
+def generateMultiple(n, arr):
+    for _ in range(n):
+        yield arr
+
+#####################################################################
 # Defines test on which an additional test (to determine whether a  #
 # given value is in a specified range) is provided                  #
 #####################################################################
@@ -133,11 +141,15 @@ class RegressionValueTest(RangeTest):
 #####################################################################
 # Given the parameters needed for running simulation, executes the  #
 # simulation and returns an array of all results in the following   #
-# format: [depression, concealed, discrimination, support, policy]  #
+# format: [depression, concealed, discrimination, support, policy]. #
+# Can also be used for running constrained simulations (if the final#
+# parameters are passed in with non-None values)                    #
 #####################################################################
 def Sensitivity_runSimulation(simulationModel, percentMinority, 
-    supportDepressionImpact, concealDiscriminateImpact, discriminateConcealImpact, 
-    discriminateDepressionImpact, concealDepressionImpact):
+    supportDepressionImpact, concealDiscriminateImpact, 
+    discriminateConcealImpact, discriminateDepressionImpact, 
+    concealDepressionImpact, attitude=None, support=None, 
+    discrimination=None, conceal=None, depression=None):
 
     if percentMinority > 1.0:
         percentMinority = 1.0
@@ -149,7 +161,8 @@ def Sensitivity_runSimulation(simulationModel, percentMinority,
     simulationModel.discriminateDepressionImpact = discriminateDepressionImpact
     simulationModel.concealDepressionImpact = concealDepressionImpact
 
-    simulationModel.SMDModel_runStreamlineSimulation()
+    simulationModel.SMDModel_runStreamlineSimulation(attitude, support, 
+        discrimination, conceal, depression)
 
     curTrial = []
     network = simulationModel.network.networkBase
@@ -213,7 +226,10 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
     else:
         xScale = [1.0, 1.0]
         plt.plot(xArray, yArray)
-        folder = "Impact\\{}".format(xLabel)
+        if graphType == "impact":
+            folder = "Impact\\{}".format(xLabel)
+        else:
+            folder = "Sensitivity\\{}".format(xLabel)
 
     plt.axis([xScale[0] * minX, xScale[1] * maxX, .9 * minY, 1.25 * maxY])
     plt.xlabel(xLabel)
@@ -367,8 +383,8 @@ def Sensitivity_regressionTests(original):
             writer.writerow(row)
 
 #####################################################################
-# Performs sensitivity tests to check the various parameters on how #
-# the output varies per their variation                             #
+# Performs sensitivity tests to check the various impact ratings on #
+# their influence on the output of the simulation                   #
 #####################################################################
 def Sensitivity_impactTests(original, percentMinority, 
     supportDepressionImpact,  concealDiscriminateImpact, 
@@ -409,7 +425,80 @@ def Sensitivity_impactTests(original, percentMinority,
     Sensitivity_printImpactResults(finalResults)
 
 #####################################################################
+# Performs sensitivity analyses on the different parameters of      #
+# interest in the simulation (i.e. concealment, support, depression #
+# policies, discrimination) on the final outcomes/results           #
+#####################################################################
+def Sensitivity_sensitivityTests(original):
+    DEFAULT_VAL = 1.0
+
+    attitudeRange = [-1.0, -.5, 0.0, .5, 1.0]
+    supportRange, discriminationRange, concealRange, depressionRange = \
+        generateMultiple(4, [0.0, .25, .50, .75, 1.0])
+
+    sensitivityTests = {
+        "Attitude": [attitudeRange, None], 
+        "Support": [supportRange, None], 
+        "Discrimination": [discriminationRange, None], 
+        "Conceal": [concealRange, None], 
+        "Depression": [depressionRange, None]
+    }
+
+    finalResults = []
+    for test in sensitivityTests:
+        print("Performing {} sensitivity test".format(test))
+        curRange = sensitivityTests[test]
+        trials = []
+
+        for value in curRange[0]:
+            curTrial = deepcopy(original)
+            curRange[1] = value
+            
+            attitude = sensitivityTests["Attitude"][1]
+            support = sensitivityTests["Support"][1]
+            discrimination = sensitivityTests["Discrimination"][1]
+            conceal = sensitivityTests["Conceal"][1]
+            depression = sensitivityTests["Depression"][1]
+
+            trialResult = Sensitivity_runSimulation(curTrial, 
+                curTrial.percentMinority, curTrial.supportDepressionImpact, 
+                curTrial.concealDiscriminateImpact, curTrial.discriminateConcealImpact, 
+                curTrial.discriminateDepressionImpact, 
+                curTrial.concealDepressionImpact, attitude, support, 
+                discrimination, conceal, depression)
+            trials.append(trialResult)
+
+        curRange[1] = None
+        splitTrial = Sensitivity_splitResults(curRange[0], 
+            trials, test)
+        finalResults.append(splitTrial)  
+
+    Sensitivity_displaySensitivityResults(finalResults)
+
+#####################################################################
 # Prints the results of correlation analysis to separate csv file   #
+#####################################################################
+def Sensitivity_displaySensitivityResults(finalResults):
+    for subResult in finalResults:
+        plots = {
+            1: "Depression", 
+            2: "Concealment", 
+            3: "Discrimination", 
+            4: "Support", 
+            5: "Policy Score"
+        }
+
+        xArr = subResult[0]
+        label = subResult[-1]
+
+        for plot in plots:
+            Sensitivity_plotGraphs(xArr, subResult[plot], label, 
+                plots[plot], "sensitivity")
+
+#####################################################################
+# Prints the results of correlation analysis to text file and also  #
+# graphically displays the sensitivity of the results (in conceal   #
+# and depression) as a function of the impact ratings               #
 #####################################################################
 def Sensitivity_printImpactResults(finalResults):
     # Performs numerical analysis on sensitivity trials
@@ -469,7 +558,4 @@ def Sensitivity_sensitivitySimulation(percentMinority,
             concealDepressionImpact)
 
     if showSensitivity:
-        Sensitivity_sensitivityTests(original, percentMinority, 
-            supportDepressionImpact, concealDiscriminateImpact, 
-            discriminateConcealImpact, discriminateDepressionImpact, 
-            concealDepressionImpact)
+        Sensitivity_sensitivityTests(original)

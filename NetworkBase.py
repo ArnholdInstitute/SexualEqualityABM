@@ -85,22 +85,26 @@ class NetworkBase:
 
     #################################################################
     # Simulates updating all agents in network over a single time   #
-    # step: includes updating coach presence/retention and SE. Each #
-    # of the impact parameters passed in allow for sensitivity      #
-    # analysis on each of the factors (i.e. coach impact helps look #
-    # at, if the "effectiveness" of the coaches is different, how   #
-    # would the final results vary) with default values given       #
+    # step: uses each of the impacts to update the agents. Also, if #
+    # desired (for hypothetical testing/sensitivity analyses), pass #
+    # non-null values for all defaulted-null variables, i.e. support#
+    # concealment, discrimination, etc... Forces values for such    #
+    # parameters and defaults the others to standard time evolution #
     #################################################################
     def NetworkBase_timeStep(self, time, supportDepressionImpact, 
         concealDiscriminateImpact, discriminateConcealImpact, 
-        discriminateDepressionImpact, concealDepressionImpact): 
+        discriminateDepressionImpact, concealDepressionImpact,
+        support=None, conceal=None, discrimination=None, 
+        attitude=None, depression=None): 
+
         newPolicy = Policy(time)
         newPolicy.Policy_considerPolicy(self, time, self.policyCap)
         self.NetworkBase_updatePolicyScore(time)
         for agentID in self.Agents:
             self.Agents[agentID].Agent_updateAgent(time, supportDepressionImpact,
                 concealDiscriminateImpact, discriminateConcealImpact, 
-                discriminateDepressionImpact, concealDepressionImpact)
+                discriminateDepressionImpact, concealDepressionImpact,
+                support, conceal, discrimination, attitude, depression)
 
     #################################################################
     # Given a list of nodes, adds edges between all of them         #
