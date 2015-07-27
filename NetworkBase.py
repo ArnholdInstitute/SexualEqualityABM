@@ -640,10 +640,11 @@ class NetworkBase:
         agents = self.NetworkBase_getAgentArray()
         for agent in agents:
             totalInfluence += agent.Agent_getBillInfluence(billRank)
-            totalInfluence -= agent.probConceal/10
-            totalInfluence -= agent.discrimination/10
-            totalInfluence -= agent.currentDepression/10
-            totalInfluence += agent.support/25
+            if agent.isMinority:
+                #totalInfluence -= (agent.probConceal)
+                #totalInfluence -= (agent.discrimination ** 2)/4
+                totalInfluence -= (agent.currentDepression ** 2)/2
+                totalInfluence += agent.support ** 1.5
         return totalInfluence
 
     #################################################################

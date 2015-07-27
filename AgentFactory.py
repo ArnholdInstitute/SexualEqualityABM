@@ -59,7 +59,7 @@ class AgentFactory(object):
             currentSES = 0.0
 
         # No discrimination imposed upon those not of minority.
-        # Similarly, attitude for those of minority is fully accepting
+        # Attitude for those of minority is fully accepting
         # of one another and probabilistic otherwise. Support is also
         # fully present for those not of minority status
         if not isMinority:
