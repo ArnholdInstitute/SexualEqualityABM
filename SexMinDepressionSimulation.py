@@ -277,7 +277,7 @@ if __name__ == "__main__":
     checkSensitivity = True
     showOdd = False
     showImpact = False
-    showRegression = True
+    showRegression = False
     showSensitivity = True
 
     # Only runs streamlined simulation (no graphical/textual output)
@@ -289,8 +289,8 @@ if __name__ == "__main__":
     # ER, SW, or ASF
     networkType = "ASF"
     timeSpan = 5
-    numAgents = 250
-    percentMinority = .10
+    numAgents = 100
+    percentMinority = .05
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of

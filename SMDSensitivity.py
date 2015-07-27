@@ -1,6 +1,6 @@
 #####################################################################
 # Name: Yash Patel                                                  #
-# File: SMDySimulation.py                                           #
+# File: SMDSensitivity.py                                           #
 # Description: Performs the overall simulations again for depression#
 # and concealment, not displaying results of each simulation.Instead#
 # looks at and plots sensitivity of these results on each of the    #
@@ -165,6 +165,9 @@ def Sensitivity_runSimulation(simulationModel, percentMinority,
     discrimination=None, conceal=None, depression=None, 
     enforcedPolicy=None):
 
+    ATTR_POS = 0
+    PERCENT_POS = 1
+
     if percentMinority > 1.0:
         percentMinority = 1.0
 
@@ -178,13 +181,16 @@ def Sensitivity_runSimulation(simulationModel, percentMinority,
     simulationModel.SMDModel_runStreamlineSimulation(attitude, support, 
         discrimination, conceal, depression, enforcedPolicy)
 
-    curTrial = []
     network = simulationModel.network.networkBase
 
-    curTrial.append(network.NetworkBase_findPercentAttr("depression"))
-    curTrial.append(network.NetworkBase_findPercentAttr("concealed"))
-    curTrial.append(network.NetworkBase_findPercentAttr("discrimination"))
-    curTrial.append(network.NetworkBase_setMeanStdSupport(onlyMinority=False)[0])
+    # Each entry has its second value corresponding to the "getPercentage"
+    # for the findPercentAttr method
+    tests = [["depression", False], ["concealed", False], \
+        ["discrimination", True]]
+    curTrial = list(map(lambda test : network.NetworkBase_findPercentAttr(
+        test[ATTR_POS], getPercentage=test[PERCENT_POS]), tests))
+    curTrial.append(network.NetworkBase_setMeanStdSupport(
+        onlyMinority=False)[0])
     curTrial.append(network.policyScore)
 
     return curTrial

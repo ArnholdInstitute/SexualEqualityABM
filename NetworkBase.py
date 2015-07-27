@@ -368,7 +368,7 @@ class NetworkBase:
     #level of an attribute out of the maximal total, rather than the#
     # average (such as the %depressed or %concealed from minority)  #
     #################################################################
-    def NetworkBase_findPercentAttr(self, attr, getPercentage=False):
+    def NetworkBase_findPercentAttr(self, attr, getPercentage=True):
         # Denotes the maximum "scaled" values for each parameter
         MAX_DEPRESS = .25
         MAX_CONCEALMENT = .125
@@ -380,13 +380,15 @@ class NetworkBase:
 
         agents = self.NetworkBase_getMinorityNodes()
         minCount = len(agents)
-        attrArr = []
         
         whichAttr = {
             # Lambdas are used to obtain the current agent's parameters
-            # while iterating through entire list of agents
-            "depression": [MAX_DEPRESS, lambda x: x.currentDepression],
-            "concealed": [MAX_CONCEALMENT, lambda x: x.probConceal],
+            # while iterating through entire list of agents. For depress/
+            # concealment, another lambda made for seeing depressed/concealed
+            "depression": [MAX_DEPRESS, lambda x: x.currentDepression, \
+                lambda x: x.isDepressed],
+            "concealed": [MAX_CONCEALMENT, lambda x: x.probConceal, \
+                lambda x: x.isConcealed],
             "discrimination": [MAX_DISCRIMINATE, \
                 lambda x: x.discrimination]
         }
@@ -394,14 +396,20 @@ class NetworkBase:
         attrCapVal = whichAttr[attr]
         if getPercentage:
             MAX_CONST = attrCapVal[0]
-        for agent in agents:
-            attrArr.append(attrCapVal[1](agent))
+            getAttrVal = attrCapVal[1]
+            attrArr = list(map(getAttrVal, agents))
 
-        if minCount:
-            maxTotal = minCount * MAX_CONST
-            return sum(attrArr)/maxTotal
+            if minCount:
+                maxTotal = minCount * MAX_CONST
+                return sum(attrArr)/maxTotal
+            return 0.0
+
+        filterAttrVal = attrCapVal[2]
+        filteredAgents = list(filter(filterAttrVal, agents))
+
+        if minCount: return len(filteredAgents)/minCount
         return 0.0
-
+        
     #################################################################
     # Determines the local average value of an attribute for a given#
     # agent (in his locally connected network)                      #
@@ -640,11 +648,9 @@ class NetworkBase:
         agents = self.NetworkBase_getAgentArray()
         for agent in agents:
             totalInfluence += agent.Agent_getBillInfluence(billRank)
+            # Accounts for support involvement in bill (only for minority)
             if agent.isMinority:
-                #totalInfluence -= (agent.probConceal)
-                #totalInfluence -= (agent.discrimination ** 2)/4
-                totalInfluence -= (agent.currentDepression ** 2)/2
-                totalInfluence += agent.support ** 1.5
+                totalInfluence += agent.support
         return totalInfluence
 
     #################################################################

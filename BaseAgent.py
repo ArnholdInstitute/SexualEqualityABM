@@ -229,22 +229,20 @@ class BaseAgent:
         RUN_FUNCTION = 1
         FUNCTION_ARGS = 2
 
-        setAttitude = attitude is not None and not self.isMinority
-        setSupport = support is not None and self.isMinority
-        setDiscrimination = discrimination is not None and self.isMinority
-        setConceal = conceal is not None and self.isMinority
-        setDepression = depression is not None and self.isMinority
+        shouldSet = lambda attr, agent: attr is not None \
+            and agent.isMinority
+
+        setAttitude = shouldSet(attitude, self)
+        setSupport = shouldSet(support, self)
+        setDiscrimination = shouldSet(discrimination, self)
+        setConceal = shouldSet(conceal, self)
+        setDepression = shouldSet(depression, self)
         
-        if setAttitude:
-            self.attitude = attitude
-        if setSupport:
-            self.support = support
-        if setDiscrimination:
-            self.discrimination = discrimination
-        if setConceal:
-            self.probConceal = conceal
-        if setDepression:
-            self.currentDepression = depression
+        if setAttitude: self.attitude = attitude
+        if setSupport: self.support = support
+        if setDiscrimination: self.discrimination = discrimination
+        if setConceal: self.probConceal = conceal
+        if setDepression: self.currentDepression = depression
 
         # Dictionary whose entries (named correspondingly) have arrays
         # have the form [bool, function, args], where the bool determines 
@@ -266,3 +264,12 @@ class BaseAgent:
             curUpdate = updateSteps[step]
             if curUpdate[BEING_RUN]:
                 curUpdate[RUN_FUNCTION](*curUpdate[FUNCTION_ARGS])
+
+            # Checks if agent becomes concealed/depressed (if not default)
+            elif step == "conceal": 
+                self.isConcealed = random.random() < \
+                    self.probConceal
+
+            elif step == "depress":
+                self.isDepressed = random.random() < \
+                    self.currentDepression

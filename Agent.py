@@ -272,7 +272,7 @@ class MinorityAgent(BaseAgent):
         numPolicies = self.network.policyScore
 
         probIncrease = (self.discrimination ** .5) * discriminateDepressionImpact
-        probIncrease -= (self.support ** .25) * supportDepressionImpact
+        probIncrease -= (self.support ** .5) * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 
@@ -287,7 +287,7 @@ class MinorityAgent(BaseAgent):
         baseProb = self.currentDepression + probIncrease
 
         # Uses logit scale
-        self.currentDepression = (self.Agent_getLogistic(baseProb) ** 2)/4
+        self.currentDepression = (self.Agent_getLogistic(baseProb) ** 2)/20
 
         rand = random.random()
         self.isDepressed = (rand < self.currentDepression and \
