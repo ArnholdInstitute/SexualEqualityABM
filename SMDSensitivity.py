@@ -153,13 +153,17 @@ class RegressionValueTest(RangeTest):
 # simulation and returns an array of all results in the following   #
 # format: [depression, concealed, discrimination, support, policy]. #
 # Can also be used for running constrained simulations (if the final#
-# parameters are passed in with non-None values)                    #
+# parameters are passed in with non-None values). All constrained   #
+# variables set the corresponding attribute of agents to the given  #
+# value, aside from enforcedPolicy, which externally imposes certain#
+# policies to be injected into the simulation at specific times     #
 #####################################################################
 def Sensitivity_runSimulation(simulationModel, percentMinority, 
     supportDepressionImpact, concealDiscriminateImpact, 
     discriminateConcealImpact, discriminateDepressionImpact, 
     concealDepressionImpact, attitude=None, support=None, 
-    discrimination=None, conceal=None, depression=None):
+    discrimination=None, conceal=None, depression=None, 
+    enforcedPolicy=None):
 
     if percentMinority > 1.0:
         percentMinority = 1.0
@@ -172,7 +176,7 @@ def Sensitivity_runSimulation(simulationModel, percentMinority,
     simulationModel.concealDepressionImpact = concealDepressionImpact
 
     simulationModel.SMDModel_runStreamlineSimulation(attitude, support, 
-        discrimination, conceal, depression)
+        discrimination, conceal, depression, enforcedPolicy)
 
     curTrial = []
     network = simulationModel.network.networkBase
@@ -440,6 +444,7 @@ def Sensitivity_sensitivityTests(original):
     supportRange, discriminationRange, concealRange, depressionRange,\
         minorityRange = generateMultiple(5, [0.0, .125, .25, .375, \
             .50, .675, .75, .875, 1.0])
+    policyScores = [-5, -2, -1, 0, 1, 2, 5]
 
     sensitivityTests = {
         "Attitude": [attitudeRange, None], 
@@ -447,7 +452,8 @@ def Sensitivity_sensitivityTests(original):
         "Discrimination": [discriminationRange, None], 
         "Concealment": [concealRange, None], 
         "Depression": [depressionRange, None],
-        "Minority_Percentage": [minorityRange, original.percentMinority]
+        "Minority_Percentage": [minorityRange, original.percentMinority],
+        "Policy_Score": [policyScores, None]
     }
 
     finalResults = []
@@ -467,13 +473,14 @@ def Sensitivity_sensitivityTests(original):
             conceal = sensitivityTests["Concealment"][1]
             depression = sensitivityTests["Depression"][1]
             percentMinority = sensitivityTests["Minority_Percentage"][1]
+            enforcedPolicy = sensitivityTests["Policy_Score"][1]
 
             trialResult = Sensitivity_runSimulation(curTrial, 
                 percentMinority, curTrial.supportDepressionImpact, 
                 curTrial.concealDiscriminateImpact, curTrial.discriminateConcealImpact, 
                 curTrial.discriminateDepressionImpact, 
                 curTrial.concealDepressionImpact, attitude, support, 
-                discrimination, conceal, depression)
+                discrimination, conceal, depression, enforcedPolicy)
             trials.append(trialResult)
 
         curRange[1] = originalVal

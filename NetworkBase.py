@@ -89,16 +89,41 @@ class NetworkBase:
     # desired (for hypothetical testing/sensitivity analyses), pass #
     # non-null values for all defaulted-null variables, i.e. support#
     # concealment, discrimination, etc... Forces values for such    #
-    # parameters and defaults the others to standard time evolution #
+    # parameters and defaults the others to standard time evolution.#
+    # Score for the policy may also be supplied (defaulted to not   #
+    # the case) in which case a policy with that score will be given#
+    # The biasPass allows for selective production of bills, with   #
+    # 0 specifying all bills are possibly, 2 being only             #
+    # discriminatory, and 1 being only non-discriminatory           #
     #################################################################
     def NetworkBase_timeStep(self, time, supportDepressionImpact, 
         concealDiscriminateImpact, discriminateConcealImpact, 
         discriminateDepressionImpact, concealDepressionImpact,
         support=None, conceal=None, discrimination=None, 
-        attitude=None, depression=None): 
+        attitude=None, depression=None, policyScore=None, bias=0): 
+        ONLY_NON_DISCRIMINATORY = 1
+        ONLY_DISCRIMINATORY = 2
 
-        newPolicy = Policy(time)
-        newPolicy.Policy_considerPolicy(self, time, self.policyCap)
+        # "Natural gap" between passing of enforced policies
+        TIME_GAP = 5
+
+        # Considers the cases where the type of policy is externally
+        # enforced (not proposed at random in simulation)
+        if (policyScore or bias) and time % TIME_GAP == 0:
+            newPolicy = Policy(time, score=policyScore, biasPass=bias)
+
+            # Converst from the numerical bias to a boolean for if
+            # the scores are bias towards discriminatory or support
+            if bias == ONLY_NON_DISCRIMINATORY: onlyDisc = False
+            else: onlyDisc = True
+
+            self.NetworkBase_enforcePolicy(time, score=policyScore, 
+                onlyDisc=onlyDisc)
+
+        else:
+            newPolicy = Policy(time)
+            newPolicy.Policy_considerPolicy(self, time, self.policyCap)
+        
         self.NetworkBase_updatePolicyScore(time)
         for agentID in self.Agents:
             self.Agents[agentID].Agent_updateAgent(time, supportDepressionImpact,
@@ -210,24 +235,28 @@ class NetworkBase:
     #################################################################
     # Enforces a certain policy on the network in question. If a    #
     # particular strength for the policy is desired, it can be given#
-    # Similarly, defaultDisc can be used to determine whether or not#
+    # Similarly, onlyDisc can be used to determine whether or not   #
     # the policy is defaulted to only discriminatory or only non-   #
     # discriminatory. The option for neither is excluded since this #
     # behavior would then be equivalent to standard policy passing  #
+    # Only discriminatory policies is given by True and only non-   #
+    # discriminatory by False                                       #
     #################################################################
-    def NetworkBase_enforcePolicy(self, network, time, score=None, 
-        defaultDisc=False):
+    def NetworkBase_enforcePolicy(self, time, score=None, onlyDisc=False):
         ONLY_NON_DISCRIMINATORY = 1
         ONLY_DISCRIMINATORY = 2 
+
+        if self.policyScore + score > self.policyCap:
+            return
 
         if score:
             enforcedPolicy = Policy(time=time, score=score)
         else:
             # Maps from boolean value to the ints specified above
-            biasType = int(defaultDisc) + 1
+            biasType = int(onlyDisc) + 1
             enforcedPolicy = Policy(time=time, biasPass=biasType)
             
-        NetworkBase_addToPolicies(enforcedPolicy)
+        self.NetworkBase_addToPolicies(enforcedPolicy, time)
 
     #################################################################
     # Given a policy, adds it to the policies present in the network#
@@ -611,6 +640,10 @@ class NetworkBase:
         agents = self.NetworkBase_getAgentArray()
         for agent in agents:
             totalInfluence += agent.Agent_getBillInfluence(billRank)
+            totalInfluence -= agent.probConceal/10
+            totalInfluence -= agent.discrimination/10
+            totalInfluence -= agent.currentDepression/10
+            totalInfluence += agent.support/25
         return totalInfluence
 
     #################################################################

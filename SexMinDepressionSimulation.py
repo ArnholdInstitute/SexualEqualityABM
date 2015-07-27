@@ -17,7 +17,9 @@ from NetworkBase import NetworkBase
 from ERNetwork import ERNetwork
 from ASFNetwork import ASFNetwork
 from SWNetwork import SWNetwork
+
 from SMDSensitivity import *
+from Hypothetical import *
 from Verification import *
 
 import matplotlib.pyplot as plt
@@ -248,8 +250,9 @@ class SMDSimulationModel:
     # agents follow given default update behavior for the attribute #
     #################################################################
     def SMDModel_runStreamlineSimulation(self, attitude=None, 
-        support=None, discrimination=None, conceal=None, depression=None):
-        # Converts from years to "ticks" (represent 2 week span)
+        support=None, discrimination=None, conceal=None, 
+        depression=None, enforcedPolicy=None):
+        # Converts from years to "ticks" (represent 2 week span)    
         numTicks = self.timeSpan * 26
         pos = nx.random_layout(self.network.G)
 
@@ -260,7 +263,7 @@ class SMDSimulationModel:
                 self.supportDepressionImpact, self.concealDiscriminateImpact, 
                 self.discriminateConcealImpact, self.discriminateDepressionImpact, 
                 self.concealDepressionImpact, attitude, support, 
-                discrimination, conceal, depression)
+                discrimination, conceal, depression, enforcedPolicy)
             
             self.network.Agents = self.network.networkBase.Agents
             
@@ -277,13 +280,17 @@ if __name__ == "__main__":
     showRegression = True
     showSensitivity = True
 
+    # Only runs streamlined simulation (no graphical/textual output)
     onlyStreamlined = True 
+
+    # Conducts the hypothetical tests that are of interest in study
+    performHypothetical = False
 
     # ER, SW, or ASF
     networkType = "ASF"
     timeSpan = 5
-    numAgents = 500
-    percentMinority = .05
+    numAgents = 250
+    percentMinority = .10
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
@@ -312,5 +319,8 @@ if __name__ == "__main__":
             discriminateConcealImpact, discriminateDepressionImpact, 
             concealDepressionImpact, original, simulationModel, 
             showOdd, showImpact, showRegression, showSensitivity)
+
+    if performHypothetical:
+        Hypothetical_findEffectiveness(original)
 
     print("Terminating simulation...")
