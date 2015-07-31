@@ -30,7 +30,7 @@ def Hypothetical_genericTest(original, attr, effectiveness, paramsDict):
     paramsDict[attr] = changedAttr
 
     # Converts from the given dictionary format to a tuple
-    params = map(lambda v : paramsDict[v], paramsDict)
+    params = map(lambda v: paramsDict[v], paramsDict)
 
     concealTest = deepcopy(original)
     concealTest.SMDModel_runStreamlineSimulation(*list(params))

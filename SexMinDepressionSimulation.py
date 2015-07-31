@@ -288,15 +288,15 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ASF"
-    timeSpan = 5
-    numAgents = 100
+    timeSpan = 3
+    numAgents = 250
     percentMinority = .05
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
     supportDepressionImpact = .75
-    concealDiscriminateImpact = 7.5
+    concealDiscriminateImpact = 5.0
     discriminateConcealImpact = 5.0 
     discriminateDepressionImpact = 2.25
     concealDepressionImpact = 7.5

@@ -19,6 +19,7 @@ from Policy import Policy
 
 import matplotlib.pyplot as plt
 from operator import itemgetter 
+from collections import OrderedDict
 
 try:
     import networkx as nx
@@ -167,7 +168,7 @@ class BaseAgent:
         for i in range(len(candidate_nodes)):
             candidate_node = candidate_nodes[i]
             candidate_edges = network.G.edges(candidate_node)
-            p_edge = nConnections*1.0*len(candidate_edges)/edge_count
+            p_edge = nConnections * 1.0 * len(candidate_edges)/edge_count
             low = p_sum
             high = p_sum+p_edge
             test = rand + len(target_nodes)
@@ -175,7 +176,7 @@ class BaseAgent:
                 target_nodes.append(candidate_node)
             p_sum += p_edge
 
-        node_list = [self.agentID]*len(target_nodes)
+        node_list = [self.agentID] * len(target_nodes)
         edges_to_add = zip(node_list, target_nodes)
         network.networkBase.NetworkBase_addEdges(edges_to_add)
 
@@ -202,6 +203,8 @@ class BaseAgent:
     def Agent_getBillInfluence(self, billRank):
         signedInfluence = 2.0 * (self.attitude - .5) 
         influence = signedInfluence * self.currentSES ** 2
+        if self.isMinority:
+            influence *= (1 - self.probConceal)
         return influence/(billRank ** 2)
 
     #################################################################
@@ -232,11 +235,14 @@ class BaseAgent:
         shouldSet = lambda attr, agent: attr is not None \
             and agent.isMinority
 
-        setAttitude = shouldSet(attitude, self)
-        setSupport = shouldSet(support, self)
-        setDiscrimination = shouldSet(discrimination, self)
-        setConceal = shouldSet(conceal, self)
-        setDepression = shouldSet(depression, self)
+        # Maps each of the respective variables to whether or not it will
+        # be assigned or given the default behavior. Note: set attitude
+        # performed separately since only applies to non-minority agents
+        setAttitude = attitude is not None and not self.isMinority
+
+        params = [support, discrimination, conceal, depression]
+        setSupport, setDiscrimination, setConceal, \
+            setDepression = map(lambda param: shouldSet(param, self), params)
         
         if setAttitude: self.attitude = attitude
         if setSupport: self.support = support
@@ -247,18 +253,19 @@ class BaseAgent:
         # Dictionary whose entries (named correspondingly) have arrays
         # have the form [bool, function, args], where the bool determines 
         # whether the attribute in question is being updated, the function
-        # is that which governs the update, and args are its arguments
-        updateSteps = {
-            "attitude": [not setAttitude, self.Agent_updateAttitude, ()],
-            "support": [not setSupport, self.Agent_updateSupport, ()],
-            "discrimination": [not setDiscrimination,                   \
-                self.Agent_updateDiscrimination, (time, concealDiscriminateImpact)],
-            "conceal": [not setConceal, self.Agent_updateConcealment,   \
-                (discriminateConcealImpact, supportConcealImpact, time)],
-            "depress": [not setDepression, self.Agent_updateDepression, \
-                (concealDepressionImpact, supportDepressionImpact,      \
-                    discriminateDepressionImpact, time)]
-        }
+        # is that which governs the update, and args are its arguments.
+        # Note that an ordered dict is used to keep the desired exec order
+        updateSteps = OrderedDict([
+            ("attitude", [not setAttitude, self.Agent_updateAttitude, ()]),
+            ("support", [not setSupport, self.Agent_updateSupport, ()]),
+            ("discrimination", [not setDiscrimination, \
+                self.Agent_updateDiscrimination, (time, concealDiscriminateImpact)]),
+            ("conceal", [not setConceal, self.Agent_updateConcealment,   \
+                (discriminateConcealImpact, supportConcealImpact, time)]),
+            ("depress", [not setDepression, self.Agent_updateDepression, \
+                (concealDepressionImpact, supportDepressionImpact, \
+                discriminateDepressionImpact, time)])
+        ])
 
         for step in updateSteps:
             curUpdate = updateSteps[step]

@@ -35,6 +35,15 @@ def generateEmpty(n):
         yield []
 
 #####################################################################
+# Given a number n, generates that many "double empty arrays" (of   #
+# the form [[], []])                                                #
+#####################################################################
+def generateDoubleEmpty(n):
+    for _ in range(n):
+        first, second = (generateEmpty(2))
+        yield [first, second]
+
+#####################################################################
 # Given a number n and an array, generates that particular number of# 
 # equivalent arrays. Note: simply yields pointers to the same array #
 #####################################################################
@@ -203,8 +212,8 @@ def Sensitivity_runSimulation(simulationModel, percentMinority,
 # [ConcealResult1, 2, ...], [Label (text for plotting)]].           #
 #####################################################################
 def Sensitivity_splitResults(indVarScales, mixedArr, label):
-    depressArr, concealArr, discriminationArr, supportArr, policyArr, \
-        finalArr = generateEmpty(6)
+    depressArr, concealArr, discriminationArr, supportArr, \
+        policyArr = generateEmpty(5)
 
     for resultsPair in mixedArr:
         depressArr.append(resultsPair[0])
@@ -213,15 +222,8 @@ def Sensitivity_splitResults(indVarScales, mixedArr, label):
         supportArr.append(resultsPair[3])
         policyArr.append(resultsPair[4]) 
 
-    finalArr.append(indVarScales)
-
-    finalArr.append(depressArr)
-    finalArr.append(concealArr)
-    finalArr.append(discriminationArr)
-    finalArr.append(supportArr)
-    finalArr.append(policyArr)
-
-    finalArr.append(label)
+    finalArr = [indVarScales, depressArr, concealArr, discriminationArr,\
+        supportArr, policyArr, label]
     return finalArr
 
 #####################################################################
@@ -292,10 +294,8 @@ def Sensitivity_oddRatioTests(original):
                 currentOR = trialResult
                 originalSet = True
             else:
-                if trialResult:
-                    currentOR /= trialResult
-                else:
-                    currentOR = 0.0
+                if trialResult: currentOR /= trialResult
+                else: currentOR = 0.0
         ORresults.append([labels[i], currentOR])
         values.append(currentOR)
         args = list(copy)
@@ -326,10 +326,8 @@ def Sensitivity_regressionTests(original):
     # Each of these arrays will be used for regression analysis, but
     # as there are very distinct behaviors for concealed vs. not, we
     # consider here separating them into arrays and analyzing separate
-    supportArr = [[], []]
-    concealArr = [[], []]
-    discriminationArr = [[], []]
-    depressionArr = [[], []]
+    supportArr, concealArr, discriminationArr, \
+        depressionArr = generateDoubleEmpty(4)
 
     minAgents = original.network.networkBase.NetworkBase_getMinorityNodes()
     for agent in minAgents:

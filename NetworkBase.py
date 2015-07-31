@@ -385,12 +385,12 @@ class NetworkBase:
             # Lambdas are used to obtain the current agent's parameters
             # while iterating through entire list of agents. For depress/
             # concealment, another lambda made for seeing depressed/concealed
-            "depression": [MAX_DEPRESS, lambda x: x.currentDepression, \
-                lambda x: x.isDepressed],
-            "concealed": [MAX_CONCEALMENT, lambda x: x.probConceal, \
-                lambda x: x.isConcealed],
+            "depression": [MAX_DEPRESS, lambda agent: \
+                agent.currentDepression, lambda agent: agent.isDepressed],
+            "concealed": [MAX_CONCEALMENT, lambda agent: \
+                agent.probConceal, lambda agent: agent.isConcealed],
             "discrimination": [MAX_DISCRIMINATE, \
-                lambda x: x.discrimination]
+                lambda agent: agent.discrimination]
         }
 
         attrCapVal = whichAttr[attr]
@@ -650,7 +650,7 @@ class NetworkBase:
             totalInfluence += agent.Agent_getBillInfluence(billRank)
             # Accounts for support involvement in bill (only for minority)
             if agent.isMinority:
-                totalInfluence += agent.support
+                totalInfluence += agent.support ** 2
         return totalInfluence
 
     #################################################################

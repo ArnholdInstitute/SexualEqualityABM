@@ -24,6 +24,20 @@ except ImportError:
     (http://networkx.lanl.gov/) for SE simulation")
 
 #####################################################################
+# Given a number, returns the signed square root of its magnitude   #
+# (i.e. 9 -> 3, -9 -> -3, 0 -> 0)                                   #
+#####################################################################
+def signedSquareRoot(x):
+    return np.sign(x) * abs(x) ** .5
+
+#####################################################################
+# Given a number, returns the signed square of its magnitude (i.e.  #
+# 3 -> 9, -3 -> -9, 0 -> 0)                                         #
+#####################################################################
+def signedSquare(x):
+    return np.sign(x) * abs(x) ** 2
+
+#####################################################################
 # A model for agents part of sexual minority                        #
 #####################################################################
 class NonMinorityAgent(BaseAgent):
@@ -142,8 +156,9 @@ class MinorityAgent(BaseAgent):
 
         support = BASELINE_SUPPORT
 
-        support += (localConnect ** .25 + att ** 2 * const \
-            - self.discrimination ** 2) * (1 - self.probConceal) ** 2
+        support += (localConnect ** .5 + att * const)
+        if support > 0: support *= (1 - self.probConceal)
+        else: support *= (1 + self.probConceal)
         self.support = self.Agent_normalizeParam(support)
 
     #################################################################
@@ -171,14 +186,17 @@ class MinorityAgent(BaseAgent):
                 self.initialPositive = attitudes[0]
                 self.initialNegative = attitudes[1]
                 discrimination = 1 - (numPolicies/self.network.policyCap \
-                    + avgAttitude)
+                    + avgAttitude) - self.probConceal ** 2 - self.support ** 2
+                    
+                discrimination *= SCALE_FACTOR
+                self.discrimination = self.Agent_normalizeParam(discrimination)
                 return
 
             deltaTime = time - self.time
             discrimination = 1 - (numPolicies/self.network.policyCap       \
                             + (self.initialPositive + self.initialNegative \
                             * concealDiscriminateImpact ** (-deltaTime)))  \
-                            - (self.probConceal ** 2) - self.support ** 2
+                            - self.probConceal ** 2 - self.support ** 2
             discrimination *= SCALE_FACTOR 
             
             self.discrimination = self.Agent_normalizeParam(discrimination)
@@ -187,7 +205,7 @@ class MinorityAgent(BaseAgent):
         # "Resets" the clock for concealed discrimination
         self.hasMultipleStagnant = False
         discrimination = 1 - (numPolicies/self.network.policyCap + avgAttitude) \
-            - (self.probConceal ** 2) - self.support ** 2
+            - self.probConceal ** 2 - self.support ** 2
             
         discrimination *= SCALE_FACTOR
         self.discrimination = self.Agent_normalizeParam(discrimination)
@@ -203,7 +221,7 @@ class MinorityAgent(BaseAgent):
         supportConcealImpact, time):
         SCALE_FACTOR = .675
         FULL_DEPRESS_FACTOR = 2.5
-        DEPRESS_FACTOR = 10.0 
+        DEPRESS_FACTOR = 7.5 
 
         NETWORK_SCALE = .75
         FINAL_SCALE = .0125
@@ -213,11 +231,11 @@ class MinorityAgent(BaseAgent):
         TIME_THRESHOLD = 5
 
         numPolicies = self.network.policyScore
-        probConceal = (self.discrimination ** 1.5 * discriminateConcealImpact   \
+        probConceal = (self.discrimination * discriminateConcealImpact   \
             - self.support * supportConcealImpact)
         probConceal -= (numPolicies/self.network.policyCap) ** 3
         probConceal *= SCALE_FACTOR 
-        probConceal -= self.network.NetworkBase_getNetworkAttitude() \
+        probConceal -= self.network.NetworkBase_getNetworkAttitude() ** 3 \
             * NETWORK_SCALE
 
         # Significant increase if depression has actually happened
@@ -225,9 +243,10 @@ class MinorityAgent(BaseAgent):
             if probConceal > 0:
                 probConceal *= FULL_DEPRESS_FACTOR
         else:
-            depressFactor = .50 + (DEPRESS_FACTOR * \
+            depressFactor = (DEPRESS_FACTOR * \
                 self.currentDepression) ** 2
             probConceal *= depressFactor
+
 
         self.probConceal = (self.Agent_getLogistic(probConceal) ** 2)/3
 
@@ -253,7 +272,7 @@ class MinorityAgent(BaseAgent):
     def Agent_updateDepression(self, concealDepressionImpact, 
         supportDepressionImpact, discriminateDepressionImpact, time):
         SCALING_FACTOR = .075
-        CONCEAL_FACTOR = 1.375
+        CONCEAL_FACTOR = 1.25
 
         # Ignores those probabilities that are sufficiently small
         DEPRESSION_THRESHOLD = .025
@@ -271,17 +290,17 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = (self.discrimination ** .5) * discriminateDepressionImpact
-        probIncrease -= (self.support ** .5) * supportDepressionImpact
+        probIncrease = self.discrimination * discriminateDepressionImpact
+        probIncrease -= self.support * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3
-        probIncrease -= self.network.NetworkBase_getNetworkAttitude()
+        probIncrease -= self.network.NetworkBase_getNetworkAttitude() ** 3
 
         # Significant bump if agent is already concealed
         if self.isConcealed:
             if probIncrease > 0:
                 probIncrease *= concealDepressionImpact
         else:
-            concealFactor = .25 + (CONCEAL_FACTOR * self.probConceal) ** 2
+            concealFactor = .125 + (CONCEAL_FACTOR * self.probConceal) ** 2
             probIncrease *= concealFactor
 
         baseProb = self.currentDepression + probIncrease
