@@ -254,7 +254,7 @@ class SMDSimulationModel:
         depression=None, enforcedPolicy=None):
         # Converts from years to "ticks" (represent 2 week span)    
         numTicks = self.timeSpan * 26
-        pos = nx.random_layout(self.network.G)
+        self.SMDModel_setNetwork()
 
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
@@ -274,8 +274,8 @@ class SMDSimulationModel:
 #####################################################################
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
-    checkSensitivity = False
-    showOdd = False
+    checkSensitivity = True
+    showOdd = True
     showImpact = False
     showRegression = False
     showSensitivity = True
@@ -284,7 +284,7 @@ if __name__ == "__main__":
     onlyStreamlined = True 
 
     # Conducts the hypothetical tests that are of interest in study
-    performHypothetical = True
+    performHypothetical = False
 
     # ER, SW, or ASF
     networkType = "ER"

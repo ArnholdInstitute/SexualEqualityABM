@@ -212,7 +212,7 @@ class MinorityAgent(BaseAgent):
         FULL_DEPRESS_FACTOR = 5.0
         DEPRESS_FACTOR = 2.5 
 
-        NETWORK_SCALE = 1.0
+        NETWORK_SCALE = .50
         FINAL_SCALE = .0125
 
         # Number of time intervals before which a reversal of 
@@ -220,8 +220,8 @@ class MinorityAgent(BaseAgent):
         TIME_THRESHOLD = 5
 
         numPolicies = self.network.policyScore
-        probConceal = (self.discrimination * discriminateConcealImpact   \
-            - self.support ** 2 * supportConcealImpact)
+        probConceal = (self.discrimination ** .5 * discriminateConcealImpact   \
+            - self.support ** 1.25 * supportConcealImpact)
         probConceal -= (numPolicies/self.network.policyCap) ** 3
         probConceal *= SCALE_FACTOR 
         probConceal -= self.network.NetworkBase_getNetworkAttitude() \
@@ -278,8 +278,8 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = self.discrimination ** .75 * discriminateDepressionImpact
-        probIncrease -= self.support ** 1.25 * supportDepressionImpact
+        probIncrease = self.discrimination ** .5 * discriminateDepressionImpact
+        probIncrease -= self.support ** 2 * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 
