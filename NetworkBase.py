@@ -325,7 +325,7 @@ class NetworkBase:
     #################################################################
     def NetworkBase_findPercentConnectedMinority(self, agent, 
         firstDegree=False, allSupport=False):
-        SUPPORT_ATTITUDE = .50
+        SUPPORT_ATTITUDE = .25
 
         if firstDegree: 
             neighbors = self.NetworkBase_getFirstNeighbors(agent)
@@ -641,7 +641,7 @@ class NetworkBase:
 
     #################################################################
     # Determines the cumulative influence, as defined by the model, #
-    # namely Attitude×(SES⁄Ranking)^2                               #
+    # namely Attitude x (SES/Ranking)^2                             #
     #################################################################
     def NetworkBase_getTotalInfluence(self, billRank):
         totalInfluence = 0
@@ -655,7 +655,7 @@ class NetworkBase:
 
     #################################################################
     # Determines max cumulative influence, as defined by the model, #
-    # namely (SES⁄Ranking)^2                                        #
+    # namely (SES/Ranking)^2                                        #
     #################################################################
     def NetworkBase_getMaxTotalInfluence(self):
         maxInfluence = 0

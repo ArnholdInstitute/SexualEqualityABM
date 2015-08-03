@@ -274,7 +274,7 @@ class SMDSimulationModel:
 #####################################################################
 if __name__ == "__main__":
     # Used for performing sensitivity analyses
-    checkSensitivity = True
+    checkSensitivity = False
     showOdd = False
     showImpact = False
     showRegression = False
@@ -284,12 +284,12 @@ if __name__ == "__main__":
     onlyStreamlined = True 
 
     # Conducts the hypothetical tests that are of interest in study
-    performHypothetical = False
+    performHypothetical = True
 
     # ER, SW, or ASF
-    networkType = "ASF"
+    networkType = "ER"
     timeSpan = 3
-    numAgents = 250
+    numAgents = 150
     percentMinority = .05
 
     # The following denote "impact constants" for which we have adopted 
@@ -297,7 +297,7 @@ if __name__ == "__main__":
     # first on second
     supportDepressionImpact = .75
     concealDiscriminateImpact = 5.0
-    discriminateConcealImpact = 5.0 
+    discriminateConcealImpact = 2.5 
     discriminateDepressionImpact = 2.25
     concealDepressionImpact = 7.5
 
@@ -321,6 +321,6 @@ if __name__ == "__main__":
             showOdd, showImpact, showRegression, showSensitivity)
 
     if performHypothetical:
-        Hypothetical_findEffectiveness(original)
+        Hypothetical_findEffectiveness(original, simulationModel)
 
     print("Terminating simulation...")

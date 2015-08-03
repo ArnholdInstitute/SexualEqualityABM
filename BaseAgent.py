@@ -203,8 +203,7 @@ class BaseAgent:
     def Agent_getBillInfluence(self, billRank):
         signedInfluence = 2.0 * (self.attitude - .5) 
         influence = signedInfluence * self.currentSES ** 2
-        if self.isMinority:
-            influence *= (1 - self.probConceal)
+        if self.isMinority: influence *= (1 - self.probConceal)
         return influence/(billRank ** 2)
 
     #################################################################

@@ -24,10 +24,15 @@ from SexMinDepressionSimulation import *
 # of (attitude, support, discrimination, conceal, depression,       # 
 # enforcedPolicy), a tuple                                          #
 #####################################################################
-def Hypothetical_genericTest(original, attr, effectiveness, paramsDict):
+def Hypothetical_genericTest(original, attr, effectiveness, 
+    paramsDict, results):
     origAttr = results[attr]
     changedAttr = origAttr * effectiveness 
     paramsDict[attr] = changedAttr
+
+    print(paramsDict["policy"])
+    if paramsDict["policy"]: 
+        paramsDict["policy"] = int(paramsDict["policy"])
 
     # Converts from the given dictionary format to a tuple
     params = map(lambda v: paramsDict[v], paramsDict)
@@ -42,11 +47,12 @@ def Hypothetical_genericTest(original, attr, effectiveness, paramsDict):
 # without intervening on other variables. Returns the final state of# 
 # the simulation                                                    #
 #####################################################################
-def Hypothetical_LGB_Concealment(original, paramsDict):
+def Hypothetical_LGB_Concealment(original, paramsDict, results):
     INTERVENTION_EFFECTIVESS = .75
-    attr = "concealed"
+    attr = "conceal"
+    copyDict = deepcopy(paramsDict)
     return Hypothetical_genericTest(original, attr, 
-        INTERVENTION_EFFECTIVESS, paramsDict)
+        INTERVENTION_EFFECTIVESS, copyDict, results)
 
 #####################################################################
 # Scenario 2: intervene on non-LGB individuals (parents, peers) to  #
@@ -55,11 +61,12 @@ def Hypothetical_LGB_Concealment(original, paramsDict):
 # discrimination without intervening on other variables. Returns the#
 # final state of the simulation                                     #
 #####################################################################
-def Hypothetical_NonLGB_Discrimination(original, paramsDict):
+def Hypothetical_NonLGB_Discrimination(original, paramsDict, results):
     INTERVENTION_EFFECTIVESS = .75
     attr = "discrimination"
+    copyDict = deepcopy(paramsDict)
     return Hypothetical_genericTest(original, attr, 
-        INTERVENTION_EFFECTIVESS, paramsDict)
+        INTERVENTION_EFFECTIVESS, copyDict, results)
 
 #####################################################################
 # Scenario 3: intervene on non-LGB individuals to improve their     #
@@ -68,11 +75,12 @@ def Hypothetical_NonLGB_Discrimination(original, paramsDict):
 # improve attitudes without intervening on other variables. Returns #
 # the final state of the simulation                                 #
 #####################################################################
-def Hypothetical_NonLGB_Attitudes(original, paramsDict):
+def Hypothetical_NonLGB_Attitudes(original, paramsDict, results):
     INTERVENTION_EFFECTIVESS = 1.25
     attr = "attitude"
+    copyDict = deepcopy(paramsDict)
     return Hypothetical_genericTest(original, attr, 
-        INTERVENTION_EFFECTIVESS, paramsDict)
+        INTERVENTION_EFFECTIVESS, copyDict, results)
 
 #####################################################################
 # Scenario 4: intervene on the entire population by implementing    #
@@ -81,17 +89,20 @@ def Hypothetical_NonLGB_Attitudes(original, paramsDict):
 # model, this intervention would be on the policy level. Returns the#
 # final state of the simulation                                     #
 #####################################################################
-def Hypothetical_Policy(original):
-    INTERVENTION_EFFECTIVESS = 1.25
+def Hypothetical_Policy(original, paramsDict, results):
+    INTERVENTION_EFFECTIVESS = 1.025
     attr = "policy"
+    copyDict = deepcopy(paramsDict)
     return Hypothetical_genericTest(original, attr, 
-        INTERVENTION_EFFECTIVESS, paramsDict)
+        INTERVENTION_EFFECTIVESS, copyDict, results)
 
 #####################################################################
 # Performs all of the hypothetical simulations that were of interest#
-# and compares their effectiveness to the baseline simulation done  #
+# and compares their effectiveness to the baseline simulation done. #
+# Takes in the original simulation and final simulation as arguments#
+# and outputs the relative effectiveness of each scenario           #
 #####################################################################
-def Hypothetical_findEffectiveness(original):
+def Hypothetical_findEffectiveness(original, final):
     # Indicates the gaps in time between passing of enforced policies
     TIME_GAP = 5
 
@@ -99,11 +110,12 @@ def Hypothetical_findEffectiveness(original):
     getDepress = lambda x: x.network.networkBase.\
         NetworkBase_findPercentAttr("depression")
 
-    network = original.network.networkBase
+    network = final.network.networkBase
     finalScore = network.policyScore
 
     timeSteps = original.timeSpan
     timeAverageScore = int(TIME_GAP * finalScore/timeSteps)
+    print(finalScore)
 
     # Dictionary defined for ease of look-up throughout hypotheticals
     results = {
@@ -125,14 +137,14 @@ def Hypothetical_findEffectiveness(original):
 
     baseline = getDepress(original)
     effects = {
-        "conceal": Hypothetical_LGB_Concealment(original, results),
+        "conceal": Hypothetical_LGB_Concealment(original, paramsDict, results),
         "discrimination": Hypothetical_NonLGB_Discrimination(
-            original, results),
-        "attitude": Hypothetical_NonLGB_Attitudes(original, results),
-        "policy": Hypothetical_Policy(original, results)
+            original, paramsDict, results),
+        "attitude": Hypothetical_NonLGB_Attitudes(original, paramsDict, results),
+        "policy": Hypothetical_Policy(original, paramsDict, results)
     }
 
-    effectStr = "{} is {} times as effective as baseline"
+    effectStr = "Altering {} is {} times as effective as baseline"
     for effect in effects:
         curDepress = getDepress(effects[effect])
         print(effectStr.format(effect, curDepress/baseline))

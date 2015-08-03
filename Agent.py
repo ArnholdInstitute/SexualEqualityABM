@@ -57,12 +57,10 @@ class NonMinorityAgent(BaseAgent):
         # Accounts for those who reflect feeling uneasy when with 
         # those of the sexual minority community
         deltaMinority = .75 * percentConnect/self.network.policyCap
-        deltaNonMinority = .25 * percentPoorNonAccept/self.network.policyCap
+        deltaNonMinority = .10 * percentPoorNonAccept/self.network.policyCap
         
-        if self.isDiscriminatory:
-            self.attitude -= deltaMinority
-        else:
-            self.attitude += deltaMinority
+        if self.isDiscriminatory: self.attitude -= deltaMinority
+        else: self.attitude += deltaMinority
         self.attitude -= deltaNonMinority
 
     #################################################################
@@ -142,6 +140,7 @@ class MinorityAgent(BaseAgent):
     #################################################################
     def Agent_updateSupport(self):
         ADDITIONAL_BOOST = .50
+        CUTOFF_SUPPORT = .125
         BASELINE_SUPPORT = .05
 
         att = self.network.NetworkBase_getNetworkAttitude()
@@ -150,15 +149,11 @@ class MinorityAgent(BaseAgent):
 
         # Accounts for additional boost felt when those opposing are
         # in significant minority
-        const = 1.00
-        if att > .75:
-            const += ADDITIONAL_BOOST
-
+        const = 1.00 + int(att > .75) * ADDITIONAL_BOOST
         support = BASELINE_SUPPORT
 
-        support += (localConnect ** .5 + att * const)
-        if support > 0: support *= (1 - self.probConceal)
-        else: support *= (1 + self.probConceal)
+        support += localConnect ** .5 + att * const
+        support *= (1 - self.probConceal) ** 2
         self.support = self.Agent_normalizeParam(support)
 
     #################################################################
@@ -185,12 +180,6 @@ class MinorityAgent(BaseAgent):
                 attitudes = self.network.NetworkBase_getAttitudes(self)
                 self.initialPositive = attitudes[0]
                 self.initialNegative = attitudes[1]
-                discrimination = 1 - (numPolicies/self.network.policyCap \
-                    + avgAttitude) - self.probConceal ** 2 - self.support ** 2
-                    
-                discrimination *= SCALE_FACTOR
-                self.discrimination = self.Agent_normalizeParam(discrimination)
-                return
 
             deltaTime = time - self.time
             discrimination = 1 - (numPolicies/self.network.policyCap       \
@@ -220,10 +209,10 @@ class MinorityAgent(BaseAgent):
     def Agent_updateConcealment(self, discriminateConcealImpact,
         supportConcealImpact, time):
         SCALE_FACTOR = .675
-        FULL_DEPRESS_FACTOR = 2.5
-        DEPRESS_FACTOR = 7.5 
+        FULL_DEPRESS_FACTOR = 5.0
+        DEPRESS_FACTOR = 2.5 
 
-        NETWORK_SCALE = .75
+        NETWORK_SCALE = 1.0
         FINAL_SCALE = .0125
 
         # Number of time intervals before which a reversal of 
@@ -232,21 +221,20 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
         probConceal = (self.discrimination * discriminateConcealImpact   \
-            - self.support * supportConcealImpact)
+            - self.support ** 2 * supportConcealImpact)
         probConceal -= (numPolicies/self.network.policyCap) ** 3
         probConceal *= SCALE_FACTOR 
-        probConceal -= self.network.NetworkBase_getNetworkAttitude() ** 3 \
+        probConceal -= self.network.NetworkBase_getNetworkAttitude() \
             * NETWORK_SCALE
 
         # Significant increase if depression has actually happened
-        if self.isDepressed:
-            if probConceal > 0:
+        if probConceal > 0:
+            if self.isDepressed:
                 probConceal *= FULL_DEPRESS_FACTOR
-        else:
-            depressFactor = (DEPRESS_FACTOR * \
-                self.currentDepression) ** 2
-            probConceal *= depressFactor
-
+            else:
+                depressFactor = (DEPRESS_FACTOR * \
+                    self.currentDepression) ** 2
+                probConceal *= depressFactor
 
         self.probConceal = (self.Agent_getLogistic(probConceal) ** 2)/3
 
@@ -290,10 +278,10 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = self.discrimination * discriminateDepressionImpact
-        probIncrease -= self.support * supportDepressionImpact
+        probIncrease = self.discrimination ** .75 * discriminateDepressionImpact
+        probIncrease -= self.support ** 1.25 * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3
-        probIncrease -= self.network.NetworkBase_getNetworkAttitude() ** 3
+        probIncrease -= self.network.NetworkBase_getNetworkAttitude()
 
         # Significant bump if agent is already concealed
         if self.isConcealed:
