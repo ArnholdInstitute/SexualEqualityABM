@@ -115,7 +115,6 @@ def Hypothetical_findEffectiveness(original, final):
 
     timeSteps = original.timeSpan
     timeAverageScore = int(TIME_GAP * finalScore/timeSteps)
-    print(finalScore)
 
     # Dictionary defined for ease of look-up throughout hypotheticals
     results = {

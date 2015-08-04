@@ -650,7 +650,10 @@ class NetworkBase:
             totalInfluence += agent.Agent_getBillInfluence(billRank)
             # Accounts for support involvement in bill (only for minority)
             if agent.isMinority:
-                totalInfluence += agent.support ** 2
+                totalInfluence += (agent.support - agent.discrimination) ** 3
+                if totalInfluence > 0.0:
+                    totalInfluence *= (1 - agent.probConceal) ** 2
+                else: totalInfluence *= agent.probConceal ** 2
         return totalInfluence
 
     #################################################################

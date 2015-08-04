@@ -62,7 +62,7 @@ class NonMinorityAgent(BaseAgent):
         if self.isDiscriminatory: self.attitude -= deltaMinority
         else: self.attitude += deltaMinority
         self.attitude -= deltaNonMinority
-
+        
     #################################################################
     # As those not of minorities are assumed to have full support,  #
     # no update is needed                                           #
@@ -220,8 +220,8 @@ class MinorityAgent(BaseAgent):
         TIME_THRESHOLD = 5
 
         numPolicies = self.network.policyScore
-        probConceal = (self.discrimination ** .5 * discriminateConcealImpact   \
-            - self.support ** 1.25 * supportConcealImpact)
+        probConceal = (self.discrimination ** .75 * discriminateConcealImpact   \
+            - self.support ** 1.5 * supportConcealImpact)
         probConceal -= (numPolicies/self.network.policyCap) ** 3
         probConceal *= SCALE_FACTOR 
         probConceal -= self.network.NetworkBase_getNetworkAttitude() \

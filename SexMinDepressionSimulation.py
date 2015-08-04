@@ -272,10 +272,10 @@ class SMDSimulationModel:
 # command line, runs simulation, outputting a CSV with each time    #
 # step and a graphical display corresponding to the final iteration #   
 #####################################################################
-if __name__ == "__main__":
+def main():
     # Used for performing sensitivity analyses
     checkSensitivity = True
-    showOdd = True
+    showOdd = False
     showImpact = False
     showRegression = False
     showSensitivity = True
@@ -288,9 +288,9 @@ if __name__ == "__main__":
 
     # ER, SW, or ASF
     networkType = "ER"
-    timeSpan = 3
-    numAgents = 150
-    percentMinority = .05
+    timeSpan = 5
+    numAgents = 250
+    percentMinority = .15
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
@@ -324,3 +324,6 @@ if __name__ == "__main__":
         Hypothetical_findEffectiveness(original, simulationModel)
 
     print("Terminating simulation...")
+
+if __name__ == "__main__":
+    main()
