@@ -10,10 +10,12 @@
 
 import sys
 import os
+import shutil
 import csv
 import random,itertools
 from copy import deepcopy
 import numpy as np
+from PIL import Image
 
 from SexMinDepressionSimulation import *
 import matplotlib.pyplot as plt
@@ -230,9 +232,11 @@ def Sensitivity_splitResults(indVarScales, mixedArr, label):
 # Produces graphical display for the sensitivity results of all     #
 # other variables aside from network type: plots line plot for each.#
 # graphType can be specified as either "regression" or "impact"     #
-# (strings), which will display the graph accordingly               #
+# (strings), which will display the graph accordingly. isCompiled   #
+# indicates whether or not image is to be compiled (changes labels) #
 #####################################################################
-def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
+def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, 
+    graphType, isCompiled=False):
     if graphType == "regression":
         xScale = [.75, 1.25]
         plt.scatter(xArray,yArray)
@@ -244,6 +248,13 @@ def Sensitivity_plotGraphs(xArray, yArray, xLabel, yLabel, graphType):
             folder = "Impact\\{}".format(xLabel)
         else:
             folder = "Sensitivity\\{}".format(xLabel)
+
+    if isCompiled:
+        if xLabel == "Policy_Score": plt.ylabel(yLabel)
+        if yLabel == "Support": plt.xlabel(xLabel)
+
+        plt.savefig("Results\\{}\\Temp\\{}vs{}.png".format(folder, 
+            xLabel, yLabel))
 
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
@@ -504,7 +515,7 @@ def Sensitivity_displaySensitivityResults(finalResults):
             2: "Concealment", 
             3: "Discrimination", 
             4: "Support", 
-            5: "Policy Score"
+            5: "Policy_Score"
         }
 
         xArr = subResult[0]
@@ -512,7 +523,40 @@ def Sensitivity_displaySensitivityResults(finalResults):
 
         for plot in plots:
             Sensitivity_plotGraphs(xArr, subResult[plot], label, 
-                plots[plot], "sensitivity")
+                plots[plot], "sensitivity", isCompiled=True)
+    Sensitivity_displayCompiledResults()
+
+#####################################################################
+# Takes the individual images from the sensitivity trials and makes #
+# them into a compiled image                                        #
+#####################################################################
+def Sensitivity_displayCompiledResults():
+    # Scaled dimensions (for the x and y) of images
+    SCALED_X, SCALED_Y = 400, 300
+
+    # Demarcates the index beyond which it is only independent variables
+    IND_BOUNDARY = 5
+
+    print("Compiling images...")
+    labels = ["Policy_Score", "Concealment", "Depression", "Discrimination", \
+        "Support", "Minority_Percentage", "Attitude"]
+
+    directory = "Results\\Sensitivity\\{}\\Temp\\{}vs{}.png"
+    blank_image = Image.new("RGB", (2000, 1500)) 
+    maxsize = (SCALED_X, SCALED_Y)
+
+    for i in range(len(labels)):
+        for j in range(IND_BOUNDARY):
+            firstLabel = labels[i]
+            secondLabel = labels[j]
+            curLocation = directory.format(firstLabel, 
+                firstLabel, secondLabel)
+            image = Image.open(curLocation)
+            image.thumbnail(maxsize, Image.ANTIALIAS)
+            blank_image.paste(image, (i * SCALED_X, j * SCALED_Y))
+
+    out = "Results\\Sensitivity\\CompiledResult.png"
+    blank_image.save(out)
 
 #####################################################################
 # Prints the results of correlation analysis to text file and also  #
@@ -563,7 +607,6 @@ def Sensitivity_sensitivitySimulation(percentMinority,
     discriminateConcealImpact, discriminateDepressionImpact, 
     concealDepressionImpact, original, final, showOdd=True, 
     showImpact=True, showRegression=True, showSensitivity=True):
-
     if showOdd:
         Sensitivity_oddRatioTests(final)
 
