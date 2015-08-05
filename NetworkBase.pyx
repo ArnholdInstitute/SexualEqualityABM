@@ -1,8 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: NetworkBase.py                                              #
-# Description: Contains all the methods pertinent to the network    #
-# base model, used to produce the other graphs desired to simulate  #
+# Description: Cythonized version of NetworkBase object             #
 #####################################################################
 
 import sys

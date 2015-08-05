@@ -1,11 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: SMDSensitivity.py                                           #
-# Description: Performs the overall simulations again for depression#
-# and concealment, not displaying results of each simulation.Instead#
-# looks at and plots sensitivity of these results on each of the    #
-# independent parameters while also analyzing the odd ratios of     #
-# particular variables to align with values from literature         #
+# Description: Cythonized version of sensitivity analysis class     #
 #####################################################################
 
 import sys
@@ -44,14 +40,6 @@ def generateDoubleEmpty(n):
     for _ in range(n):
         first, second = (generateEmpty(2))
         yield [first, second]
-
-#####################################################################
-# Given a number n and an array, generates that particular number of# 
-# equivalent arrays. Note: simply yields pointers to the same array #
-#####################################################################
-def generateMultiple(n, arr):
-    for _ in range(n):
-        yield arr
 
 #####################################################################
 # Defines test on which an additional test (to determine whether a  #
@@ -123,7 +111,7 @@ class RegressionValueTest(RangeTest):
         negError = "{} should be < 0"
 
         for negativeVal in shouldBeNegative:
-            self.assertTrue(self.regressionValues[negativeVal] < 0,
+            self.assertTrue(self.regressionValues[positiveVal] < 0,
                 negError.format(labels[negativeVal]))
         for positiveVal in shouldBePositive:
             self.assertTrue(self.regressionValues[positiveVal] > 0,
@@ -455,19 +443,17 @@ def Sensitivity_impactTests(original, percentMinority,
 def Sensitivity_sensitivityTests(original):
     DEFAULT_VAL = 1.0
 
-    attitudeRange = [-1.0, -.75, -.5, -.25, 0.0, .25, .5, .75, 1.0]
-    supportRange, discriminationRange, concealRange, depressionRange,\
-        minorityRange = generateMultiple(5, [0.0, .125, .25, .375, \
-            .50, .675, .75, .875, 1.0])
+    attitudeRange = [ATTITUDE_DELTA * x for x in range(-20, 21)]
+    indepRange = [INDEP_DELTA * x for x in range(0, 41)]
     policyScores = [-5, -2, -1, 0, 1, 2, 5]
 
     sensitivityTests = {
         "Attitude": [attitudeRange, None], 
-        "Support": [supportRange, None], 
-        "Discrimination": [discriminationRange, None], 
-        "Concealment": [concealRange, None], 
-        "Depression": [depressionRange, None],
-        "Minority_Percentage": [minorityRange, original.percentMinority],
+        "Support": [indepRange, None], 
+        "Discrimination": [indepRange, None], 
+        "Concealment": [indepRange, None], 
+        "Depression": [indepRange, None],
+        "Minority_Percentage": [indepRange, original.percentMinority],
         "Policy_Score": [policyScores, None]
     }
 

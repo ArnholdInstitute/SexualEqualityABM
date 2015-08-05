@@ -1,8 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: ASFNetwork.py                                               #
-# Description: Contains all the methods pertinent to modelling ASF  #
-# network (small world)                                             #
+# Description: Cythonized version of ASf Network class              #
 #####################################################################
 
 import sys

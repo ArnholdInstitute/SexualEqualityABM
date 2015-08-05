@@ -1,10 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: BaseAgent.py                                                #
-# Description: Object file containing all the methods modelling a   #
-# generic agent in the simulation. Agents comprise the individuals  #
-# of the simulation, of which the relation between depression and   #
-# prevalence of sexual minorities was the main takeaway             #
+# Description: Cythonized version of BaseAgent object               #
 #####################################################################
 
 import sys

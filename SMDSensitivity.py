@@ -455,19 +455,17 @@ def Sensitivity_impactTests(original, percentMinority,
 def Sensitivity_sensitivityTests(original):
     DEFAULT_VAL = 1.0
 
-    attitudeRange = [-1.0, -.75, -.5, -.25, 0.0, .25, .5, .75, 1.0]
-    supportRange, discriminationRange, concealRange, depressionRange,\
-        minorityRange = generateMultiple(5, [0.0, .125, .25, .375, \
-            .50, .675, .75, .875, 1.0])
+    attitudeRange = [ATTITUDE_DELTA * x for x in range(-20, 21)]
+    indepRange = [INDEP_DELTA * x for x in range(0, 41)]
     policyScores = [-5, -2, -1, 0, 1, 2, 5]
 
     sensitivityTests = {
         "Attitude": [attitudeRange, None], 
-        "Support": [supportRange, None], 
-        "Discrimination": [discriminationRange, None], 
-        "Concealment": [concealRange, None], 
-        "Depression": [depressionRange, None],
-        "Minority_Percentage": [minorityRange, original.percentMinority],
+        "Support": [indepRange, None], 
+        "Discrimination": [indepRange, None], 
+        "Concealment": [indepRange, None], 
+        "Depression": [indepRange, None],
+        "Minority_Percentage": [indepRange, original.percentMinority],
         "Policy_Score": [policyScores, None]
     }
 

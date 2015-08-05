@@ -1,10 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: Policy.py                                                   #
-# Description: Object file containing all the methods modelling the #
-# policies and their introduction into the network. Policies are    #
-# given through time updates in the simulation and affect the global#
-# sentiments toward sexual minorities                               #
+# Description: Cythonized version of Policy object                  #
 #####################################################################
 
 import sys

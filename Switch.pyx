@@ -1,8 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: Switch.py                                                   #
-# Description: Simulates a switch statement in Python (multiple if/ #
-# else branches). Note: source code was pulled from online source   #
+# Description: Cythonized version of Switch class                   #
 #####################################################################
 
 class switch(object):

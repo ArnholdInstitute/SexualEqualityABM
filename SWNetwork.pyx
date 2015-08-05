@@ -1,8 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: SWNetwork.py                                                #
-# Description: Contains all the methods pertinent to modelling SW   #
-# network (small world)                                             #
+# Description: Cythonized version of SW Network class               #
 #####################################################################
 
 import sys

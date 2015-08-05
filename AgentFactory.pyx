@@ -1,8 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: AgentFactory.py                                             #
-# Description: Object file for agent factory: used to produce the   #
-# agents present in the simulation (both minority and non)          #
+# Description: Cythonized version of Agent Factory object           #
 #####################################################################
 
 import sys

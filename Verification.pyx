@@ -1,9 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
-# File: Verification.py                                             #
-# Description: All methods related to performing verifications on   #
-# parameters used for initializing the different objects are written#
-# here, as they are equivalent across objects                       #
+# File: Verification.pyx                                            #
+# Description: Cythonized version of Verification class             #
 #####################################################################
 
 import sys

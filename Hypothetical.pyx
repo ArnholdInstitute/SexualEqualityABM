@@ -1,11 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: Hypothetical.py                                             #
-# Description: Contains all the hypothetical situations that were of#
-# interest to the case in study. We wished to investigate the       #
-# relative effectiveness of each of several routes to improve LGB   #
-# treatment/situation in the community, with the specifics of each  #
-# method given below                                                #
+# Description: Cythonized version of Hypothetical simulations       #
 #####################################################################
 
 import sys

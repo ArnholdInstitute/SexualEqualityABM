@@ -1,8 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
 # File: ERNetwork.py                                                #
-# Description: Contains all the methods pertinent to modelling ER   #
-# network (randomized construction)                                 #
+# Description: Cythonized version of ER Network class               #
 #####################################################################
 
 import sys

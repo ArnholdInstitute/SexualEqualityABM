@@ -1,9 +1,7 @@
 #####################################################################
 # Name: Yash Patel                                                  #
-# File: Agent.py                                                    #
-# Description: Object file containing minority and non-minority     #
-# agents (derived from BaseAgent class). Used to respectively model #
-# the sexual minorities and non-minorities of population in sim     #
+# File: Agent.pyx                                                   #
+# Description: Cythonized version of Agent object file              #
 #####################################################################
 
 import sys
@@ -22,20 +20,6 @@ try:
 except ImportError:
     raise ImportError("You must install NetworkX:\
     (http://networkx.lanl.gov/) for SE simulation")
-
-#####################################################################
-# Given a number, returns the signed square root of its magnitude   #
-# (i.e. 9 -> 3, -9 -> -3, 0 -> 0)                                   #
-#####################################################################
-def signedSquareRoot(x):
-    return np.sign(x) * abs(x) ** .5
-
-#####################################################################
-# Given a number, returns the signed square of its magnitude (i.e.  #
-# 3 -> 9, -3 -> -9, 0 -> 0)                                         #
-#####################################################################
-def signedSquare(x):
-    return np.sign(x) * abs(x) ** 2
 
 #####################################################################
 # A model for agents part of sexual minority                        #
