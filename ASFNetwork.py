@@ -34,7 +34,8 @@ class ASFNetwork:
     # produces an ASF network                                       #
     #################################################################
     def __init__(self, nodeCount, percentMinority, timeSpan, m_0 = 4, 
-            m = 4):
+            m = 4, attitude_0=None, support_0=None, discrimination_0=None, 
+            conceal_0=None, depression_0=None, policyScore_0=None):
         if not self.ASFNetwork_verifyNetwork(nodeCount, m_0, m):
             return None
 
@@ -48,7 +49,8 @@ class ASFNetwork:
         self.Agents = {}
         self.networkBase = NetworkBase("ASFNetwork", timeSpan)
         
-        self.ASFNetwork_createAgents()
+        self.ASFNetwork_createAgents(attitude_0, support_0, 
+            discrimination_0, conceal_0, depression_0, policyScore_0)
 
         # Sets the network base to have the agents just created and
         # the graph just generated and then choosing discriminating
@@ -87,7 +89,8 @@ class ASFNetwork:
     #################################################################
     # Creates the agents present in the simulation (ASF graph)      #
     #################################################################
-    def ASFNetwork_createAgents(self):
+    def ASFNetwork_createAgents(self, attitude_0, support_0, 
+            discrimination_0, conceal_0, depression_0, policyScore_0):
         # Creates baseline nodes (from m_0 specified)
         totalConnect = self.m_0
 
@@ -99,7 +102,9 @@ class ASFNetwork:
 
         for i in range(0, totalConnect):
             curAgent = self.agentFactory.\
-                AgentFactory_createAgent(self, i, self.percentMinority)
+                AgentFactory_createAgent(self, i, self.percentMinority,
+                    attitude_0, support_0,  discrimination_0, 
+                    conceal_0, depression_0, policyScore_0)
             self.Agents[curAgent.agentID] = curAgent
             self.G.add_node(curAgent.agentID)
         
@@ -110,7 +115,9 @@ class ASFNetwork:
         # Creates remainder of nodes (assigning them to agents)
         for i in range(totalConnect, self.nodeCount):
             curAgent = self.agentFactory.\
-                AgentFactory_createAgent(self, i, self.percentMinority)
+                AgentFactory_createAgent(self, i, self.percentMinority,
+                    attitude_0, support_0,  discrimination_0, 
+                    conceal_0, depression_0, policyScore_0)
             self.Agents[curAgent.agentID] = curAgent
             self.G.add_node(curAgent.agentID)
             curAgent.Agent_preferentiallyAttach(self, self.m)

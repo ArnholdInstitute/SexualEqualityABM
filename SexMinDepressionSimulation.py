@@ -62,18 +62,28 @@ class SMDSimulationModel:
         
     #################################################################
     # Based on the specified value of the network type, generates   #
-    # and sets the network accordingly                              #
+    # and sets the network accordingly. Sets the initial value of   #
+    # simulation to those specified in the parameters (attitude_0   #
+    # corresponds to initial value of attitude, etc...)             #
     #################################################################
-    def SMDModel_setNetwork(self):
+    def SMDModel_setNetwork(self, attitude_0=None, 
+        support_0=None, discrimination_0=None, conceal_0=None, 
+        depression_0=None, policyScore_0=None):
         if self.networkType == 'ER':
             self.network = ERNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 0.50)
+                self.percentMinority, self.timeSpan, 0.50, attitude_0, 
+                support_0, discrimination_0, conceal_0, 
+                depression_0, policyScore_0)
         elif self.networkType == 'SW':
             self.network = SWNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 10, 0.50)
+                self.percentMinority, self.timeSpan, 10, 0.50, attitude_0, 
+                support_0, discrimination_0, conceal_0, 
+                depression_0, policyScore_0)
         else:
             self.network = ASFNetwork(self.numAgents, 
-                self.percentMinority, self.timeSpan, 3, 4)
+                self.percentMinority, self.timeSpan, 3, 4, attitude_0, 
+                support_0, discrimination_0, conceal_0, 
+                depression_0, policyScore_0)
 
     #################################################################
     # Given parameters for initializing the simulation, ensures they#
@@ -249,7 +259,7 @@ class SMDSimulationModel:
     # (should be the case if not running sensitivity/hypotheticals) #
     # agents follow given default update behavior for the attribute #
     #################################################################
-    def SMDModel_runStreamlineSimulation(self, attitude=None, 
+    def SMDMOdel_runConstSimulation(self, attitude=None, 
         support=None, discrimination=None, conceal=None, 
         depression=None, enforcedPolicy=None):
         # Converts from years to "ticks" (represent 2 week span)    
@@ -266,7 +276,33 @@ class SMDSimulationModel:
                 discrimination, conceal, depression, enforcedPolicy)
             
             self.network.Agents = self.network.networkBase.Agents
+          
+    #################################################################
+    # Runs simulation over the desired timespan without producing   #
+    # visible output: used for sensitivity analysis. Each of the    #
+    # parameters allows manual sets for the initial value of the    #
+    # parameter in the simulation. Simulation then runs as normal.  #
+    # If none is given, agents follow given default update behavior #
+    # for the attribute                                             #
+    #################################################################
+    def SMDModel_runStreamlineSimulation(self, attitude_0=None, 
+        support_0=None, discrimination_0=None, conceal_0=None, 
+        depression_0=None, policyScore_0=None):
+        # Converts from years to "ticks" (represent 2 week span)    
+        numTicks = self.timeSpan * 26
+        self.SMDModel_setNetwork(attitude_0, support_0, discrimination_0, 
+            conceal_0, depression_0, policyScore_0)
+
+        for i in range(0, numTicks):
+            # Updates the agents in the network base and copies those
+            # to the network
+            self.network.networkBase.NetworkBase_timeStep(i, 
+                self.supportDepressionImpact, self.concealDiscriminateImpact, 
+                self.discriminateConcealImpact, self.discriminateDepressionImpact, 
+                self.concealDepressionImpact)
             
+            self.network.Agents = self.network.networkBase.Agents
+
 #####################################################################
 # Given the paramters of the simulation (upon being prompted on)    #
 # command line, runs simulation, outputting a CSV with each time    #

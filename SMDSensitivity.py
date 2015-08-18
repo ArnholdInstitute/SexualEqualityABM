@@ -454,9 +454,11 @@ def Sensitivity_impactTests(original, percentMinority,
 #####################################################################
 def Sensitivity_sensitivityTests(original):
     DEFAULT_VAL = 1.0
+    ATTITUDE_DELTA = .05
+    INDEP_DELTA = .025
 
-    attitudeRange = [ATTITUDE_DELTA * x for x in range(-20, 21)]
-    indepRange = [INDEP_DELTA * x for x in range(0, 41)]
+    attitudeRange = [ATTITUDE_DELTA * x for x in range(-5, 5)]
+    indepRange = [INDEP_DELTA * x for x in range(0, 5)]
     policyScores = [-5, -2, -1, 0, 1, 2, 5]
 
     sensitivityTests = {

@@ -33,7 +33,9 @@ class SWNetwork:
     # other nodes (defaulted to .0), and the number of neighbors to #
     # which each node is to be connected (k) initializes SW Network #
     #################################################################
-    def __init__(self, nodeCount, percentMinority, timeSpan, k=4, p = 0.0):
+    def __init__(self, nodeCount, percentMinority, timeSpan, k=4, p = 0.0,
+            attitude_0=None, support_0=None,  discrimination_0=None, 
+            conceal_0=None, depression_0=None, policyScore_0=None):
         if not self.SWNetwork_verifyNetwork(nodeCount, k, p):
             return None
 
@@ -47,7 +49,8 @@ class SWNetwork:
         self.Agents = {}
         self.networkBase = NetworkBase("SWNetwork", timeSpan)
 
-        self.SWNetwork_createAgents()
+        self.SWNetwork_createAgents(attitude_0, support_0, 
+            discrimination_0, conceal_0, depression_0, policyScore_0)
 
         # Sets the network base to have the agents just created and
         # the graph just generated and then choosing discriminating
@@ -82,7 +85,8 @@ class SWNetwork:
     #################################################################
     # Creates the agents present in the simulation (SW graph)       #
     #################################################################
-    def SWNetwork_createAgents(self):
+    def SWNetwork_createAgents(self, attitude_0, support_0, 
+            discrimination_0, conceal_0, depression_0, policyScore_0):
         self.G = nx.generators.random_graphs.watts_strogatz_graph(
                     n = self.nodeCount,
                     k = self.k,
@@ -93,5 +97,7 @@ class SWNetwork:
 
         for i in range(0, self.nodeCount):    
             curAgent = self.agentFactory.\
-                AgentFactory_createAgent(self, i, self.percentMinority)
+                AgentFactory_createAgent(self, i, self.percentMinority,
+                    attitude_0, support_0, discrimination_0, 
+                    conceal_0, depression_0, policyScore_0)
             self.Agents[curAgent.agentID] = curAgent

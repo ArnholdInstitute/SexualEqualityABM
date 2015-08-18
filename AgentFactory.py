@@ -27,36 +27,63 @@ except ImportError:
 # the setup of the simulation                                       #
 #####################################################################
 class AgentFactory(object):
-    def AgentFactory_createAgent(network, agentID, percentMinority):
-        # Constant values (can change for variation in simulation)
-        BASELINE_ATTITUDE = .75
+    def AgentFactory_createAgent(network, agentID, percentMinority,
+        attitude_0=None, support_0=None, discrimination_0=None, 
+        conceal_0=None, depression_0=None, policyScore_0=None):
 
-        BASELINE_DISCRIMINATION = .025
+        # Structure that has, for each key, the associated passed in 
+        # initial value and the default initial value (if None passed).
+        # Conceal's default value is specified as None since its value is
+        # determined as a function of the other specified ones (default)
+        SCALING_FACTOR = .025 * (2.0 - percentMinority)
+        initialVals = {
+            "attitude": [attitude_0, (random.random() - .5) * .75],
+            "support": [support_0, random.random() * .75],
+            "discrimination": [discrimination_0, random.random() * .025],
+            "conceal": [conceal_0, lambda: 1/(1 + math.exp(discrimination 
+                - support)) * SCALING_FACTOR],
+            "depression": [depression_0, None],
+            "policyScore": [policyScore_0, 0]
+        }
+
+        DEFAULT_INDEX = 2
+        for value in initialVals:
+            givenInit = initialVals[value][0]
+            defaultInit = initialVals[value][1]
+            if givenInit is not None:
+                initialVals[value].append(givenInit)
+            else: 
+                initialVals[value].append(defaultInit)
+
+        attitude = initialVals["attitude"][DEFAULT_INDEX]
+        support = initialVals["support"][DEFAULT_INDEX]
+        discrimination = initialVals["discrimination"][DEFAULT_INDEX]
+        probConceal = initialVals["conceal"][DEFAULT_INDEX]
+        # Used in the case that probConceal has default lambda behavior
+        if hasattr(probConceal, '__call__'): 
+            probConceal = probConceal()
+        currentDepression = initialVals["depression"][DEFAULT_INDEX]
+        policyScore = initialVals["policyScore"][DEFAULT_INDEX]
+        
         NO_DISCRIMINATION = 0.0
+        NO_CONCEALMENT = 0.0
 
-        BASELINE_SUPPORT = .75
         FULL_SUPPORT = 1.0
-
         FULL_ACCEPTANCE = 1.0
-
-        UNCONCEAL_DEPRESS_PROB = .0035
-        CONCEAL_DEPRESS_PROB = .0050
         
         CENTER_SES_RAND = 3
         BASELINE_SES = .1
 
-        CONST = 3.0
+        PROB_DEPRESS_MULTIPLIER = 3.0
+        CONCEAL_DEPRESS_MULT = 2.0
+        UNCONCEAL_DEPRESS_PROB = .0035
 
-        rand = random.random()
-        isMinority = (rand <= percentMinority)
-
+        isMinority = (random.random() < percentMinority)
         currentSES = np.random.poisson(CENTER_SES_RAND)/10 + BASELINE_SES
 
         # Normalizes SES to 1.0 scale
-        if currentSES > 1.0:
-            currentSES = 1.0
-        elif currentSES < 0.0:
-            currentSES = 0.0
+        if currentSES > 1.0: currentSES = 1.0
+        elif currentSES < 0.0: currentSES = 0.0
 
         # No discrimination imposed upon those not of minority.
         # Attitude for those of minority is fully accepting
@@ -64,49 +91,37 @@ class AgentFactory(object):
         # fully present for those not of minority status
         if not isMinority:
             discrimination = NO_DISCRIMINATION
-            minorityAttitude = (random.random() - .5) * BASELINE_ATTITUDE
             support = FULL_SUPPORT
         else:
-            discrimination = random.random() * BASELINE_DISCRIMINATION
-            minorityAttitude = FULL_ACCEPTANCE
-            support = random.random() * BASELINE_SUPPORT
+            attitude = FULL_ACCEPTANCE
 
-        SCALING_FACTOR = .025 * (2.0 - percentMinority)
-        if not isMinority:
-            probConceal = 0
-        else:
-            discrepancy = discrimination - support
-            probConceal = 1/(1 + math.exp(discrepancy)) * SCALING_FACTOR 
+        if not isMinority: 
+            probConceal = NO_CONCEALMENT
 
         # For simplicity in network calculations, assumed to be false
         # if the person is not of sexual minority
-        rand = random.random()
-        isConcealed = rand < probConceal and isMinority
+        isConcealed = random.random() < probConceal and isMinority
 
         if not isMinority:
-            const = (1 - CONST * currentSES)/8
-            if const < 0.0:
-                const = 0.0
-        else:
-            const = UNCONCEAL_DEPRESS_PROB
-            if isConcealed:
-                const = CONCEAL_DEPRESS_PROB
+            probDepress = (1 - PROB_DEPRESS_MULTIPLIER * currentSES)/8
+            if probDepress < 0.0: probDepress = 0.0
+            currentDepression = random.random() * probDepress
+        elif currentDepression is None:
+            probDepress = UNCONCEAL_DEPRESS_PROB
+            if isConcealed: probDepress *= CONCEAL_DEPRESS_MULT
 
             # More likely to start depressed if less minority
-            const *= (2.0 - percentMinority)
+            probDepress *= (2.0 - percentMinority)
+            currentDepression = random.random() * probDepress
 
-        rand = random.random()
-        currentDepression = rand * const
-
-        rand = random.random()
-        isDepressed = rand < currentDepression
+        isDepressed = random.random() < currentDepression
 
         if isMinority:
-            agent = MinorityAgent(currentSES, minorityAttitude, isMinority,
+            agent = MinorityAgent(currentSES, attitude, isMinority,
                 discrimination, support, isConcealed, probConceal, 
-                currentDepression, isDepressed, network, agentID)
+                currentDepression, isDepressed, network, policyScore, agentID)
         else: 
-            agent = NonMinorityAgent(currentSES, minorityAttitude, isMinority,
+            agent = NonMinorityAgent(currentSES, attitude, isMinority,
                 discrimination, support, isConcealed, probConceal, 
-                currentDepression, isDepressed, network, agentID)
+                currentDepression, isDepressed, network, policyScore, agentID)
         return agent

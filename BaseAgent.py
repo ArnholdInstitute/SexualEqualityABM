@@ -45,7 +45,7 @@ class BaseAgent:
     #################################################################
     def __init__(self, currentSES, minorityAttitude, isMinority,
         discrimination, support, isConcealed, probConceal, 
-        currentDepression, isDepressed, network, agentID):
+        currentDepression, isDepressed, network, policyScore, agentID):
         if not self.Agent_verifyAgent(currentSES, minorityAttitude, 
             isMinority, discrimination, support, isConcealed, 
             probConceal, currentDepression, isDepressed, network, agentID):
@@ -76,6 +76,7 @@ class BaseAgent:
             self.depressStart = 0
 
         self.network = network.networkBase
+        self.network.policyScore = policyScore
         self.agentID = agentID
 
         # Used to determine whether or not agents have been exposed to

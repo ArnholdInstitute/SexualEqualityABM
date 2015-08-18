@@ -138,7 +138,7 @@ class MinorityAgent(BaseAgent):
         const = 1.00 + int(att > .75) * ADDITIONAL_BOOST
         support = BASELINE_SUPPORT
 
-        support += localConnect ** .5 + att * const
+        support += localConnect + att * const
         support *= (1 - self.probConceal) ** 2
         self.support = self.Agent_normalizeParam(support)
 
@@ -206,7 +206,7 @@ class MinorityAgent(BaseAgent):
         TIME_THRESHOLD = 5
 
         numPolicies = self.network.policyScore
-        probConceal = (self.discrimination ** .75 * discriminateConcealImpact   \
+        probConceal = (self.discrimination * discriminateConcealImpact   \
             - self.support ** 1.5 * supportConcealImpact)
         probConceal -= (numPolicies/self.network.policyCap) ** 3
         probConceal *= SCALE_FACTOR 
@@ -264,7 +264,7 @@ class MinorityAgent(BaseAgent):
 
         numPolicies = self.network.policyScore
 
-        probIncrease = self.discrimination ** .5 * discriminateDepressionImpact
+        probIncrease = self.discrimination * discriminateDepressionImpact
         probIncrease -= self.support ** 2 * supportDepressionImpact
         probIncrease -= (numPolicies/self.network.policyCap) ** 3
         probIncrease -= self.network.NetworkBase_getNetworkAttitude()
