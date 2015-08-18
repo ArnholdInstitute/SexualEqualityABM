@@ -24,20 +24,6 @@ except ImportError:
     (http://networkx.lanl.gov/) for SE simulation")
 
 #####################################################################
-# Given a number, returns the signed square root of its magnitude   #
-# (i.e. 9 -> 3, -9 -> -3, 0 -> 0)                                   #
-#####################################################################
-def signedSquareRoot(x):
-    return np.sign(x) * abs(x) ** .5
-
-#####################################################################
-# Given a number, returns the signed square of its magnitude (i.e.  #
-# 3 -> 9, -3 -> -9, 0 -> 0)                                         #
-#####################################################################
-def signedSquare(x):
-    return np.sign(x) * abs(x) ** 2
-
-#####################################################################
 # A model for agents part of sexual minority                        #
 #####################################################################
 class NonMinorityAgent(BaseAgent):
