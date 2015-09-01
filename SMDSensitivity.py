@@ -453,16 +453,19 @@ def Sensitivity_impactTests(original, percentMinority,
 # policies, discrimination) on the final outcomes/results           #
 #####################################################################
 def Sensitivity_sensitivityTests(original):
-    DEFAULT_VAL = 1.0
-    ATTITUDE_DELTA = .05
-    INDEP_DELTA = .025
+    NUM_TRIALS = 100
+    INDEP_DELTA = 1.0/NUM_TRIALS
+    ATTITUDE_DELTA = INDEP_DELTA * 2
 
-    attitudeRange = [ATTITUDE_DELTA * x for x in range(-5, 5)]
-    indepRange = [INDEP_DELTA * x for x in range(0, 5)]
-    policyScores = [-5, -2, -1, 0, 1, 2, 5]
+    attitude_policy_Range = [ATTITUDE_DELTA * x for x in range(
+        -NUM_TRIALS, NUM_TRIALS + 1)]
+    indepRange = [INDEP_DELTA * x for x in range(0, NUM_TRIALS)]
+
+    policyCap = original.network.networkBase.policyCap
+    policyScores = [policyCap * polMult for polMult in attitude_policy_Range]
 
     sensitivityTests = {
-        "Attitude": [attitudeRange, None], 
+        "Attitude": [attitude_policy_Range, None], 
         "Support": [indepRange, None], 
         "Discrimination": [indepRange, None], 
         "Concealment": [indepRange, None], 
@@ -472,6 +475,8 @@ def Sensitivity_sensitivityTests(original):
     }
 
     finalResults = []
+    dontDo = ["Attitude", "Minority_Percentage", "Policy_Score"]
+
     for test in sensitivityTests:
         print("Performing {} sensitivity test".format(test))
         curRange = sensitivityTests[test]

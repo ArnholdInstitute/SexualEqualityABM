@@ -264,7 +264,6 @@ class SMDSimulationModel:
         depression=None, enforcedPolicy=None):
         # Converts from years to "ticks" (represent 2 week span)    
         numTicks = self.timeSpan * 26
-        self.SMDModel_setNetwork()
 
         for i in range(0, numTicks):
             # Updates the agents in the network base and copies those
@@ -326,23 +325,23 @@ def main():
     networkType = "ER"
     timeSpan = 5
     numAgents = 250
-    percentMinority = .15
+    percentMinority = .10   
 
     # The following denote "impact constants" for which we have adopted 
     # the naming convention of firstSecondImpact to denote the impact of
     # first on second
-    supportDepressionImpact = .75
-    concealDiscriminateImpact = 5.0
-    discriminateConcealImpact = 2.5 
-    discriminateDepressionImpact = 2.25
-    concealDepressionImpact = 7.5
+    supportDepressionImpact = 4.75
+    concealDiscriminateImpact = 1.25
+    discriminateConcealImpact = 1.025
+    discriminateDepressionImpact = .65
+    concealDepressionImpact = 1.075
 
     resultsFile = "Results\\TimeResults\\results.csv"
     simulationModel = SMDSimulationModel(networkType, timeSpan, numAgents, 
         percentMinority, supportDepressionImpact, concealDiscriminateImpact, 
         discriminateConcealImpact, discriminateDepressionImpact, 
         concealDepressionImpact)
-    original = deepcopy(simulationModel)
+    original = deepcopy(simulationModel)    
     
     if onlyStreamlined: 
         simulationModel.SMDModel_runStreamlineSimulation()

@@ -256,14 +256,14 @@ class BaseAgent:
         # Note that an ordered dict is used to keep the desired exec order
         updateSteps = OrderedDict([
             ("attitude", [not setAttitude, self.Agent_updateAttitude, ()]),
-            ("support", [not setSupport, self.Agent_updateSupport, ()]),
             ("discrimination", [not setDiscrimination, \
                 self.Agent_updateDiscrimination, (time, concealDiscriminateImpact)]),
             ("conceal", [not setConceal, self.Agent_updateConcealment,   \
                 (discriminateConcealImpact, supportConcealImpact, time)]),
             ("depress", [not setDepression, self.Agent_updateDepression, \
                 (concealDepressionImpact, supportDepressionImpact, \
-                discriminateDepressionImpact, time)])
+                discriminateDepressionImpact, time)]),
+            ("support", [not setSupport, self.Agent_updateSupport, ()])
         ])
 
         for step in updateSteps:
